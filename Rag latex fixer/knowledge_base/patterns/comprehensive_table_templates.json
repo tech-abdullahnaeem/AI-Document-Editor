@@ -1,0 +1,236 @@
+{
+  "professional_table_types": {
+    "experimental_results": {
+      "structure": {
+        "header_row": "method/approach names",
+        "first_column": "datasets or metrics",
+        "data_cells": "numerical results with standard deviations"
+      },
+      "formatting": {
+        "alignment": "r for numbers, l for text, c for headers",
+        "borders": "booktabs style (toprule, midrule, bottomrule)",
+        "spacing": "\\\\arraystretch{1.2}",
+        "number_format": "consistent decimal places"
+      },
+      "best_practices": [
+        "Bold best results",
+        "Use ± for standard deviations",
+        "Include statistical significance markers",
+        "Group related columns"
+      ],
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Experimental Results}\\n\\\\begin{tabular}{lrrr}\\n\\\\toprule\\nMethod & Dataset A & Dataset B & Dataset C \\\\\\\\\\n\\\\midrule\\nBaseline & 85.2±1.1 & 76.8±0.9 & 89.3±1.5 \\\\\\\\\\nOur Method & \\\\textbf{87.9±0.8} & \\\\textbf{79.2±1.2} & \\\\textbf{91.1±1.0} \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:results}\\n\\\\end{table}"
+    },
+    "comparison_table": {
+      "structure": {
+        "first_column": "items being compared",
+        "subsequent_columns": "comparison criteria",
+        "cells": "brief descriptions or yes/no/ratings"
+      },
+      "formatting": {
+        "alignment": "l for descriptions, c for yes/no, r for ratings",
+        "use_symbols": "✓, ✗, ~, ●, ○",
+        "grouping": "\\\\midrule between categories"
+      },
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Method Comparison}\\n\\\\begin{tabular}{lccc}\\n\\\\toprule\\nMethod & Accuracy & Speed & Complexity \\\\\\\\\\n\\\\midrule\\nMethod A & High & Fast & Low \\\\\\\\\\nMethod B & Medium & Medium & High \\\\\\\\\\nOur Method & High & Fast & Medium \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:comparison}\\n\\\\end{table}"
+    },
+    "parameter_table": {
+      "structure": {
+        "parameter_column": "parameter names",
+        "value_column": "parameter values", 
+        "description_column": "brief descriptions"
+      },
+      "formatting": {
+        "alignment": "lrl or lrp{4cm}",
+        "code_formatting": "\\\\texttt{} for parameter names"
+      },
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Model Parameters}\\n\\\\begin{tabular}{lrp{5cm}}\\n\\\\toprule\\nParameter & Value & Description \\\\\\\\\\n\\\\midrule\\n\\\\texttt{learning\\\\_rate} & 0.001 & Initial learning rate for optimization \\\\\\\\\\n\\\\texttt{batch\\\\_size} & 32 & Number of samples per training batch \\\\\\\\\\n\\\\texttt{epochs} & 100 & Maximum number of training epochs \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:parameters}\\n\\\\end{table}"
+    },
+    "dataset_statistics": {
+      "structure": {
+        "dataset_column": "dataset names",
+        "size_columns": "train/validation/test splits",
+        "feature_columns": "number of features, classes, etc."
+      },
+      "formatting": {
+        "alignment": "lrrr or lrrrr",
+        "number_formatting": "use \\\\num{} for large numbers"
+      },
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Dataset Statistics}\\n\\\\begin{tabular}{lrrrr}\\n\\\\toprule\\nDataset & Train & Val & Test & Classes \\\\\\\\\\n\\\\midrule\\nCIFAR-10 & 40,000 & 10,000 & 10,000 & 10 \\\\\\\\\\nImageNet & 1.2M & 50,000 & 100,000 & 1,000 \\\\\\\\\\nCustom & 5,000 & 1,000 & 2,000 & 5 \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:datasets}\\n\\\\end{table}"
+    },
+    "ablation_study": {
+      "structure": {
+        "component_column": "components being ablated",
+        "result_columns": "performance metrics",
+        "difference_column": "change from baseline"
+      },
+      "formatting": {
+        "alignment": "lrrr",
+        "highlight_baseline": "bold or different formatting",
+        "show_differences": "use + and - signs"
+      },
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Ablation Study Results}\\n\\\\begin{tabular}{lrrr}\\n\\\\toprule\\nConfiguration & Accuracy & F1-Score & Δ Acc \\\\\\\\\\n\\\\midrule\\nFull Model & \\\\textbf{87.9} & \\\\textbf{85.3} & - \\\\\\\\\\nw/o Component A & 85.2 & 82.1 & -2.7 \\\\\\\\\\nw/o Component B & 83.8 & 80.9 & -4.1 \\\\\\\\\\nw/o Both & 81.3 & 78.5 & -6.6 \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:ablation}\\n\\\\end{table}"
+    },
+    "runtime_performance": {
+      "structure": {
+        "method_column": "algorithm/method names",
+        "time_columns": "training time, inference time",
+        "memory_column": "memory usage"
+      },
+      "formatting": {
+        "alignment": "lrrr",
+        "units": "consistent units (ms, s, MB, GB)",
+        "scientific_notation": "for very large or small numbers"
+      },
+      "example": "\\\\begin{table}[htbp]\\n\\\\centering\\n\\\\caption{Runtime Performance Comparison}\\n\\\\begin{tabular}{lrrr}\\n\\\\toprule\\nMethod & Training (h) & Inference (ms) & Memory (GB) \\\\\\\\\\n\\\\midrule\\nBaseline & 12.5 & 45.2 & 8.3 \\\\\\\\\\nOptimized & 8.1 & 23.7 & 5.9 \\\\\\\\\\nOur Method & \\\\textbf{6.3} & \\\\textbf{18.4} & \\\\textbf{4.2} \\\\\\\\\\n\\\\bottomrule\\n\\\\end{tabular}\\n\\\\label{tab:performance}\\n\\\\end{table}"
+    }
+  },
+  "table_formatting_standards": {
+    "booktabs_rules": {
+      "top_border": "\\\\toprule",
+      "header_separator": "\\\\midrule", 
+      "bottom_border": "\\\\bottomrule",
+      "section_separator": "\\\\midrule",
+      "no_vertical_lines": "avoid | in column specification"
+    },
+    "column_specifications": {
+      "left_aligned": "l - for text and labels",
+      "center_aligned": "c - for headers and short entries",
+      "right_aligned": "r - for numbers",
+      "paragraph": "p{width} - for long text",
+      "math_mode": ">{$}c<{$} - for math in column",
+      "fixed_width": "p{3cm}, m{3cm}, b{3cm}"
+    },
+    "number_formatting": {
+      "decimal_alignment": "use dcolumn package or S columns",
+      "significant_digits": "consistent across all numbers",
+      "units": "use siunitx package for proper unit formatting",
+      "large_numbers": "use comma separators or scientific notation",
+      "uncertainties": "format as 12.3±0.5"
+    },
+    "text_formatting": {
+      "bold_best": "\\\\textbf{} for best results",
+      "italic_emphasis": "\\\\textit{} for emphasis",
+      "code_style": "\\\\texttt{} for code/technical terms",
+      "small_text": "\\\\footnotesize or \\\\tiny for less important info"
+    }
+  },
+  "common_table_fixes": {
+    "column_alignment_optimization": {
+      "issue": "poor column alignment",
+      "detection": "analyze cell content types",
+      "fixes": [
+        "numbers → right aligned (r)",
+        "text → left aligned (l)", 
+        "headers → center aligned (c)",
+        "mixed content → paragraph width (p{width})"
+      ]
+    },
+    "professional_borders": {
+      "issue": "amateur table appearance", 
+      "detection": "presence of \\\\hline and vertical lines",
+      "fixes": [
+        "replace \\\\hline with booktabs rules",
+        "remove vertical lines from column spec",
+        "add proper spacing with \\\\arraystretch"
+      ]
+    },
+    "caption_and_labeling": {
+      "issue": "missing or poor captions/labels",
+      "fixes": [
+        "add descriptive caption above table",
+        "include \\\\label{tab:meaningful-name}",
+        "ensure caption explains table content"
+      ]
+    },
+    "spacing_improvements": {
+      "issue": "cramped table appearance",
+      "fixes": [
+        "\\\\arraystretch{1.2} for row spacing",
+        "proper space around & separators",
+        "consistent spacing in numbers"
+      ]
+    }
+  },
+  "table_packages": {
+    "booktabs": {
+      "purpose": "professional table borders",
+      "commands": ["\\\\toprule", "\\\\midrule", "\\\\bottomrule", "\\\\cmidrule"],
+      "essential": true
+    },
+    "array": {
+      "purpose": "enhanced column specifications",
+      "features": [">{cmd}", "<{cmd}", "new column types"],
+      "useful": true
+    },
+    "multirow": {
+      "purpose": "cells spanning multiple rows",
+      "command": "\\\\multirow{rows}{width}{content}",
+      "common": true
+    },
+    "longtable": {
+      "purpose": "tables spanning multiple pages",
+      "use_case": "very long tables",
+      "commands": ["\\\\endfirsthead", "\\\\endhead", "\\\\endfoot", "\\\\endlastfoot"]
+    },
+    "tabularx": {
+      "purpose": "automatic column width calculation",
+      "use_case": "tables with fixed total width",
+      "column_type": "X for expandable columns"
+    },
+    "dcolumn": {
+      "purpose": "decimal alignment in columns",
+      "column_type": "D{input}{output}{decimal_places}",
+      "alternative": "siunitx S columns"
+    },
+    "rotating": {
+      "purpose": "rotated tables and table elements",
+      "commands": ["\\\\sidewaystable", "\\\\rotatebox"],
+      "use_case": "wide tables"
+    }
+  },
+  "table_best_practices": {
+    "design_principles": [
+      "Keep it simple and clean",
+      "Use consistent formatting throughout",
+      "Align numbers by decimal point",
+      "Group related information",
+      "Use whitespace effectively",
+      "Avoid unnecessary borders"
+    ],
+    "content_guidelines": [
+      "Round numbers to appropriate precision",
+      "Include units in headers or consistently in cells",
+      "Order rows and columns logically",
+      "Highlight key findings appropriately",
+      "Include statistical significance when relevant"
+    ],
+    "accessibility": [
+      "Provide descriptive captions",
+      "Use sufficient color contrast",
+      "Consider alternative text for complex tables",
+      "Structure tables logically for screen readers"
+    ]
+  },
+  "specialized_table_types": {
+    "confusion_matrix": {
+      "structure": "predicted vs actual classifications",
+      "formatting": "square grid with totals",
+      "highlighting": "diagonal elements (correct predictions)"
+    },
+    "survey_results": {
+      "structure": "questions vs response categories",  
+      "formatting": "percentages or counts",
+      "visualization": "consider heatmap-style coloring"
+    },
+    "financial_data": {
+      "structure": "time periods vs financial metrics",
+      "formatting": "currency symbols, proper alignment",
+      "highlighting": "positive/negative values"
+    },
+    "system_specifications": {
+      "structure": "component vs specification",
+      "formatting": "technical terminology, units",
+      "organization": "logical hardware/software grouping"
+    }
+  }
+}

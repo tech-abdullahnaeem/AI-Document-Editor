@@ -1,0 +1,329 @@
+{
+  "equation_environments": {
+    "inline_math": {
+      "delimiters": ["$...$", "\\\\(...\\\\)"],
+      "use_cases": [
+        "variables in running text",
+        "simple expressions",
+        "single symbols",
+        "short formulas"
+      ],
+      "examples": [
+        "The variable $x$ represents the input.",
+        "We set $\\\\alpha = 0.01$ for the learning rate.",
+        "The function $f(x) = x^2 + 1$ is continuous."
+      ],
+      "best_practices": [
+        "Use for simple expressions only",
+        "Avoid breaking across lines",
+        "Keep consistent with text flow"
+      ]
+    },
+    "display_math": {
+      "environments": {
+        "equation": {
+          "purpose": "single numbered equation",
+          "syntax": "\\\\begin{equation}...\\\\end{equation}",
+          "numbering": "automatic",
+          "use_case": "important standalone equations"
+        },
+        "equation*": {
+          "purpose": "single unnumbered equation",
+          "syntax": "\\\\begin{equation*}...\\\\end{equation*}",
+          "numbering": "none",
+          "use_case": "display math without reference"
+        },
+        "align": {
+          "purpose": "multiple aligned equations",
+          "syntax": "\\\\begin{align}...\\\\end{align}",
+          "alignment": "use & to align at specific points",
+          "line_breaks": "use \\\\\\\\ for new lines",
+          "use_case": "step-by-step derivations"
+        },
+        "align*": {
+          "purpose": "unnumbered aligned equations",
+          "syntax": "\\\\begin{align*}...\\\\end{align*}",
+          "numbering": "none",
+          "use_case": "aligned equations without references"
+        },
+        "gather": {
+          "purpose": "multiple centered equations",
+          "syntax": "\\\\begin{gather}...\\\\end{gather}",
+          "alignment": "centered",
+          "use_case": "related equations without alignment"
+        },
+        "multline": {
+          "purpose": "single equation on multiple lines",
+          "syntax": "\\\\begin{multline}...\\\\end{multline}",
+          "alignment": "first line left, last line right, middle centered",
+          "use_case": "long equations that don't fit on one line"
+        },
+        "split": {
+          "purpose": "split single equation (inside equation environment)",
+          "syntax": "\\\\begin{equation}\\\\begin{split}...\\\\end{split}\\\\end{equation}",
+          "numbering": "single number for entire equation",
+          "use_case": "breaking long equation with single reference"
+        }
+      }
+    },
+    "matrix_environments": {
+      "matrix": {
+        "purpose": "basic matrix",
+        "syntax": "\\\\begin{matrix}...\\\\end{matrix}",
+        "delimiters": "none",
+        "use_case": "when you want to add custom delimiters"
+      },
+      "pmatrix": {
+        "purpose": "matrix with parentheses",
+        "syntax": "\\\\begin{pmatrix}...\\\\end{pmatrix}",
+        "delimiters": "( )",
+        "use_case": "most common matrix type"
+      },
+      "bmatrix": {
+        "purpose": "matrix with brackets",
+        "syntax": "\\\\begin{bmatrix}...\\\\end{bmatrix}",
+        "delimiters": "[ ]",
+        "use_case": "arrays, determinants"
+      },
+      "Bmatrix": {
+        "purpose": "matrix with braces",
+        "syntax": "\\\\begin{Bmatrix}...\\\\end{Bmatrix}",
+        "delimiters": "{ }",
+        "use_case": "sets, special matrices"
+      },
+      "vmatrix": {
+        "purpose": "matrix with vertical bars (determinant)",
+        "syntax": "\\\\begin{vmatrix}...\\\\end{vmatrix}",
+        "delimiters": "| |",
+        "use_case": "determinants"
+      },
+      "Vmatrix": {
+        "purpose": "matrix with double vertical bars",
+        "syntax": "\\\\begin{Vmatrix}...\\\\end{Vmatrix}",
+        "delimiters": "|| ||",
+        "use_case": "norms, special determinants"
+      }
+    }
+  },
+  "mathematical_notation": {
+    "variables_and_constants": {
+      "scalars": {
+        "convention": "lowercase italic letters",
+        "examples": ["$a$", "$x$", "$\\\\alpha$", "$\\\\lambda$"],
+        "special_scalars": {
+          "imaginary_unit": "$i$ or $j$",
+          "euler_number": "$e$",
+          "pi": "$\\\\pi$",
+          "infinity": "$\\\\infty$"
+        }
+      },
+      "vectors": {
+        "convention": "lowercase bold or arrow notation",
+        "bold_style": "$\\\\mathbf{v}$, $\\\\mathbf{x}$",
+        "arrow_style": "$\\\\vec{v}$, $\\\\vec{x}$",
+        "components": "$v_1, v_2, \\\\ldots, v_n$ or $x_i$"
+      },
+      "matrices": {
+        "convention": "uppercase bold letters",
+        "examples": ["$\\\\mathbf{A}$", "$\\\\mathbf{X}$", "$\\\\mathbf{W}$"],
+        "elements": "$a_{ij}$ or $A_{ij}$",
+        "special_matrices": {
+          "identity": "$\\\\mathbf{I}$",
+          "zero": "$\\\\mathbf{0}$",
+          "transpose": "$\\\\mathbf{A}^T$",
+          "inverse": "$\\\\mathbf{A}^{-1}$"
+        }
+      },
+      "sets": {
+        "convention": "uppercase calligraphic or blackboard bold",
+        "calligraphic": "$\\\\mathcal{S}$, $\\\\mathcal{X}$",
+        "blackboard": "$\\\\mathbb{R}$, $\\\\mathbb{C}$, $\\\\mathbb{N}$",
+        "common_sets": {
+          "real_numbers": "$\\\\mathbb{R}$",
+          "complex_numbers": "$\\\\mathbb{C}$",
+          "integers": "$\\\\mathbb{Z}$",
+          "natural_numbers": "$\\\\mathbb{N}$",
+          "rationals": "$\\\\mathbb{Q}$"
+        }
+      },
+      "functions": {
+        "convention": "italic letters or special notation",
+        "examples": ["$f(x)$", "$g(\\\\mathbf{x})$", "$\\\\phi(t)$"],
+        "special_functions": {
+          "exponential": "$\\\\exp(x)$",
+          "logarithm": "$\\\\log(x)$, $\\\\ln(x)$",
+          "trigonometric": "$\\\\sin(x)$, $\\\\cos(x)$, $\\\\tan(x)$",
+          "probability": "$P(X)$, $p(x)$"
+        }
+      }
+    },
+    "operators_and_symbols": {
+      "arithmetic": {
+        "basic": ["+", "-", "\\\\cdot", "\\\\times", "/", "\\\\div"],
+        "advanced": ["\\\\pm", "\\\\mp", "\\\\oplus", "\\\\otimes"]
+      },
+      "comparison": {
+        "basic": ["=", "\\\\neq", "<", ">", "\\\\leq", "\\\\geq"],
+        "advanced": ["\\\\equiv", "\\\\approx", "\\\\sim", "\\\\propto"]
+      },
+      "set_operations": {
+        "membership": ["\\\\in", "\\\\notin", "\\\\ni"],
+        "inclusion": ["\\\\subset", "\\\\supset", "\\\\subseteq", "\\\\supseteq"],
+        "operations": ["\\\\cup", "\\\\cap", "\\\\setminus", "\\\\emptyset"]
+      },
+      "logic": {
+        "connectives": ["\\\\land", "\\\\lor", "\\\\neg", "\\\\implies", "\\\\iff"],
+        "quantifiers": ["\\\\forall", "\\\\exists", "\\\\nexists"]
+      },
+      "calculus": {
+        "derivatives": ["\\\\frac{d}{dx}", "\\\\frac{\\\\partial}{\\\\partial x}", "\\\\nabla"],
+        "integrals": ["\\\\int", "\\\\iint", "\\\\iiint", "\\\\oint"],
+        "limits": ["\\\\lim", "\\\\limsup", "\\\\liminf"],
+        "sums_products": ["\\\\sum", "\\\\prod", "\\\\bigcup", "\\\\bigcap"]
+      }
+    },
+    "equation_formatting": {
+      "fractions": {
+        "inline": "use $a/b$ for simple fractions",
+        "display": "use $\\\\frac{a}{b}$ for complex fractions",
+        "continued": "use \\\\cfrac for continued fractions"
+      },
+      "exponents_subscripts": {
+        "simple": "$x^2$, $x_i$",
+        "complex": "$x^{2n+1}$, $x_{i,j}$",
+        "multiple_levels": "$x^{a^b}$, $x_{y_{z}}$"
+      },
+      "roots": {
+        "square": "$\\\\sqrt{x}$",
+        "nth_root": "$\\\\sqrt[n]{x}$",
+        "complex": "$\\\\sqrt{x^2 + y^2}$"
+      },
+      "delimiters": {
+        "parentheses": "\\\\left( ... \\\\right)",
+        "brackets": "\\\\left[ ... \\\\right]",
+        "braces": "\\\\left\\\\{ ... \\\\right\\\\}",
+        "absolute": "\\\\left| ... \\\\right|",
+        "norm": "\\\\left\\\\| ... \\\\right\\\\|",
+        "auto_sizing": "use \\\\left and \\\\right for automatic sizing"
+      }
+    }
+  },
+  "common_equation_patterns": {
+    "machine_learning": {
+      "loss_functions": {
+        "mse": "$L = \\\\frac{1}{n} \\\\sum_{i=1}^{n} (y_i - \\\\hat{y}_i)^2$",
+        "cross_entropy": "$L = -\\\\sum_{i=1}^{n} y_i \\\\log(\\\\hat{y}_i)$",
+        "regularized": "$L = L_{\\\\text{data}} + \\\\lambda L_{\\\\text{reg}}$"
+      },
+      "optimization": {
+        "gradient_descent": "$\\\\theta_{t+1} = \\\\theta_t - \\\\alpha \\\\nabla_{\\\\theta} L(\\\\theta_t)$",
+        "adam": "complex multi-line update equations"
+      },
+      "probability": {
+        "bayes": "$P(A|B) = \\\\frac{P(B|A)P(A)}{P(B)}$",
+        "expectation": "$\\\\mathbb{E}[X] = \\\\sum_{x} x P(X = x)$"
+      }
+    },
+    "physics": {
+      "mechanics": {
+        "newton_second": "$\\\\mathbf{F} = m\\\\mathbf{a}$",
+        "energy": "$E = mc^2$",
+        "momentum": "$\\\\mathbf{p} = m\\\\mathbf{v}$"
+      },
+      "electromagnetism": {
+        "maxwell": "system of four coupled equations",
+        "coulomb": "$F = k\\\\frac{q_1 q_2}{r^2}$"
+      }
+    },
+    "mathematics": {
+      "algebra": {
+        "quadratic": "$x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a}$",
+        "binomial": "$(a + b)^n = \\\\sum_{k=0}^{n} \\\\binom{n}{k} a^{n-k} b^k$"
+      },
+      "calculus": {
+        "fundamental_theorem": "$\\\\int_a^b f'(x) dx = f(b) - f(a)$",
+        "chain_rule": "$\\\\frac{d}{dx}f(g(x)) = f'(g(x))g'(x)$"
+      }
+    }
+  },
+  "equation_formatting_fixes": {
+    "common_issues": {
+      "missing_math_mode": {
+        "problem": "mathematical symbols in text mode",
+        "detection": "Unicode math symbols, LaTeX commands outside $",
+        "fix": "wrap in appropriate math delimiters"
+      },
+      "inconsistent_notation": {
+        "problem": "mixing notation styles within document",
+        "examples": ["$\\\\vec{v}$ and $\\\\mathbf{v}$ for vectors"],
+        "fix": "choose one style and apply consistently"
+      },
+      "poor_spacing": {
+        "problem": "cramped or poorly spaced equations",
+        "fixes": ["use \\\\,", "\\\\:", "\\\\;", "\\\\quad", "\\\\qquad for spacing"]
+      },
+      "wrong_environment": {
+        "problem": "using equation for multi-line or align for single line",
+        "fix": "match environment to equation structure"
+      }
+    },
+    "alignment_issues": {
+      "multi_line_alignment": {
+        "problem": "equations not aligned properly",
+        "fix": "use & at alignment point in align environment"
+      },
+      "equation_numbering": {
+        "problem": "inconsistent or missing equation numbers",
+        "fix": "use numbered environments for referenced equations"
+      }
+    }
+  },
+  "advanced_equation_features": {
+    "theorem_environments": {
+      "theorem": "\\\\begin{theorem}...\\\\end{theorem}",
+      "lemma": "\\\\begin{lemma}...\\\\end{lemma}",
+      "proof": "\\\\begin{proof}...\\\\end{proof}",
+      "definition": "\\\\begin{definition}...\\\\end{definition}"
+    },
+    "custom_commands": {
+      "purpose": "define frequently used expressions",
+      "examples": [
+        "\\\\newcommand{\\\\norm}[1]{\\\\left\\\\|#1\\\\right\\\\|}",
+        "\\\\newcommand{\\\\inner}[2]{\\\\langle #1, #2 \\\\rangle}",
+        "\\\\DeclareMathOperator{\\\\argmax}{argmax}"
+      ]
+    },
+    "equation_references": {
+      "labeling": "\\\\label{eq:meaningful-name}",
+      "referencing": "\\\\ref{eq:meaningful-name} or \\\\eqref{eq:meaningful-name}",
+      "clever_references": "use cleveref package for automatic formatting"
+    }
+  },
+  "specialized_math_packages": {
+    "amsmath": {
+      "purpose": "enhanced math environments and commands",
+      "essential": true,
+      "provides": ["align", "gather", "multline", "split", "cases"]
+    },
+    "amsfonts": {
+      "purpose": "additional mathematical fonts",
+      "provides": ["\\\\mathbb", "\\\\mathfrak", "various symbols"]
+    },
+    "amssymb": {
+      "purpose": "additional mathematical symbols",
+      "provides": ["extended symbol set", "negated symbols"]
+    },
+    "mathtools": {
+      "purpose": "enhanced version of amsmath",
+      "provides": ["additional environments", "better spacing", "tags"]
+    },
+    "siunitx": {
+      "purpose": "proper typesetting of numbers and units",
+      "commands": ["\\\\SI{value}{unit}", "\\\\num{number}"]
+    },
+    "physics": {
+      "purpose": "physics notation shortcuts",
+      "provides": ["\\\\dd for differentials", "\\\\pdv for partial derivatives"]
+    }
+  }
+}

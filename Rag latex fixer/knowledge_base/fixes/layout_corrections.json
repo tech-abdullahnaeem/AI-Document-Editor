@@ -1,0 +1,134 @@
+{
+  "column_layout_fixes": {
+    "figure_environments": {
+      "single_column_figure": {
+        "environment": "figure",
+        "placement": "[h], [t], [b], [H]",
+        "width": "\\columnwidth or smaller",
+        "usage": "figures that fit within one column"
+      },
+      "spanning_figure": {
+        "environment": "figure*",
+        "placement": "[t], [b]",
+        "width": "\\textwidth",
+        "usage": "wide figures that need to span both columns",
+        "fixes": [
+          "\\begin{figure}[h] → \\begin{figure*}[t]",
+          "width=\\columnwidth → width=\\textwidth"
+        ]
+      }
+    },
+    "table_environments": {
+      "single_column_table": {
+        "environment": "table",
+        "width": "\\columnwidth",
+        "usage": "narrow tables that fit in one column"
+      },
+      "spanning_table": {
+        "environment": "table*",
+        "width": "\\textwidth",
+        "usage": "wide tables that need both columns",
+        "fixes": [
+          "\\begin{table}[h] → \\begin{table*}[t]",
+          "adjust tabular width to fit \\textwidth"
+        ]
+      }
+    },
+    "equation_handling": {
+      "column_breaks": {
+        "avoid": "equations breaking across columns",
+        "solutions": [
+          "use appropriate placement specifiers",
+          "consider equation* for unnumbered long equations",
+          "use split environment for very long equations"
+        ]
+      }
+    },
+    "text_flow": {
+      "column_balance": "ensure even column lengths on pages",
+      "widow_orphan": "avoid single lines at column tops/bottoms",
+      "hyphenation": "proper word breaking at column edges"
+    }
+  },
+  "common_layout_errors": {
+    "figure_placement_errors": [
+      {
+        "error": "figure in wrong column environment",
+        "pattern": "\\\\begin\\{figure\\}.*width.*textwidth",
+        "fix": "change to figure* environment",
+        "explanation": "wide figures need figure* to span columns"
+      },
+      {
+        "error": "spanning figure with wrong placement",
+        "pattern": "\\\\begin\\{figure\\*\\}\\[h\\]",
+        "fix": "change [h] to [t] or [b]",
+        "explanation": "spanning figures can only be placed at top or bottom"
+      }
+    ],
+    "table_placement_errors": [
+      {
+        "error": "wide table in single column environment",
+        "pattern": "\\\\begin\\{table\\}.*\\\\begin\\{tabular\\}\\{.*c.*c.*c.*c.*\\}",
+        "fix": "change to table* environment",
+        "explanation": "tables with many columns need to span both columns"
+      },
+      {
+        "error": "table width exceeding column width",
+        "pattern": "tabular width > \\columnwidth",
+        "fix": "use table* or reduce table width",
+        "explanation": "table must fit within available width"
+      }
+    ],
+    "text_layout_errors": [
+      {
+        "error": "forced column breaks in wrong places",
+        "pattern": "\\\\columnbreak in inappropriate locations",
+        "fix": "remove or relocate column breaks",
+        "explanation": "column breaks should be used sparingly"
+      },
+      {
+        "error": "unbalanced columns",
+        "pattern": "significant column length differences",
+        "fix": "adjust content distribution or use \\balance",
+        "explanation": "columns should be approximately equal length"
+      }
+    ]
+  },
+  "layout_validation_rules": {
+    "figure_validation": [
+      "appropriate_environment_for_width",
+      "correct_placement_specifiers",  
+      "proper_caption_positioning",
+      "adequate_spacing_around_figures"
+    ],
+    "table_validation": [
+      "environment_matches_table_width",
+      "proper_column_alignment",
+      "appropriate_font_sizes",
+      "professional_table_formatting"
+    ],
+    "text_validation": [
+      "balanced_column_lengths",
+      "proper_paragraph_spacing",
+      "appropriate_hyphenation",
+      "no_orphaned_headers"
+    ]
+  },
+  "automatic_fixes": {
+    "figure_width_detection": {
+      "detect_wide_figures": "identify figures wider than \\columnwidth",
+      "auto_convert_environment": "change figure to figure*",
+      "adjust_placement": "change [h] to [t] for spanning figures"
+    },
+    "table_width_detection": {
+      "detect_wide_tables": "identify tables with too many columns",
+      "auto_convert_environment": "change table to table*",
+      "font_size_adjustment": "reduce font size if still too wide"
+    },
+    "spacing_adjustments": {
+      "column_spacing": "ensure proper spacing between columns",
+      "element_spacing": "adjust spacing around figures and tables",
+      "paragraph_spacing": "maintain consistent paragraph spacing"
+    }
+  }
+}

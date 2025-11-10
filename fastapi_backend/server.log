@@ -1,0 +1,17 @@
+INFO:     Will watch for changes in these directories: ['/Users/abdullah/Desktop/Techinoid/final with fast api/fastapi_backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [81270] using WatchFiles
+/opt/anaconda3/lib/python3.11/site-packages/torch/utils/_pytree.py:185: FutureWarning: optree is installed but the version is too old to support PyTorch Dynamo in C++ pytree. C++ pytree support is disabled. Please consider upgrading optree using `python3 -m pip install --upgrade 'optree>=0.13.0'`.
+  warnings.warn(
+INFO:     Started server process [81285]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+✅ RAG components loaded successfully (isolated import)
+✅ DocumentEditor loaded successfully
+INFO:     127.0.0.1:52970 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52997 - "POST /api/v1/edit/prompt HTTP/1.1" 500 Internal Server Error
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [81285]
+INFO:     Stopping reloader process [81270]

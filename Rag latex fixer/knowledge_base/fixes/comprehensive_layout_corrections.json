@@ -1,0 +1,410 @@
+{
+  "column_layout_corrections": {
+    "two_column_documents": {
+      "common_issues": [
+        {
+          "issue": "text_overflow_between_columns",
+          "description": "Text or figures extending into adjacent column",
+          "fixes": [
+            {
+              "type": "figure_placement",
+              "solution": "Use [t] or [b] placement instead of [h]",
+              "code": "\\\\begin{figure}[t]"
+            },
+            {
+              "type": "column_break",
+              "solution": "Force column break before problematic element",
+              "code": "\\\\columnbreak"
+            },
+            {
+              "type": "spanning_figure",
+              "solution": "Use figure* environment to span both columns",
+              "code": "\\\\begin{figure*}[t]"
+            }
+          ]
+        },
+        {
+          "issue": "uneven_column_heights",
+          "description": "Columns ending at different heights",
+          "fixes": [
+            {
+              "type": "manual_balancing",
+              "solution": "Add manual column breaks",
+              "code": "\\\\columnbreak"
+            },
+            {
+              "type": "balance_package",
+              "solution": "Use balance package for automatic balancing",
+              "code": "\\\\usepackage{balance}\\n\\\\balance"
+            }
+          ]
+        },
+        {
+          "issue": "wide_equations_in_narrow_columns",
+          "description": "Mathematical equations too wide for column",
+          "fixes": [
+            {
+              "type": "equation_splitting",
+              "solution": "Break equation across multiple lines",
+              "code": "\\\\begin{multline}"
+            },
+            {
+              "type": "spanning_equation",
+              "solution": "Use equation* environment spanning both columns",
+              "code": "\\\\begin{equation*}"
+            },
+            {
+              "type": "smaller_font",
+              "solution": "Reduce equation font size",
+              "code": "{\\\\small $...$}"
+            }
+          ]
+        }
+      ],
+      "best_practices": [
+        "Use [t] placement for figures in two-column format",
+        "Prefer figure* for wide figures",
+        "Balance columns on final page",
+        "Avoid [h] placement in narrow columns"
+      ]
+    },
+    "single_column_adjustments": {
+      "margin_corrections": [
+        {
+          "issue": "excessive_margins",
+          "fix": "Use geometry package to adjust margins",
+          "code": "\\\\usepackage[margin=1in]{geometry}"
+        },
+        {
+          "issue": "inconsistent_margins",
+          "fix": "Specify all margins explicitly",
+          "code": "\\\\usepackage[top=1in, bottom=1in, left=1.25in, right=1.25in]{geometry}"
+        }
+      ],
+      "line_spacing_fixes": [
+        {
+          "issue": "cramped_text",
+          "fix": "Increase line spacing", 
+          "code": "\\\\usepackage{setspace}\\n\\\\onehalfspacing"
+        },
+        {
+          "issue": "excessive_spacing",
+          "fix": "Use single spacing",
+          "code": "\\\\singlespacing"
+        }
+      ]
+    }
+  },
+  "page_layout_fixes": {
+    "header_footer_corrections": {
+      "missing_page_numbers": {
+        "fix": "Add page numbering",
+        "code": "\\\\pagestyle{plain}"
+      },
+      "inconsistent_headers": {
+        "fix": "Use fancyhdr package for consistent headers",
+        "code": "\\\\usepackage{fancyhdr}\\n\\\\pagestyle{fancy}\\n\\\\fancyhead[L]{Left Header}\\n\\\\fancyhead[C]{Center Header}\\n\\\\fancyhead[R]{Right Header}"
+      },
+      "inappropriate_header_content": {
+        "fix": "Customize headers for document type",
+        "academic_paper": "\\\\fancyhead[L]{Author Names}\\n\\\\fancyhead[R]{Short Title}",
+        "thesis": "\\\\fancyhead[L]{Chapter Title}\\n\\\\fancyhead[R]{Page \\\\thepage}"
+      }
+    },
+    "spacing_corrections": {
+      "paragraph_spacing": [
+        {
+          "issue": "no_paragraph_indentation",
+          "fix": "Enable paragraph indentation",
+          "code": "\\\\setlength{\\\\parindent}{0.5in}"
+        },
+        {
+          "issue": "excessive_paragraph_spacing",
+          "fix": "Reduce space between paragraphs",
+          "code": "\\\\setlength{\\\\parskip}{0pt}"
+        }
+      ],
+      "section_spacing": [
+        {
+          "issue": "cramped_section_headers",
+          "fix": "Increase space around sections",
+          "code": "\\\\usepackage{titlesec}\\n\\\\titlespacing*{\\\\section}{0pt}{20pt}{10pt}"
+        }
+      ]
+    },
+    "float_placement_fixes": {
+      "figures_tables_displacement": [
+        {
+          "issue": "figures_at_end_of_document",
+          "description": "All figures appearing after references",
+          "fixes": [
+            {
+              "type": "placement_specifiers",
+              "solution": "Use more permissive placement options",
+              "code": "\\\\begin{figure}[htbp!]"
+            },
+            {
+              "type": "float_parameters",
+              "solution": "Adjust float placement parameters",
+              "code": "\\\\renewcommand{\\\\topfraction}{0.9}\\n\\\\renewcommand{\\\\bottomfraction}{0.9}\\n\\\\renewcommand{\\\\textfraction}{0.1}"
+            },
+            {
+              "type": "force_placement",
+              "solution": "Use H placement with float package",
+              "code": "\\\\usepackage{float}\\n\\\\begin{figure}[H]"
+            }
+          ]
+        },
+        {
+          "issue": "orphaned_captions",
+          "description": "Captions separated from figures/tables",
+          "fix": "Keep figure and caption together",
+          "code": "Ensure \\\\caption is inside figure environment"
+        }
+      ]
+    }
+  },
+  "typography_improvements": {
+    "font_corrections": {
+      "inconsistent_fonts": [
+        {
+          "issue": "mixed_font_families",
+          "fix": "Choose consistent font family",
+          "code": "\\\\usepackage{times} % or \\\\usepackage{lmodern}"
+        },
+        {
+          "issue": "inappropriate_math_fonts",
+          "fix": "Ensure math fonts match text fonts",
+          "code": "\\\\usepackage{mathptmx} % for Times with matching math"
+        }
+      ],
+      "font_size_issues": [
+        {
+          "issue": "inconsistent_font_sizes",
+          "fix": "Use standard LaTeX size commands",
+          "sizes": ["\\\\tiny", "\\\\scriptsize", "\\\\footnotesize", "\\\\small", "\\\\normalsize", "\\\\large", "\\\\Large", "\\\\LARGE", "\\\\huge", "\\\\Huge"]
+        }
+      ]
+    },
+    "text_formatting_fixes": {
+      "emphasis_corrections": [
+        {
+          "issue": "overuse_of_bold",
+          "fix": "Use emphasis sparingly and consistently",
+          "guidelines": "Reserve bold for section headers and key terms"
+        },
+        {
+          "issue": "improper_emphasis_commands",
+          "fix": "Use semantic markup",
+          "correct": "\\\\emph{text} instead of \\\\textit{text}",
+          "reason": "Semantic markup adapts to context"
+        }
+      ],
+      "quotation_fixes": [
+        {
+          "issue": "incorrect_quote_marks",
+          "fix": "Use proper LaTeX quotation marks",
+          "correct": "``text'' instead of \"text\"",
+          "code": "``This is a proper quotation.''"
+        },
+        {
+          "issue": "long_quotations_formatting",
+          "fix": "Use quote or quotation environment",
+          "code": "\\\\begin{quote}\\nLong quotation text...\\n\\\\end{quote}"
+        }
+      ]
+    },
+    "hyphenation_corrections": {
+      "overfull_hboxes": [
+        {
+          "issue": "words_extending_beyond_margin",
+          "fixes": [
+            {
+              "type": "manual_hyphenation",
+              "solution": "Add hyphenation hints",
+              "code": "\\\\hyphenation{com-pu-ter}"
+            },
+            {
+              "type": "break_assistance",
+              "solution": "Add discretionary breaks",
+              "code": "word\\\\-break"
+            },
+            {
+              "type": "sloppy_setting",
+              "solution": "Allow looser spacing",
+              "code": "\\\\sloppy (use sparingly)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "bibliography_formatting": {
+    "reference_list_corrections": [
+      {
+        "issue": "inconsistent_reference_formatting",
+        "fix": "Use standard bibliography style",
+        "code": "\\\\bibliographystyle{ieeetr} % or other standard style"
+      },
+      {
+        "issue": "missing_bibliography_title",
+        "fix": "Ensure proper bibliography section",
+        "code": "\\\\bibliography{references} generates title automatically"
+      },
+      {
+        "issue": "hanging_indent_problems",
+        "fix": "Use natbib or biblatex for proper formatting",
+        "code": "\\\\usepackage{natbib}\\n\\\\setlength{\\\\bibhang}{0.5in}"
+      }
+    ],
+    "citation_formatting": [
+      {
+        "issue": "inconsistent_citation_style",
+        "fix": "Choose one citation package and style",
+        "options": ["natbib", "biblatex", "cite"]
+      },
+      {
+        "issue": "poor_citation_placement",
+        "fix": "Place citations appropriately",
+        "guidelines": "Citations should follow punctuation, not precede it"
+      }
+    ]
+  },
+  "table_layout_corrections": {
+    "column_width_optimization": [
+      {
+        "issue": "uneven_column_widths",
+        "fix": "Use tabularx for automatic width adjustment",
+        "code": "\\\\usepackage{tabularx}\\n\\\\begin{tabularx}{\\\\textwidth}{lX}"
+      },
+      {
+        "issue": "table_too_wide",
+        "fixes": [
+          {
+            "type": "font_reduction",
+            "solution": "Reduce font size",
+            "code": "{\\\\small \\\\begin{tabular}...\\\\end{tabular}}"
+          },
+          {
+            "type": "column_breaks",
+            "solution": "Break long headers",
+            "code": "Header\\\\\\\\Line 2"
+          },
+          {
+            "type": "rotation",
+            "solution": "Rotate table",
+            "code": "\\\\usepackage{rotating}\\n\\\\begin{sidewaystable}"
+          }
+        ]
+      }
+    ],
+    "table_positioning": [
+      {
+        "issue": "table_placement_problems",
+        "fix": "Use appropriate placement specifiers",
+        "best_practices": ["[htbp] for most tables", "[t] for two-column documents", "[H] only when necessary"]
+      }
+    ]
+  },
+  "figure_layout_corrections": {
+    "image_sizing": [
+      {
+        "issue": "oversized_images",
+        "fix": "Constrain image size appropriately",
+        "code": "\\\\includegraphics[width=0.8\\\\textwidth]{image}"
+      },
+      {
+        "issue": "inconsistent_image_sizes",
+        "fix": "Use consistent sizing strategy",
+        "strategies": ["width=\\\\textwidth", "width=0.5\\\\textwidth", "height=0.3\\\\textheight"]
+      }
+    ],
+    "subfigure_layout": [
+      {
+        "issue": "poorly_arranged_subfigures",
+        "fix": "Use subfig or subcaption package",
+        "code": "\\\\usepackage{subcaption}\\n\\\\begin{subfigure}{0.5\\\\textwidth}...\\\\end{subfigure}"
+      }
+    ]
+  },
+  "accessibility_improvements": {
+    "pdf_metadata": [
+      {
+        "issue": "missing_pdf_information",
+        "fix": "Add PDF metadata with hyperref",
+        "code": "\\\\usepackage[pdftitle={Title}, pdfauthor={Author}, pdfsubject={Subject}]{hyperref}"
+      }
+    ],
+    "alt_text": [
+      {
+        "issue": "images_without_alt_text",
+        "fix": "Add alternative text descriptions",
+        "note": "Include descriptive captions and consider accessibility"
+      }
+    ],
+    "color_considerations": [
+      {
+        "issue": "poor_color_contrast",
+        "fix": "Ensure sufficient contrast for accessibility",
+        "guidelines": "Avoid red-green combinations, ensure 4.5:1 contrast ratio"
+      }
+    ]
+  },
+  "document_structure_corrections": {
+    "section_hierarchy": [
+      {
+        "issue": "inconsistent_section_numbering",
+        "fix": "Use proper sectioning commands",
+        "hierarchy": ["\\\\section", "\\\\subsection", "\\\\subsubsection", "\\\\paragraph", "\\\\subparagraph"]
+      },
+      {
+        "issue": "missing_table_of_contents",
+        "fix": "Add table of contents for longer documents",
+        "code": "\\\\tableofcontents"
+      }
+    ],
+    "cross_references": [
+      {
+        "issue": "manual_numbering",
+        "fix": "Use LaTeX's automatic referencing",
+        "code": "\\\\label{sec:intro} and \\\\ref{sec:intro}"
+      },
+      {
+        "issue": "vague_references",
+        "fix": "Use cleveref for intelligent references",
+        "code": "\\\\usepackage{cleveref}\\n\\\\cref{fig:example}"
+      }
+    ]
+  },
+  "performance_optimizations": {
+    "compilation_speed": [
+      {
+        "issue": "slow_compilation",
+        "fixes": [
+          {
+            "type": "draft_mode",
+            "solution": "Use draft option during editing",
+            "code": "\\\\documentclass[draft]{article}"
+          },
+          {
+            "type": "image_optimization",
+            "solution": "Optimize image file sizes and formats",
+            "recommendation": "Use PDF for vector graphics, PNG for raster"
+          }
+        ]
+      }
+    ],
+    "memory_usage": [
+      {
+        "issue": "memory_problems_with_large_documents",
+        "fixes": [
+          {
+            "type": "document_splitting",
+            "solution": "Split large documents into chapters",
+            "code": "\\\\input{chapter1}"
+          }
+        ]
+      }
+    ]
+  }
+}

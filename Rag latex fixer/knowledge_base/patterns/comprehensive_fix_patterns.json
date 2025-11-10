@@ -1,0 +1,481 @@
+{
+  "automated_fix_patterns": {
+    "unicode_character_fixes": {
+      "pattern_type": "character_replacement",
+      "detection_method": "unicode_scanning",
+      "fixes": [
+        {
+          "pattern": "α",
+          "replacement": "$\\\\alpha$",
+          "context_check": "not_in_math_mode",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "β", 
+          "replacement": "$\\\\beta$",
+          "context_check": "not_in_math_mode",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "≤",
+          "replacement": "$\\\\leq$", 
+          "context_check": "not_in_math_mode",
+          "confidence": 0.98
+        },
+        {
+          "pattern": "≥",
+          "replacement": "$\\\\geq$",
+          "context_check": "not_in_math_mode", 
+          "confidence": 0.98
+        },
+        {
+          "pattern": "\u201c",
+          "replacement": "``",
+          "context_check": "start_of_quotation",
+          "confidence": 0.90
+        },
+        {
+          "pattern": "\u201d",
+          "replacement": "''",
+          "context_check": "end_of_quotation",
+          "confidence": 0.90
+        },
+        {
+          "pattern": "—",
+          "replacement": "---",
+          "context_check": "always",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "…",
+          "replacement": "\\\\ldots",
+          "context_check": "always",
+          "confidence": 0.98
+        }
+      ]
+    },
+    "math_mode_fixes": {
+      "pattern_type": "environment_wrapping",
+      "detection_method": "context_analysis",
+      "fixes": [
+        {
+          "pattern": "mathematical_symbols_outside_math",
+          "symbols": ["∑", "∏", "∫", "∂", "∇", "∞"],
+          "action": "wrap_in_math_mode",
+          "wrapper": "${}$",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "greek_letters_in_text",
+          "symbols": ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "λ", "μ", "π", "σ", "τ", "φ", "χ", "ψ", "ω"],
+          "action": "wrap_in_math_mode",
+          "wrapper": "${}$", 
+          "confidence": 0.90
+        },
+        {
+          "pattern": "subscript_superscript_outside_math",
+          "detection": "regex",
+          "regex": "\\\\w+[_^]\\\\w+",
+          "action": "wrap_in_math_mode",
+          "confidence": 0.85
+        }
+      ]
+    },
+    "table_formatting_fixes": {
+      "pattern_type": "structural_replacement",
+      "detection_method": "environment_analysis",
+      "fixes": [
+        {
+          "pattern": "hline_to_booktabs",
+          "detection": "\\\\hline",
+          "replacements": {
+            "first_hline": "\\\\toprule",
+            "middle_hline": "\\\\midrule", 
+            "last_hline": "\\\\bottomrule"
+          },
+          "requires_package": "booktabs",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "remove_vertical_lines",
+          "detection": "\\\\begin{tabular}{.*\\\\|.*}",
+          "action": "remove_pipe_characters",
+          "confidence": 0.90
+        },
+        {
+          "pattern": "optimize_column_alignment",
+          "detection": "table_content_analysis",
+          "action": "analyze_and_suggest_alignment",
+          "confidence": 0.80
+        }
+      ]
+    },
+    "citation_fixes": {
+      "pattern_type": "reference_standardization",
+      "detection_method": "citation_pattern_analysis",
+      "fixes": [
+        {
+          "pattern": "inconsistent_citation_style",
+          "detection": "mixed_citation_formats",
+          "action": "standardize_to_dominant_style",
+          "confidence": 0.75
+        },
+        {
+          "pattern": "missing_citations",
+          "detection": "factual_claims_without_references",
+          "action": "flag_for_manual_review",
+          "confidence": 0.60
+        },
+        {
+          "pattern": "malformed_bibtex_entries",
+          "detection": "bibtex_syntax_check",
+          "action": "fix_bibtex_formatting",
+          "confidence": 0.85
+        }
+      ]
+    },
+    "figure_fixes": {
+      "pattern_type": "media_optimization",
+      "detection_method": "figure_analysis",
+      "fixes": [
+        {
+          "pattern": "missing_file_extensions",
+          "detection": "includegraphics_without_extension",
+          "action": "add_appropriate_extension",  
+          "confidence": 0.70
+        },
+        {
+          "pattern": "inappropriate_figure_format",
+          "detection": "eps_with_pdflatex",
+          "action": "suggest_format_conversion",
+          "confidence": 0.90
+        },
+        {
+          "pattern": "missing_figure_dimensions",
+          "detection": "includegraphics_without_size",
+          "action": "add_width_specification",
+          "default_width": "0.8\\\\textwidth",
+          "confidence": 0.80
+        }
+      ]
+    },
+    "package_fixes": {
+      "pattern_type": "dependency_resolution",
+      "detection_method": "error_log_analysis",
+      "fixes": [
+        {
+          "pattern": "missing_package_for_command",
+          "command_to_package_map": {
+            "\\\\toprule": "booktabs",
+            "\\\\includegraphics": "graphicx",
+            "\\\\cite": "natbib or biblatex",
+            "\\\\url": "url",
+            "\\\\hyperref": "hyperref",
+            "\\\\SI": "siunitx",
+            "\\\\begin{algorithm}": "algorithm"
+          },
+          "action": "add_usepackage",
+          "confidence": 0.95
+        },
+        {
+          "pattern": "package_option_conflicts",
+          "detection": "option_clash_error",
+          "action": "resolve_package_options",
+          "confidence": 0.80
+        }
+      ]
+    }
+  },
+  "contextual_fixes": {
+    "document_class_specific": {
+      "ieee_conference": {
+        "required_packages": ["IEEEtran"],
+        "common_fixes": [
+          {
+            "issue": "incorrect_author_format",
+            "fix": "use_IEEEauthorblockN_and_IEEEauthorblockA",
+            "example": "\\\\author{\\\\IEEEauthorblockN{John Doe}\\\\\\\\\\\\IEEEauthorblockA{University}}"
+          },
+          {
+            "issue": "missing_IEEEkeywords",
+            "fix": "add_IEEEkeywords_environment",
+            "location": "after_abstract"
+          }
+        ]
+      },
+      "acm_format": {
+        "required_packages": ["ACM-Reference-Format"],
+        "common_fixes": [
+          {
+            "issue": "missing_ccs_concepts",
+            "fix": "add_ccs_classification",
+            "required": true
+          },
+          {
+            "issue": "incorrect_author_format",
+            "fix": "use_author_affiliation_email_structure"
+          }
+        ]
+      }
+    },
+    "field_specific_patterns": {
+      "machine_learning_papers": {
+        "common_elements": {
+          "algorithms": "require algorithm and algpseudocode packages",
+          "performance_tables": "require booktabs for professional appearance",
+          "mathematical_formulations": "require amsmath, amssymb",
+          "experimental_plots": "may require pgfplots or external plot inclusion"
+        },
+        "automatic_improvements": [
+          {
+            "pattern": "performance_comparison_table",
+            "action": "apply_professional_table_formatting",
+            "includes": ["booktabs_rules", "right_align_numbers", "bold_best_results"]
+          },
+          {
+            "pattern": "algorithm_description",
+            "action": "ensure_proper_algorithm_environment",
+            "includes": ["algorithm_float", "algpseudocode_formatting"]
+          }
+        ]
+      },
+      "physics_papers": {
+        "common_elements": {
+          "equations": "heavy mathematical content",
+          "units": "require siunitx for proper unit formatting",
+          "symbols": "require physics package for shortcuts"
+        },
+        "automatic_improvements": [
+          {
+            "pattern": "physical_quantities_with_units",
+            "action": "use_siunitx_formatting",
+            "example": "5 m/s → \\\\SI{5}{\\\\meter\\\\per\\\\second}"
+          }
+        ]
+      }
+    }
+  },
+  "error_specific_solutions": {
+    "compilation_errors": {
+      "undefined_control_sequence": {
+        "common_commands": {
+          "\\\\toprule": {
+            "package": "booktabs",
+            "fix": "\\\\usepackage{booktabs}",
+            "confidence": 0.98
+          },
+          "\\\\includegraphics": {
+            "package": "graphicx", 
+            "fix": "\\\\usepackage{graphicx}",
+            "confidence": 0.98
+          },
+          "\\\\cite": {
+            "packages": ["natbib", "biblatex"],
+            "fix": "add citation package",
+            "confidence": 0.90
+          },
+          "\\\\alpha": {
+            "issue": "missing math mode",
+            "fix": "wrap in $...$",
+            "confidence": 0.95
+          }
+        }
+      },
+      "missing_dollar_inserted": {
+        "cause": "mathematical content outside math mode",
+        "detection_patterns": [
+          "subscript_or_superscript_in_text",
+          "mathematical_operators",
+          "greek_letters",
+          "mathematical_functions"
+        ],
+        "fix": "wrap_in_appropriate_math_delimiters",
+        "confidence": 0.90
+      },
+      "extra_brace_or_forgotten_dollar": {
+        "cause": "unmatched braces or math delimiters",
+        "detection": "brace_and_dollar_counting",
+        "fix": "balance_delimiters",
+        "confidence": 0.80
+      }
+    },
+    "warning_resolutions": {
+      "overfull_hbox": {
+        "causes": ["long_urls", "long_words", "tight_spacing"],
+        "fixes": [
+          {
+            "type": "url_breaking",
+            "solution": "use \\\\url{} command",
+            "confidence": 0.90
+          },
+          {
+            "type": "hyphenation",
+            "solution": "add manual hyphenation hints",
+            "confidence": 0.75
+          },
+          {
+            "type": "line_breaking",
+            "solution": "use \\\\linebreak or \\\\\\\\",
+            "confidence": 0.70
+          }
+        ]
+      },
+      "underfull_hbox": {
+        "cause": "insufficient content for line justification",
+        "fixes": [
+          {
+            "type": "text_adjustment",
+            "solution": "rewrite sentence for better flow",
+            "confidence": 0.60
+          },
+          {
+            "type": "spacing_adjustment", 
+            "solution": "use \\\\raggedright for paragraph",
+            "confidence": 0.80
+          }
+        ]
+      }
+    }
+  },
+  "quality_improvements": {
+    "typography_enhancements": {
+      "smart_quotes": {
+        "pattern": "straight quotes in text",
+        "fix": "convert to LaTeX quote marks",
+        "mapping": {
+          "\"start": "``",
+          "\"end": "''",
+          "'start": "`", 
+          "'end": "'"
+        },
+        "confidence": 0.85
+      },
+      "proper_dashes": {
+        "en_dash": {
+          "usage": "number ranges, compound adjectives",
+          "fix": "convert single dash to --",
+          "pattern": "\\\\d+\\\\s*-\\\\s*\\\\d+",
+          "confidence": 0.90
+        },
+        "em_dash": {
+          "usage": "parenthetical statements", 
+          "fix": "convert to ---",
+          "pattern": "\\\\s+-\\\\s+",
+          "confidence": 0.75
+        }
+      },
+      "ellipsis": {
+        "pattern": "three dots",
+        "fix": "use \\\\ldots command",
+        "confidence": 0.95
+      }
+    },
+    "professional_formatting": {
+      "section_numbering": {
+        "issue": "manual section numbers",
+        "fix": "use LaTeX automatic numbering",
+        "confidence": 0.85
+      },
+      "cross_references": {
+        "issue": "hard-coded figure/table numbers",
+        "fix": "use \\\\ref{} and \\\\label{}",
+        "confidence": 0.80
+      },
+      "bibliography_formatting": {
+        "issue": "manual bibliography formatting",
+        "fix": "use BibTeX or BibLaTeX",
+        "confidence": 0.75
+      }
+    }
+  },
+  "preventive_measures": {
+    "common_mistake_prevention": {
+      "package_loading_order": {
+        "rule": "hyperref should be loaded near the end",
+        "exception": "cleveref must be loaded after hyperref",
+        "check": "verify package loading sequence",
+        "auto_fix": "reorder package loading"
+      },
+      "math_mode_consistency": {
+        "rule": "mathematical content should be in math mode",
+        "check": "scan for mathematical symbols in text",
+        "auto_fix": "wrap in appropriate delimiters"
+      },
+      "figure_file_paths": {
+        "rule": "use relative paths for portability",
+        "check": "scan for absolute paths",
+        "auto_fix": "convert to relative paths"
+      }
+    },
+    "best_practice_enforcement": {
+      "table_formatting": {
+        "rule": "use booktabs for professional tables",
+        "check": "detect \\\\hline usage",
+        "auto_fix": "convert to booktabs rules"
+      },
+      "citation_style": {
+        "rule": "maintain consistent citation style",
+        "check": "analyze citation patterns",
+        "auto_fix": "standardize to dominant style"
+      },
+      "figure_sizing": {
+        "rule": "specify figure dimensions",
+        "check": "find includegraphics without size",
+        "auto_fix": "add appropriate width specification"
+      }
+    }
+  },
+  "advanced_fixes": {
+    "semantic_improvements": {
+      "redundant_phrasing": {
+        "patterns": [
+          "in order to → to",
+          "due to the fact that → because",
+          "it is important to note that → note that"
+        ],
+        "confidence": 0.70,
+        "requires_review": true
+      },
+      "passive_voice_detection": {
+        "pattern": "excessive passive voice usage",
+        "action": "flag for manual review",
+        "confidence": 0.60
+      }
+    },
+    "structural_analysis": {
+      "section_balance": {
+        "check": "analyze section lengths for balance",
+        "flag": "sections significantly shorter/longer than others",
+        "confidence": 0.50
+      },
+      "citation_distribution": {
+        "check": "ensure citations throughout document",
+        "flag": "sections with no citations",
+        "confidence": 0.65
+      }
+    }
+  },
+  "fix_prioritization": {
+    "critical_fixes": {
+      "priority": 100,
+      "types": ["compilation_errors", "syntax_errors", "missing_packages"],
+      "auto_apply": true
+    },
+    "important_fixes": {
+      "priority": 80,
+      "types": ["unicode_conversions", "math_mode_issues", "table_formatting"],
+      "auto_apply": true
+    },
+    "recommended_fixes": {
+      "priority": 60,
+      "types": ["typography_improvements", "professional_formatting"],
+      "auto_apply": "with_confirmation"
+    },
+    "optional_improvements": {
+      "priority": 40,
+      "types": ["style_suggestions", "semantic_improvements"],
+      "auto_apply": false,
+      "suggest_only": true
+    }
+  }
+}

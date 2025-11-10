@@ -1,0 +1,527 @@
+\documentclass[conference]{IEEEtran}
+%\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{booktabs}
+\usepackage{cite}
+%\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{subfig}
+\usepackage{booktabs}
+\usepackage[export]{adjustbox}
+ %\usepackage{tikz}
+\usepackage{tablefootnote}
+
+%\usepackage{biblatex}
+\usepackage{svg}
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+%\addbibresource{ref.bib}
+% \usepackage{cite}
+% \usepackage{natbib}
+%\usepackage{lipsum,pdflscape}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+% \title{StutterNet: A Time Delay Neural Network for Stuttering Detection}
+\vspace{-0.5cm}
+\title{StutterNet: Stuttering Detection Using Time Delay Neural Network}
+
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+% should not be used}
+% \thanks{Identify applicable funding agency here. If none, delete this.}
+% 
+
+
+\author{\IEEEauthorblockN{Shakeel A.~Sheikh\textsuperscript{1}, Md Sahidullah\textsuperscript{1}, Fabrice Hirsch\textsuperscript{2}, Slim Ouni\textsuperscript{1}}
+\IEEEauthorblockA{\textsuperscript{1}\textit{Universit\'{e} de Lorraine, CNRS, Inria, LORIA, F-54000, Nancy, France}\\
+\textsuperscript{2}\textit{Université Paul-Valéry Montpellier}, CNRS, Praxiling, Montpellier, France
+\\
+\textsuperscript{1}\{shakeel-ahmad.sheikh, md.sahidullah, slim.ouni\}@loria.fr, \textsuperscript{2}fabrice.hirsch@univ-montp3.fr
+}
+\vspace{-1cm}
+}
+
+\maketitle
+
+\begin{abstract}
+This paper introduce~\emph{StutterNet}, a novel deep learning based stuttering detection capable of detecting and identifying various types of disfluencies. Most of the existing work in this domain uses automatic speech recognition (ASR) combined with language models for stuttering detection. Compared to the existing work, which depends on the ASR module, our method relies solely on the acoustic signal. We use a time-delay neural network (TDNN) suitable for capturing contextual aspects of the disfluent utterances. We evaluate our system on the \textit{UCLASS} stuttering dataset consisting of more than 100 speakers. Our method achieves promising results and outperforms the state-of-the-art residual neural network based method. The number of trainable parameters of the proposed method is also substantially less due to the parameter sharing scheme of TDNN.
+\end{abstract}
+
+\begin{IEEEkeywords}
+stuttering, speech disfluency, speech disorder, time delay neural network.
+\end{IEEEkeywords}
+\vspace{-0.2cm}
+\section{Introduction}
+\label{introduction}
+
+The \emph{speech disorders} problem refers to the difficulties in the production of speech sounds. The various speech disorders include \emph{cluttering}, \emph{lisping}, \emph{dysarthria}, \emph{stuttering}, etc. Of these speech disorders, stuttering -- also known as stammering -- is the most predominant one~\cite{guitar2013stuttering}. About 70 million people that comprise 1\% of the world population suffer from stuttering~\cite{b1}. People with the stuttering problem face several difficulties in social and professional interactions. This work is about the automatic detection of stuttering with several important applications. For example, it could facilitate the speech therapist's work, since they have to carry out a manual calculation to evaluate the severity of stuttering; to give a feedback to persons who stutter~(PWS) about their fluency. Nevertheless, fluent voice is an important requirement for several professions such as news anchoring, emergency announcement, etc. Furthermore, the automatic speech recognition (ASR) system used in voice assistants can be adapted efficiently for PWS.
+
+%Speech disorders refer to the difficulties in the production of speech sounds. The various speech disorders include cluttering (poorly intelligible speech), lisping, dysarthria, stuttering, etc. \footnote{https://www.britannica.com/science/speech-disorder/Major-types-of-speech-disorders/}. Of these speech disorders, stuttering is the most predominant one \cite{resnet_lstm}. Stuttering, also known as stammering\footnote{In this paper, we will use the terms disfluency, stuttering and stammering interchangeably}, is a neuro-developmental speech disorder, defined by an abnormally persistent and duration of stoppages in the normal forward flow of speech, which usually take the form of \textit{core behaviors}: prolongations, blocks, syllable, word or phrase repetitions \cite{guitar2013stuttering}. 
+% Stuttering appears to be complex and mysterious, as no one is sure what causes stuttering, however, several factors that lead to stammering includes: stress, anxiety, delayed childhood, speech motor control abnormalities. \cite{guitar2013stuttering}.
+%About 70 million people, that comprises of 1\% of the world population suffer from stuttering \cite{b1}. It has been found to affect four times males as compared to females \cite{b1}. For fluent persons, disfluency affects only to the speech flow, however for persons who stutter (PWS), it is more than that. The PWS are less likely to be considered leaders, and are usually teased, bullied  and ignored by other normal persons \cite{b2}. In \cite{b3}, it has been reported that, eight out of 10 children who stutter have been bullied or teased. 
+%In the survey \cite{b3}, 40\% of the PWS have been denied promotion opportunities or job offers. The stuttering also has an impact on self-image and thus affects the relationships.
+
+Even though there are plenty of potential applications, stuttering detection has received less attention, especially from a signal processing and machine learning perspective. Stuttering is a neuro-developmental speech disorder, defined by an abnormally persistent and duration of stoppages in the normal forward flow of speech, which usually takes the form of \textit{core behaviors}: prolongations, blocks, and syllables, words or phrase repetitions \cite{guitar2013stuttering}. These impact the acoustic properties of speech which can help to discriminate from fluent voice. Studies show that different formant characteristics such as \emph{formant transitions}, \emph{formant fluctuations} are affected by stuttering~\cite{guitar2013stuttering}. The existing methods for stuttering detection employ spectral features such as \emph{mel-frequency cepstral coefficients} (MFCCs) and \emph{linear prediction cepstral coefficients} (LPCCs) or their variants that capture that formant-related information. Other spectral features such as pitch, zero-crossing rate, shimmer, and spectral spread are also used. Finally, those features are modeled with statistical modeling methods such as \emph{hidden Markov model} (HMM), \emph{support vector machine} (SVM), \emph{Gaussian mixture model} (GMM), etc~\cite{khara}.
+ 
+%In conventional stuttering assessment, the speech language pathologists (SLP) or speech therapists (ST) manually analyze either the PWS' speech or their recordings\cite{b4}. The stuttering severity is usually measured by  taking the ratio of disfluent words/duration to the total words/duration\cite{own}. The most conventional speech therapy sessions involve helping the PWS observe and monitor their speech patterns in order to rectify them \cite{guitar2013stuttering}. The speech therapeutic success rate recoveries have been reported to be 60-80\% when dealt in early stage \cite{tim}. This convention of detecting stuttering severity and its improvement due to therapeutic sessions is very demanding and time consuming, and is also biased and prejudiced towards the subjective belief of SLPs.  
+
+
+%Due to the nature of stuttering, its therapeutic sessions are very intense course, that usually, extends to several months (several years in some instances), which necessitates PWS to see the SLP regularly \cite{therapy}. \bibitem{therapy}S.O.Therapy, ``How long will my child be in speech therapy,`` URL :https://www.speechandot.com/long-will-child-speech-therapy/, 2009.
+% Usually, the speech therapy sessions are private and are very expensive, thus makes it unaffordable for the economically backward group of people. It has been reported that 62.57\% of the English PWS and 65.67\% of the Russian PWS do not stutter when speaking alone in a room \cite{alone}. In the homes of PWS, there is no means of observing and monitoring the performance and providing the feedback of PWS when they are alone. Besides for the purpose of interactive stuttering therapy, other applications can be thought of automatic stuttering detection systems.
+%The automatic speech recognition systems (ASR) are working fine for the normal fluent speech, however they are unsuccessful in recognizing the stuttered speech, which makes it impractical for PWS to easily access  virtual assistants like Apple Siri, Alexa etc\footnote{https://eu.usatoday.com/story/tech/2020/01/06/voice-assistants-remain-out-reach-people-who-stutter/2749115001}. Thus, it is the need of an hour to develop interactive automatic stuttering identification systems (IASIS) that delivers an unbiased objective and consistent evaluation of the stuttered speech. 
+% Fluent speech is vital and effective in presentations and demonstrations . A number of applications like \textit{Robocop} are at one's disposal to aid speakers in improving their oral presentation skills by monitoring intonation, rate of speech and volume \cite{robocop}. In spite of fact having numerous potential applications, very little research attention has been given to the domain of stuttering detection and measurement. The detection and identification of stuttering events can be a quite difficult and complex problem due to the several variable factors including: gender, age, accent, speech rate etc. \cite{resnet_lstm}. 
+% Due to the recent advancements in deep learning (DL) and natural language/speech processing (NLP), the development of smart and interactive stuttering detection tools is now a real possibility. 
+
+%In recent decades, the applications of deep learning have grown tremendously in speech recognition \cite{speechrecog}, speaker recognition\cite{latentspeech}, speech synthesis \cite{synthesis}, emotion detection \cite{emotion},  voice conversion \cite{conversion},  voice disorder detection \cite{disorder}, Parkinson's disease detection \cite{parkinson}, however very  little research attention has been given to the domain of stuttering detection and measurement.  Due to the presence of acoustic cues in the stuttered embedded speech, the deep learning models can be used to exploit these acoustic cues in detection and identification of stuttering events.
+
+% can be explore quite difficult and complex problem due  to  the  several  variable  factors  including:  gender, age, accent, speech rate etc. \cite{resnet_lstm}
+% As the breadth of applications using machine learning tech-niques  have  flourished  in  recent  decades,  they  have  only  re-cently began to be utilized in the field of speech disfluency anddisorder  detection.  While  deep  learning  has  dominated  manyareas of speech processing, for instance speech recognition [8][9],  speaker  recognition  [10]  [11],  and  speech  synthesis  [12][13],  very  little  work  has  been  done  toward  the  problem  ofspeech  disfluency  detection.  Disfluencies,  including  stutters,are  not  easily  definable;  they  come  in  many  shapes  andvariations. This means that factors such as gender, age, accent,and  the  language  themselves  will  affect  the  contents  of  eachstutter, greatly complicating the problem space. As well, thereare  many  classes  of  stutter,  each  with  their  own  s
+
+%Most of the existing work in the disfluency detection depends on ASR i.e. the audio speech signal is first converted into its textual form, and then by the help of language models, stuttering is detected and identified \cite{alharbi, alharbi2, heeman}. Even though this method of detecting stuttering has achieved encouraging results and has been proven effective, the reliance on ASR makes it computationally expensive and prone to error. 
+
+An alternative strategy of stuttering detection is to apply ASR on the audio speech signal to get the spoken texts and then to use language models~\cite{alharbi, alharbi2, heeman}. Even though this method of detecting stuttering has achieved encouraging results and has been proven effective, the reliance on ASR makes it computationally expensive and prone to error. 
+
+In this work, we use a deep neural network (DNN) for stuttering detection directly from the speech. In recent decades, the DNNs are widely used in different speech tasks such as speech recognition~\cite{speechrecog}, speaker recognition~\cite{latentspeech}, emotion detection~\cite{emotion},  voice disorder detection~\cite{disorder}. However, a little attention has been devoted to the field of stuttering detection.
+
+
+We propose a \emph{time-delay neural network} (TDNN) architecture for stuttering detection. TDNN has been widely used for different speech classification problems such as speech and speaker recognition~\cite{tdnn,daniel}. We introduce this for stuttering detection task. The proposed method, referred to as \emph{StutterNet} is a multi-class classifier with output as stuttering types and fluent. Our experiments with the UCLASS dataset show promising recognition performance. We further optimize the \emph{StutterNet} architecture, and we achieved substantial improvement over the competitive DNN-based method.
+
+%Inwe propose a time delay neural network, which we call \emph{StutterNet}, independent of ASR step, that takes only audio modality as an input to detect and identify stuttering types. Our proposed model uses MFCCs as feature representations for its training. 
+
+% The remaining of the paper is organized as follows: Section \ref{background} gives a brief literature survey of the related works. Section \ref{pnetwork} provides the detailed architecture of the \emph{StutterNet}. Section \ref{experimentaldesign} describes the experimental design and presents the experimental results of the proposed \emph{StutterNet} for the case study. In Section \ref{conc}, we conclude the experimental study and share the possible future directions.
+
+    
+ 
+\section{Related Work}
+\vspace{-0.1cm}
+\label{background}
+The earlier studies in neural network based stuttering detection explored shallow architecture. Howell \emph{et al.}~\cite{howell1, howell2} employed two separate \emph{artificial neural networks} (ANNs) for the identification of repetition and prolongation disfluencies. This work used autocorrelation features, envelope parameters, and spectral information input to the neural network. The experiments were conducted with a dataset of 12 speakers. Ravikumar \emph{et al.}~\cite{ravi} attempted \emph{multilayer perceptron} (MLP) for the detection of repetition disfluencies. They used MFCC as input features from 12 disfluent speakers. I. Szczurowska \emph{et al.} employed Kohonen network and MLP for discriminating fluent and disfluent speech~\cite{szczurowska2014application}. The Kohonen network reduced the dimensionality of the Octave filter-based input feature. The features were used as an input to the MLP classifier. The experiments were conducted with eight speakers. B.~Villegas \emph{et al.}~\cite{villegas} proposed a respiratory-based stuttering classifier. They trained MLP on the respiratory air volume and pulse rate features for the detection of block stuttering. The network is trained on 68 Latin American Spanish speakers. The work in~\cite{manjula2019adaptive} used adaptive optimization based neural network for three class stuttering classification.
+
+%The earlier studies in this domain focused on testing the viability of shallow deep learning approaches in stuttering differentiation. In 1995, Howell \emph{et al}.~\cite{howell1, howell2} employed a separate two fully connected artificial neural networks (ANNs) for the identification of repetition and prolongation type of disfluencies. They extracted autocorrelation features (ACF), envelope parameters and spectral information and used these features as an input to the ANN for stuttering detection. The network was trained  on 12 speakers with 20 ACF, 19 vocoder coefficients. In 2009, Ravikumar \emph{et al}..~\cite{ravi} attempted multilayer perceptron (MLP) for the detection of repetition disfluencies. They used MFCC as input features from 12 disfluent speakers~\cite{ravi}.  I. Szczurowska \emph{et al}. employed Kohonen based MLP for differentiating fluent and disfluent utterances~\cite{szczurowska2014application}. The Kohonen network is used to reduce the dimensionality of the input feature space which, that later was used as an input to the MLP classifier~\cite{szczurowska2014application}. The network was trained on 8 disfluent speakers~\cite{szczurowska2014application}. In  2019, B. Villegas \emph{et al}.~\cite{villegas} proposed a respiratory based stuttering classifier. They trained MLP on the respiratory air volume and pulse rate features for the detection of block stuttering~\cite{villegas}. The network is trained on 68 Latin American Spanish speakers with 27~PWS and 33 fluent ones~\cite{villegas}.
+
+% There has been great advancements in medical deep learning including lung cancer detection, brain tumor detection \cite{medicaldeeplearning}, human blastocyst selection \cite{pregnancy} and in speech domain including Parkinson's disease detection \cite{parkinson}, voice disorder detection \cite{disorder}, Dysarthric speech classification \cite{dysarthric}. However, in the domain of stuttering detection, there has been very nominal research. This might be because of the the lack of sufficient stuttered data.
+% Stuttering detection and identification, an interdisciplinary complex research problem, in which a number of research studies has been carried out in connection with acoustic feature representations and classification methods. The stuttering detection systems process the underlying stuttering embedded speech samples and classify them accordingly. Many techniques in the automatic detection of stuttering have been explored, however, the case studies are purely empirical. Approaches to stuttering detection usually fall into three main modalities: text, audio and visual. Of these 3 modalities, we focus only on the acoustic one.
+% \subsection{Types of Stuttering}
+% Repetitions are the most frequent core behaviors observed in PWS. The person is stuck on that syllable or word and recurrently producing it until the following syllable/word is generated \cite{guitar2013stuttering}. These usually occur at the beginning of the utterances \cite{guitar2013stuttering}. Prolongation disfluencies are the second core behavior to appear, in which the sound or air flow continues but the articulatory movement is stopped. These usually are present at the onset \cite{guitar2013stuttering}. Block disfluencies are typically the last core behavior to appear. Blocks are the involuntary blockage of the articulatory movements and the air flow \cite{guitar2013stuttering}. The other stuttering types include: interjections, repetitions$-$blocks, prolongations$-$blocks, etc, a summary of which is given in Table \ref{tab:types}. In this paper, we consider only the core behaviors of stuttering because of the scarcity of the other types.
+% \begin{landscape}
+ 
+% Block: A stutter that is an inappropriate stoppage of the flow of air or voice and
+% often the movement of articulators as well
+% \begin{table*}[h]
+% \caption{Various Types of Stuttering}
+%     \centering
+%     \begin{tabular}{*{3}{c}}
+%     \hline
+%          Stutter Type&Definition&Example  \\
+%     \hline \hline
+%     Repetitions&Repetition of a sound, syllable, word or phrase. The PWS is \textit{stuck} on that syllable  &\textbf{Well, well}, I didn't get you\\
+%     & or word sound and continues repeating it till the next sound is generated &\\
+%     Prolongations&A disfluency in which the sound or air flow continues but the articulatory movement &\textbf{Sssssss}am is kind\\
+%     & is stopped&\\
+%     Blocks&Involuntary stoppage of the movement of articulators and the air flow or voice&I want \textbf{blockage/pause} to speak\\
+%     Interjections&Insertion of Sounds &uhm, uh\\
+%     Repetition$-$Prolongations&Repetition \& Prolongation occurring at the same time&He \textbf{w-w-w}-\textbf{wwww}ants to sing\\
+%     Repetition$-$Blocks&Repetition \& Block occurring at the same time&He \textbf{w-w-w-w}ants \textbf{pause} to play\\
+%     Block$-$Prolongations&Block \& Prolongation occurring at the same time&He \textbf{pause} \textbf{wwww}ants to write\\
+%     Block$-$Prolongations$-$Repetitions&Block, Repetition \& Prolongation occurring at the same time&I \textbf{w-w-w}-\textbf{pause}-\textbf{wwww}ant to swim\\
+%     False Start&Revision of a word or phrase&\textit{I had-} \textbf{I lost }my laptop\\
+%     \hline
+%     \end{tabular}
+    
+%     \label{tab:types}
+% \end{table*}
+% \lipsum[1-20]
+% \end{landscape}
+% A sound, syllable, or single-syllable word that is repeated several\\
+% &&times. The speaker is apparently “stuck” on that sound and continues repeating it until the following sound can be produced
+% A  summary  of  all  these  disfluencytypes  and  examples  of  each  have  been  presented  in  Table  I.The descriptions for each of these categories is as follows.
+
+% \subsection{Acoustic Characteristics of Stuttered Speech}
+% The acoustic characteristics that represent stuttering includes: speech constant(C)-vowel(V) transition duration, VC transition duration, formants, stop-gap duration etc. \cite{zebro}. The acoustics analysis has shown that the PWS have longer vowel durations, delayed onsets of voicing, slower VC/CV transitions, slower speaking rate, etc. \cite{zimmer, alfonso}. It has been observed that the PWS move their lips and jaws slowly as compared to fluent speakers \cite{own}. Submaniaum \emph{et al}. \cite{subramany} showed that the PWS exhibit smaller F2 fluctuations than normal fluent speakers. A detailed summary on acoustic characteristics of stuttered speech is presented by \textbf{Need to decide what to include here as a reference instead of our own paper} Shakeel \emph{et al}. in \cite{own} 
+%\par 
+% \subsection{Stuttering Detection}
+% The stuttering detection using machine learning has been studied in \cite{howell1}, \cite{howell2},\cite{howell3}, \cite{noth}, \cite{ravi}, \cite{lschee1}, \cite{lschee2}, \cite{yildrim}, \cite{palfy}, \cite{mahesha1}, \cite{mahesha2}, \cite{villegas}, \cite{resnet_lstm}, \cite{fluentnet}. Howell \emph{et al}. \cite{howell1, howell2, howell3} is the first, who focused on checking the practicality of stuttering detection using machine learning. They used two artificial neural networks (ANNs)  for the detection of prolongations and repetitions. First,they segment the speech samples into the linguistic units, and they reported an average accuracy of 78.01\% by training the neural net on 12 speakers by capturing the input features of duration, energy peaks and auto-correlation functions (ANFs) \cite{howell1, howell2, howell3}. For the similar types of disfluencies detection, L.S.Chee \emph{et al}. \cite{lschee1, lschee2} and S.A Ghonem \emph{et al}. \cite{ghonem} trained \textit{k}$-$NN and LDA classifiers on UCLASS \cite{uclass} dataset,  and respectively, reported the accuracies of (90.91\%,90.91\%), (85.5\%, 89.7\%) and 52.9\%. In 2019, B. Villegas \emph{et al}. \cite{villegas} introduced a respiratory bio-signal based block stuttering detection method and reported an average accuracy of 82.6\%. In a recent study by T. Kourkounakis \emph{et al}. \cite{resnet_lstm, fluentnet}, they developed resnet and attention based deep learning classifiers for the detection of six different types of disfluencies including: prolongation, word repetition, sound repetition, phrase repetition, false starts. They used spectrograms as an input features and reported an average accuracy of 91.15\% on the UCLASS dataset \cite{resnet_lstm}. 
+% The stuttering detection using deep learning has been studied in~\cite{howell1, howell2, howell3, noth, ravi,lschee1,lschee2,yildrim,palfy, mahesha1,mahesha2,villegas,resnet_lstm,fluentnet}. Howell \emph{et al}. \cite{howell1, howell2, howell3} is the first, who focused on checking the practicality of stuttering detection using machine learning. They trained two artificial neural networks (ANNs) on 12 speakers by capturing the input features of duration, energy peaks and auto-correlation functions (ANFs) for the detection of prolongations and repetitions. \cite{howell1, howell2, howell3}. R. Kumar \emph{et al}.~\cite{ravi} trained perceptron on MFCC features for the detection of syllable repetitions.  In another study carried by Czyzewski \emph{et al}.~\cite{czyzewski2003intelligent}, they trained multi layered perceptron with first three formants and the amplitude for the detection of prolongation, repetition and stop gaps.
+%  In 2019, B. Villegas \emph{et al}.~\cite{villegas} introduced a respiratory bio-signal based block stuttering detection method. They used multilayer perceptron neural network with respiratory patterns and pulses on 68 participants for detecting block disfluencies  . In a recent study by T. Kourkounakis \emph{et al}. \cite{resnet_lstm, fluentnet}, they developed resnet and attention based deep learning classifiers for the detection of six different types of disfluencies including: prolongation, word repetition, sound repetition, phrase repetition, false starts. They used spectrograms as an input features and reported an promising results on the UCLASS dataset \cite{resnet_lstm}. A detailed summary and comparison of various different feature extraction methods and classifiers can be found in \cite{khara}. It is reported that MFCC features has shown historically strongest results in stuttering detection \cite{khara}.
+%\par
+Due to recent advancements in deep learning, the improvement in speech technology surpasses the shallow neural network based approaches, and thus, resulted in a shift towards deep learning based framework and, disfluency identification is no exception.  The work in~\cite{oue2015automatic} used \emph{deep belief networks} with cepstral features for the detection of repetitions and stop gaps on TORGO dataset. T.~Kourkounakis \emph{et al}.~\cite{resnet_lstm} introduced a deep residual neural network and bi-directional long term short memory (ResNet+BiLSTM) based method to learn stutter-specific features from the audio. They addressed the stuttering detection problem as a multiple binary classification problem. They trained the same proposed architecture for each class of stuttering separately. The method was trained on 24 speakers from the UCLASS~\cite{uclass} stuttering datatset, and considered spectrograms as input feature. The learned features from residual blocks were fed to two bi-directional recurrent layers to capture the temporal context of the disfluent speech. 
+\par 
+Although this method has shown promising results in stuttering detection, it has several limitations. First, this method did not consider fluent speech, and the experiments are performed within stuttering classes. Second, the technique requires training of multiple models for each type of disfluency. Third, the model has a huge number of parameters ($\approx$24~million), thus makes it computationally expensive to train. Furthermore, the experiments are conducted with only a small subset of speakers.
+
+%Due to recent advancements in deep learning, the improvement in the speech domain surpasses the shallow neural network based approaches, and thus, resulted in a research shift towards deep learning based framework and, disfluency identification is no exception. The state-of-the-art work in stuttering detection has been proposed in~\cite{resnet_lstm}. T.~Kourkounakis \emph{et al}.~\cite{resnet_lstm} introduced a residual neural network and bi-directional long term short memory (ResNet+BiLSTM) based method to learn stutter-specific features directly from the audio modality without using ASR step. They addressed the stuttering detection problem by formulating it as a multiple binary classification problem, where they trained the same proposed architecture for each class of stuttering. The audio speech was first segmented into multiple 4-second audio clips, and then annotated accordingly with the help of speech therapists. The method was trained on 24 speakers from the UCLASS~\cite{uclass} stuttering datatset, and took spectrograms as a sole input feature. The spectrogram features were extracted on a window of 25~\textit{ms} with an overlap of 12~\textit{ms}. In order to capture the temporal context of disfluent speech, the stutter-specific learned features from residual blocks were fed to two bi-directional recurrent layers. The network, comprised each BiLSTM of 512 hidden units, was trained with RMSprop optimizer with a drop out of 0.2 and 0.4 on two BiLSTM layers respectively. Although this method has shown promising results in stuttering detection, it has several potential limitations. Firstly, this method did not take the fluent part of stuttering into consideration. Secondly,  it is also not suitable for real-time tasks because it requires separately trained models for each type of disfluency detection, i.e., if we have 10 different types of disfluencies, then we need to train 10 separate models for each type of specific disfluency detection. Thirdly, the model has a huge number of parameters (24~million approx.), thus makes it computationally very expensive to train. Lastly, the study has taken only a small scale of speakers in their case study evaluation.
+In this paper, we address the above-mentioned problems with \emph{StutterNet} based on TDNN. This type of architecture is suitable for speech data as it captures temporal convolution as well as captures contextual information for a given context~\cite{tdnn}. We address stuttering type detection as a multi-class classification problem by training a single \emph{StutterNet} including data from all types of stuttering. Due to the parameter sharing in TDNN, we significantly reduce the number of parameters. In the next section, we provide the details of our proposed architecture. 
+\vspace{-0.1cm}
+\section{Proposed Architecture}
+\label{pnetwork}
+As discussed in Section \ref{introduction}, due to the very limited research in the field of stuttering detection, the idea is to design a single network that can be used to detect and identify various types of stuttering disfluencies. The proposed \emph{StutterNet} first computes the MFCC features from audio samples, which are then passed to the TDNN \cite{daniel} to learn and capture the temporal context of various types of disfluencies.
+
+
+\subsection{Acoustic features}
+In developing any speech domain application, the representative feature extraction is the most important that affects the model performance \cite{mahesha1, lschee2, resnet_lstm}. With the aid of signal processing techniques, several features of the stuttered speech signal can be extracted like raw waveform, spectrograms, mel-spectrograms, and or MFCCs. However, our aim is to compute and extract the features that compactly characterize the stuttering embedded in a speech segment and also which approximates the human auditory system’s response. For stuttering domain, MFCCs are the best suitable and are the most commonly used features in stuttered speech domain \cite{mfccs}, thus, we use MFCCs as the sole features to our \emph{StutterNet} network. These features are generated after every 12~ms on a 25~ms window for each 4~sec audio sample. This four-second window is used as stuttering lasts on average four seconds~\cite{guitar2013stuttering}. 
+
+
+%\begin{figure}[htbp]
+%\centerline{\includegraphics[width=\columnwidth]{disfluent.png}}
+%\caption{Time Waveforms and Spectrograms of a speech (Male) Saying “PLoS Biology”. Top row is normal fluent speech; bottom row is stuttering disfluency (repetitions), occuring at  “B” in “Biology.” Four repetitions can be clearly seen by arrows in the spectrogram. (bottom right)~\cite{buchel2004causes}}.
+%\label{fig}
+%\end{figure}
+\subsection{StutterNet architecture}
+Most of the existing work in literature has studied the stuttering detection as a binary classification problem: stuttering versus fluent detection \cite{khara} or one type versus other disfluency types \cite{resnet_lstm}. We tackle the stuttering detection as a multi-class problem of detecting and identifying the core behaviors, as opposed to the work done in \cite{resnet_lstm}, who addressed this problem as multiple binary classification, with the same network used for every disfluency. For this multi-class detection, we propose a TDNN \cite{tdnn}  based \emph{StutterNet} which effectively learns stutter-specific features. The TDNN method is well suited in capturing the temporal \cite{tdnn, daniel} and contextual aspects of various types of disfluencies.  The neural network takes 20 MFCCs as an input features to learn and capture the temporal context of stuttering. The \emph{StutterNet} contains five time delay layers with the first three focusing on the contextual frames of $[t-2,t+2], \{t-2,t,t+2\}, \{t-3,t,t+3\}$ with dilation of 1, 2 and 3 respectively. This is followed by statistical pooling, three fully connected (FC) layers and a softmax layer that reveals the prediction of multiclass stuttering disfluencies. Each layer is followed by a ReLU activation function and 1D batch normalization except statistical pooling layer. A dropout of 0.2 is applied to first two fully connected layers. The model architecture is shown in Fig.\ref{tdnn_architecture}.
+
+% \begin{figure*}[htbp]
+% \vspace{-1cm}
+% \captionsetup{justification=raggedleft,
+% singlelinecheck=false
+% }
+%   \begin{flushright}
+%   \includesvg[scale=0.4]{tddnmodel.svg}
+%   \vspace{-.5cm}
+%   \caption{StutterNet Contextwise Computation}
+%   \label{snet}
+%   \end{flushright}
+% \end{figure*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure*}[]
+\vspace{-.5cm}
+
+\begin{minipage}[t]{0.7\linewidth}
+    \centering
+    % \includesvg[width=1\textwidth]{tdnnmodel.svg}
+    \includegraphics[width=1\textwidth]{tdnnmodel}
+    \vspace{-.5cm}
+
+    % \caption{ t-SNE plot of latent space of Last Fully Connected Layer: \emph{StutterNet}}
+    % \label{snetembedding}
+\end{minipage}
+% \hspace{0.1cm}
+\begin{minipage}[t]{0.35\linewidth} 
+    \centering
+  %  \includesvg[width=1\textwidth]{tdnntable.svg}
+   \hspace*{-0.5cm} \includegraphics[scale=0.4]{StutterNetArchitecturetab_1}
+    \vspace{-.5cm}
+
+    % \caption{t-SNE plot of latent space of Last Fully Connected Layer:ResNet+BiLSTM}
+    % \label{resnetembedding}
+\end{minipage}   
+\caption{\emph{(a)}:~StutterNet layers and context-wise computation,~\emph{(b)}:~\emph{StutterNet} Architecture (Baseline)~(Except statistical pooling layer, each layer is followed by a ReLU activation function and batch normalization)} 
+\label{tdnn_architecture}
+\vspace{-0.2cm}
+\end{figure*}  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+ 
+
+\section{Experimental Evaluation}
+\vspace{-0.1cm}
+\label{experimentaldesign}
+\subsection{Dataset}
+We have used the UCLASS release 1 stuttering dataset that has been created by the Department of Psychology and Language Sciences, University College London~\cite{uclass}. This dataset consists of monologue samples from 139 participants aged between 5$-$45 years. Of these, 128 have been chosen in this case study with females 18 and males 110. Of these, 104 speakers were used for training, 12 for validation and 12 for testing.  The audio samples were annotated manually by listening to the recordings of speech segments. The annotations have been carried out into different categories of stuttering including: core behaviors, fluent, repetition$-$prolongations, blocks$-$prolongations, repetition$-$blocks, and blocks$-$repetition$-$prolongations. However, in this paper, we are focusing only on the core behaviors as the dataset contains only few of the remaining ones. Each monologue audio clip was sliced into 4-second and down sampled to 16 \textit{kHz} segments, resulting in a total of 4674 speech segment samples. Due to the lack of standard disfluent speech data, we have used only UCLASS dataset for our experimental studies. 
+\par 
+In order to evaluate the \emph{StutterNet} method on the UCLASS dataset, we adopted \textit{K}-fold cross validation technique , where \textit{K=10}. We conducted 10 experiments, each consisting of random sampling of 80\% for training, 10\% for validation and last 10\% for testing. The reported results  are the average between 10 experiments. All experiments were trained with an early stopping criteria of patience 7 on validation loss.
+
+
+\subsection{Evaluation metrics}
+In order to evaluate the model performance on this UCLASS dataset, we have used the metrics including:  precision, recall, F1-score and accuracy which are the standard and are widely used in the disfluent speech domain \cite{resnet_lstm}. In addition to these, we choose Matthew’s  correlation  coefficient (MCC), which is a balanced measure in the data imbalance problem~\cite{mcc}.
+% \paragraph{Precision}
+% \vspace{-0.01cm}
+% \begin{equation}
+%     Precision = \frac{TP}{TP + FP}
+% \end{equation}
+% \vspace{-0.6cm}
+% \paragraph{Recall}
+% \vspace{-0.05cm}
+% \begin{equation}
+%     Recall = \frac{TP}{TP + FN}
+% \end{equation}
+% \paragraph{F1-Score}
+% \vspace{-0.05cm}
+% \begin{equation}
+%     F1 = \frac{2TP}{2TP + FP + FN}
+% \end{equation}
+% \paragraph{Accuracy}
+% \vspace{-0.05cm}
+% \begin{equation}
+%     Accuracy = \frac{TP}{TP + TN + FP + FN}
+% \end{equation}
+% where TP, TN, FP and FN are true positives, true negatives, false positives and false negatives respectively.
+%\paragraph{MCC}
+%Mathew's correlation coefficient (MCC) is a balanced measure for data imbalance \cite{mcc}. 
+This measure lies between the range of $-1$ and $+1$. A value of $1$ represents the perfect prediction, $0$  is no better than the random guess and $-1$ shows total disagreement between observation and prediction. 
+\vspace{-0.05cm}
+\begin{equation}
+    MCC = \frac{cs - \textbf{t}.\textbf{p}}{\sqrt{s^2 - \textbf{p}.\textbf{p}}\sqrt{s^2 - \textbf{t}.\textbf{t}}}
+\end{equation}
+where,
+\begin{itemize}
+    \item $s = \sum_{i}\sum_{j}C_{ij}$, is the total number of samples,
+    \item $c = \sum_{k}C_{kk}$, is the total number of samples correctly predicted,
+    \item $p_k = \sum_{i}C_{ki}$, is the number of times class k was predicted,
+    \item $t_k = \sum_{i}C_{ik}$, is the number of times class k truly occurred,
+\end{itemize}
+
+
+
+%  \cite{librosa}
+\subsection{Implementation}
+We develop \emph{StutterNet} with PyTorch library in Python~\cite{pytorch}. We use a learning rate of $10^{-4}$, amsgrad optimizer, and cross-entropy loss function. We use Librosa library~\cite{librosa} from Python for the feature extraction. We select models using an early stopping with a patience of seven epochs on validation loss. We compare the results obtained by \emph{StutterNet} to existing method~\cite{resnet_lstm} in the same experimental framework.
+
+
+
+
+% \begin{figure*}
+%         \centering
+%         \subfloat[StutterNet Architecture]{
+%             \adjustbox{}{\begin{tabular}{c|c|c}
+%     \hline
+%          \multicolumn{3}{c}{StutterNet Architecture} \\
+%          \hline
+%          Layer & Output Size & Context\\
+%          \hline
+%          Input& MFCC $\times$L & -\\
+%          TDNN\footnote{Except statistical pooling layer, each layer is followed by a \\ReLU activation function and a batch normalization}  & 512 $\times$ 512 & $[t-2,t+2]$\\
+%          TDNN  & 512 $\times$ 512& \{t-2,t,t+2\}\\
+%          TDNN & 512 $\times$ 512 &\{t-3,t,t+3\}\\
+%         %  TDNN & 512 $\times$  & -\\
+%         %  Dropout(0.2)&-&-\\
+%          TDNN & 512 $\times$ 512 & \{t\}\\
+%          TDNN & 512 $\times$ 1500 & \{t\}\\
+%         %  AdaptiveMaxpool1D&318&To Fix Variable lenghts\\
+%          Statistical Pooling& $1500*2$$\times$1 &Mean and STDV\\
+%          FC1&$1500*2$$\times$512&-\\
+%          FC2&512$\times$512&-\\
+%          FC2&512$\times$4&NumClasses\\
+%          \hline
+
+%     \end{tabular}
+%             \label{tab:tdnn_architecture}}}
+%         \subfloat[StutterNet Contextwise Computation]{           
+%             \includesvg[width=0.4\linewidth]{tddnmodel.svg} 
+
+%             \label{snet}          
+
+%             }
+%         % \caption{Majority classifier results.}
+%     \end{figure*}
+
+% \begin{table}
+%     \centering
+%     \caption{StutterNet Architecture}
+%     \vspace{-0.2cm}
+%      \begin{minipage}{\textwidth}
+%     \begin{tabular}{c|c|c}
+%     \hline
+%          \multicolumn{3}{c}{StutterNet Architecture} \\
+%          \hline
+%          Layer & Output Size & Context\\
+%          \hline
+%          Input& MFCC $\times$L & -\\
+%          TDNN\footnote{Except statistical pooling layer, each layer is followed by a \\ReLU activation function and a batch normalization}  & 512 $\times$ 512 & $[t-2,t+2]$\\
+%          TDNN  & 512 $\times$ 512& \{t-2,t,t+2\}\\
+%          TDNN & 512 $\times$ 512 &\{t-3,t,t+3\}\\
+%         %  TDNN & 512 $\times$  & -\\
+%         %  Dropout(0.2)&-&-\\
+%          TDNN & 512 $\times$ 512 & \{t\}\\
+%          TDNN & 512 $\times$ 1500 & \{t\}\\
+%         %  AdaptiveMaxpool1D&318&To Fix Variable lenghts\\
+%          Statistical Pooling& $1500*2$$\times$1 &Mean and STDV\\
+%          FC1&$1500*2$$\times$512&-\\
+%          FC2&512$\times$512&-\\
+%          FC3&512$\times$4&NumClasses\\
+%          \hline
+        
+
+%     \end{tabular}
+%     \end{minipage}
+
+    
+%     % Except statistical pooling layer, each layer is followed by a ReLU activation function and batch normalization
+%     \label{tab:tdnn_architecture}
+% \end{table}
+%  \footnotesize{Except statistical pooling}
+
+\begin{table*}[]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \caption{Results in precision, recall and F1-score on UCLASS dataset (B: Block, F: Fluent, Rept: Repetition, Pr: Prolongation).}
+    \vspace{-0.2cm}
+    \begin{tabular}{*{14}{c}}
+    \hline
+    & \multicolumn{4}{c}{Precision} & \multicolumn{4}{c}{Recall} & \multicolumn{4}{c}{F1-Score} \\
+    \hline
+   Method &Rept&Pr&B&F&Rept&Pr&B&F&Rept&Pr&B&F\\
+    \hline
+    ResNet$+$BiLSTM~\cite{resnet_lstm} %&0.75&\textbf{0.88}&0.81&0.90&0.83&0.79&0.86&0.73&0.76&0.79&0.82&0.77\\
+    &0.33&	0.42&	0.43&	\textbf{0.63}&	0.20&	\textbf{0.23}&	\textbf{0.53}&	0.55&	0.22&	\textbf{0.28}&	0.44&	0.52\\
+   
+    \hline
+    \textbf{\emph{StutterNet}} (Baseline)
+    % &0.89&	0.84&\textbf{0.93}&	0.88&	0.83&	\textbf{0.87}&	0.88&	\textbf{0.93}&	0.85&	\textbf{0.84}&\textbf{	0.90}&0.90\\
+    &\textbf{0.36}&	\textbf{0.43}&	0.42&	0.59&	\textbf{0.28}&	0.17&	0.42&	0.67&	\textbf{0.30}&	0.23&	0.42&	0.62\\
+    \textbf{\emph{StutterNet} (Optimized)}&
+    0.35&	0.31&	\textbf{0.47}&	0.59&	0.24&	0.13&	0.47&	\textbf{0.70}&	0.27&	0.16&	\textbf{0.46}&	\textbf{0.63}\\
+    % \textbf{0.89}&0.87&0.87&\textbf{0.91}&\textbf{0.85}&0.81&\textbf{0.89}&0.92&\textbf{0.86}&0.83&0.88&\textbf{0.91}\\
+    % % Method & Pr & Rc & F1 & Acc.& MCC.
+    \hline
+    %     \multicolumn{3}{c}{StutterNet Architecture} \\
+
+    \end{tabular}
+
+        \label{tab:results}
+\end{table*}
+
+\begin{table*}[]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \caption{Results in accuracies and MCC on UCLASS dataset (B: Block, F: Fluent, Rept: Repetition, Pr: Prolongation).}
+    \vspace{-0.2cm}
+    \begin{tabular}{*{7}{c}}
+    \hline
+    \multicolumn{1}{c}{Method}&\multicolumn{4}{c}{Accuracy}&\multicolumn{1}{c}{Tot. Acc.}&\multicolumn{1}{c}{MCC.}\\
+    \hline
+    &Rept&Pr&B&F&&\\
+    \hline
+    Resnet+BiLSTM~\cite{resnet_lstm}&
+    20.39&	\textbf{23.17}&	\textbf{53.33}&	55.00&	46.10&	0.20\\
+    % 83.30&79.06&86.07&73.11&79.63&0.73\\
+    \hline
+    \textit{ \textbf{StutterNet}  (Baseline)}&
+    % 84.24&	77.53&85.88&	\textbf{92.69}&	88.48&0.83\\
+    \textbf{27.88}&	17.13&	42.43&	66.63&	49.26&	0.21\\
+    \textbf{\emph{StutterNet} (Optimized)}&
+    23.98&	12.96&	47.14&	\textbf{69.69}&	\textbf{50.79}&	\textbf{0.23}\\
+%     \textbf{85.09}&	\textbf{81.04}&\textbf{	89.41}&	91.87&	\textbf{88.79}&\textbf{ 0.84}\\
+ \hline
+    \end{tabular}
+    
+    \label{tab:Accuracy}
+    \vspace{-0.2cm}
+\end{table*}
+
+
+
+
+\section{Results}
+\vspace{-0.1cm}
+% \subsection{Performance and comparison}
+The results of our baseline \emph{StutterNet} for different stuttering recognition are presented in Tables~\ref{tab:results} and \ref{tab:Accuracy}, where we compare our technique to ResNet+BiLSTM~\cite{resnet_lstm}. All the considered disfluencies and the fluent speech are  recognized with good scores. 
+As can be seen from the Table~\ref{tab:results}, F1-Scores show clearly the good performances of baseline \emph{StutterNet} method in comparison to ResNet+BiLSTM. 
+Table~\ref{tab:Accuracy} also shows that the baseline \emph{StutterNet} surpasses the state-of-the-art in most disfluency detection cases, but shows slightly lower performance in prolongation and block detection with an average accuracies of $17.13\%$, $42.43\%$ in comparison to $23.17\%$, $53.33\%$ average accuracies of ResNet+BiLSTM respectively. The \emph{StutterNet} outperforms ResNet+BiLSTM in correctly detecting fluent speech with a difference of 11.63 points ($66.63\%$ for the baseline, and $55.00\%$ for ResNet+BiLSTM).
+
+
+%\par 
+We separately optimize the baseline \emph{StutterNet} by varying the filter bank size~(10,~30,~40,~50), context window~(3,~7,~9,~11) and layer size~(64,~128,~256,~1024). We found that context window optimization improves the detection performance of prolongation and repetition type of disfluencies. As the context increases, the performance of \emph{StutterNet} increases for the detection of prolongation and repetition stutterings, but decreases for the fluent segments, and it remains almost unchanged for the block stuttering. This makes sense because the repetition and prolongation disfluencies usually lasts longer and the longer context helps the \emph{StutterNet} in improving the performance. The block disfluencies doesn't last long: usually occurs at the beginning of speech segment and thus makes it context independent. We also found that layer size optimization slightly improves the performance (overall accuracy and MCC) of the stuttering detection in block and fluent types of disfluencies as shown in Fig.~\ref{fig:compare}. This might be due to the possible reason that the baseline \emph{StutterNet} is over-parameterized due to the limited size of the UCLASS dataset. We term the layer size optimized \emph{StutterNet} as optimized \emph{StutterNet} in Table~\ref{tab:results} and \ref{tab:Accuracy}. Compared to ResNet+BiLSTM, our optimized proposed method gains a margin of 4.69\% and 0.03 in overall average accuracy and MCC, respectively. For detecting the \emph{core behaviours} and the fluent part, the margins are also substantial (improvements of 7.49\%, 14.69\% in repetition and fluent speech segments, respectively).
+%\par 
+% \vspace{-0.1cm}
+% Most of the previous works usually focused on binary class detection problem including: stuttering vs non- stuttering or separate dedicated models were used for each type of disfluency~\cite{khara, resnet_lstm}. As opposed to that, our proposed method is able to detect and classify the stuttering types and fluent part of speech with just one trained model. In addition,%which makes it difficult to detect and classify, as can be confirmed from the latent space as well in Fig.~\ref{latentspace}. 
+Most previous work tends to avoid block disfluencies because of their similar nature to silence and prolongation (blocks are prolonged without audible airflow)~\cite{teesson2003lidcombe}. As shown in Table~\ref{tab:Accuracy}, the proposed \emph{StutterNet} can detect and classify the block stuttering with an average accuracy of 47.14\%. Moreover, our technique relies on the assumption that stuttering usually lasts for four-second window size~\cite{guitar2013stuttering}. Note that some of the stuttering~(in particular prolongation and repetition) can exceed more than four seconds in speech~\cite{guitar2013stuttering}, thus causing those prolongation stuttering likely to be misclassified. 
+
+\par
+
+
+
+Fig.~\ref{latentspace} shows a visualization of the latent feature embeddings learned by \emph{StutterNet} using t-SNE projection. Both ResNet+BiLSTM and \emph{StutterNet} present good discrimination of the different types of disfluencies. However, the latent feature embeddings learned by \emph{StutterNet} are more distinctive for fluent and less distinctive for prolongations and accurately capture the stutter-specific information than the state-of-the-art ResNet+BiLSTM method. Interestingly for ResNet+BiLSTM, the fluent and repetition category's embeddings are widely spread and more overlapped with the other classes. The prolongations and blocks are well clustered in BiLSTM+ResNet as compared to \emph{StutterNet}.
+
+
+
+\begin{figure}
+    \centering
+    \adjustbox{trim=1cm 0cm 1cm 0cm}{
+    % \includesvg[scale=0.5]{mcc_optim.svg} 
+    \includegraphics[scale=0.5]{mcc_optim}
+    }
+    \vspace{-0.2cm}
+    \caption{\small MCC and accuracy of \emph{StutterNet} with varying context, layer size and mel filter bank size (Acc is normalized in [0,1]).}
+    \label{fig:compare}
+    \vspace{-0.7cm}
+\end{figure}
+
+
+
+% If we carefully analyze the latent space, some prolongations are being grouped with the block stuttering. Since it seems that the model is confusing 
+
+\begin{figure*}[]
+\vspace{-.5cm}
+
+\begin{minipage}[t]{0.4\linewidth}
+    \centering
+    % \includesvg[width=1\textwidth]{rnet.svg}
+    \includegraphics[width=1\textwidth]{rnet}
+
+    % \caption{ t-SNE plot of latent space of Last Fully Connected Layer: \emph{StutterNet}}
+    % \label{snetembedding}
+\end{minipage}
+\hspace{2cm}
+\begin{minipage}[t]{0.4\linewidth} 
+    \centering
+    % \includesvg[width=1\textwidth]{SNet.svg}
+    \includegraphics[width=1\textwidth]{SNet}
+    
+
+    % \caption{t-SNE plot of latent space of Last Fully Connected Layer:ResNet+BiLSTM}
+    % \label{resnetembedding}
+\end{minipage}   
+% \put(0.5,2){Outliers}
+\vspace{-0.2cm}
+\caption{t-SNE visualization of the output of last fully-connected layer for \emph{ResNet+BiLSTM} (left) and \emph{StutterNet} (right).}
+\label{latentspace}
+\vspace{-0.65cm}
+\end{figure*}  
+
+% \begin{figure*}[!t]
+% \includegraphics[trim={0cm 22.5cm 0 0.5cm},clip,width=18cm]{shakeel.eps}
+% \caption{t-SNE visualization of the output of last fully-connected layer for \emph{ResNet+BiLSTM} (left) and \emph{StutterNet} (right).}
+% \label{latentspace}
+% \end{figure*}
+
+
+
+\vspace{-0.1cm}
+\section{Conclusion}
+\vspace{-0.1cm}
+In this work, we present a \emph{StutterNet} to detect and classify several stuttering types. Our method uses a TDNN, which is trained on the MFCC input features. Only the \emph{core behaviors} and fluent part of the stuttered speech were considered in this study. The results show that the \emph{StutterNet} achieves considerable gain in overall average accuracy and MCC of 4.69\% and 0.03 respectively compared to the state-of-the-art method based on residual neural network and BiLSTM. We experimentally optimize layer size, context, and filterbank size in baseline \emph{StutterNet}. The performance moderately improves with layer size and context window optimization. Our method's main advantage is that it can detect all stuttering types with a single system with a smaller number of parameters, unlike the existing method. Our method also achieves considerable performance improvement in discriminating fluent vs. disfluent speech.
+
+In this work, we have not evaluated the \emph{StutterNet} on the multiple disfluencies, where two or more disfluencies are present simultaneously in an utterance.  Besides, the \emph{UCLASS} dataset was collected in a controlled environment, whereas the real-time disfluency detection is a demanding problem. 
+In future work, we will focus on multiple disfluencies by exploring the more advanced variants of TDNN for stuttering detection in a real-world scenario. We can also extend this work by exploring joint optimization of the different parameters, including context, filterbank size, and layer size of the proposed system.
+
+% What have we done
+% Main Findings 
+% Limitations should be connected with  (Data Imbalance ---> Data Augmenatation)
+% Future Work
+\label{conc}
+
+% \footnotesize
+% \section*{Acknowledgment}
+% % \vspace{0.1}
+% This  work  was  made  with  the  support  of  the  French  National  Research Agency, in the framework of the project ANR BENEPHIDIRE (18-CE36-0008-03). Experiments  presented  in  this  paper  were  carried  out  using  the  Grid’5000 testbed, supported by a scientific interest group hosted by Inria and including CNRS,  RENATER  and  several  universities  as  well  as  other  organizations(see  https://www.grid5000.fr) and  using the EXPLOR  centre, hosted by the University of Lorraine. 
+
+% The preferred spelling of the word ``acknowledgment'' in America is without 
+% an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
+% G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
+% acknowledgments in the unnumbered footnote on the first page.
+
+% \section*{References}
+  \vspace{-0.2cm}
+ \section*{Acknowledgment}
+ \vspace{-0.2cm}
+ This  work  was  made  with  the  support  of  the  French  National  Research Agency, in the framework of the project ANR BENEPHIDIRE (18-CE36-0008-03). Experiments  presented  in  this  paper  were  carried  out  using  the  Grid’5000 testbed, supported by a scientific interest group hosted by Inria and including CNRS,  RENATER  and  several  universities  as  well  as  other  organizations(see  https://www.grid5000.fr) and  using the EXPLOR  centre, hosted by the University of Lorraine.
+ \vspace{-0.2cm}
+
+\bibliographystyle{IEEEtran}
+ \vspace{-0.1cm}
+
+\bibliography{reference.bib}
+ 
+\end{document}

@@ -1,0 +1,31 @@
+{
+  "add_table_placement": {
+    "description": "Add placement parameters to table",
+    "pattern": "\\begin{table}\\s*\n",
+    "fix": "Change to \\begin{table}[htbp]",
+    "example": "\\begin{table}[htbp]",
+    "applies_to": ["table"]
+  },
+  "add_figure_placement": {
+    "description": "Add placement parameters to figure",
+    "pattern": "\\begin{figure}\\s*\n",
+    "fix": "Change to \\begin{figure}[htbp]",
+    "example": "\\begin{figure}[htbp]",
+    "applies_to": ["figure"]
+  },
+  "prefer_top_placement": {
+    "description": "Use [t] for top placement preference",
+    "pattern": "\\begin{table}[",
+    "fix": "Use [t] for tables that should appear at top",
+    "example": "\\begin{table}[t]",
+    "applies_to": ["table", "figure"]
+  },
+  "use_here_float": {
+    "description": "Use [H] for exact placement (requires float package)",
+    "pattern": "\\begin{table}",
+    "fix": "Use [H] with \\usepackage{float}",
+    "example": "\\begin{table}[H]",
+    "applies_to": ["table", "figure"],
+    "requires_package": "float"
+  }
+}

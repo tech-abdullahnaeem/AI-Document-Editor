@@ -1,0 +1,173 @@
+{
+  "equation_environments": {
+    "single_equation": {
+      "identifiers": ["simple_formula", "standalone_equation", "numbered_equation"],
+      "environment": "equation",
+      "usage": "single line mathematical expression that needs numbering",
+      "template": "\\begin{equation}\n{CONTENT}\n\\label{{LABEL}}\n\\end{equation}",
+      "numbering": "automatic",
+      "examples": [
+        "E = mc^2",
+        "f(x) = ax^2 + bx + c",
+        "\\sum_{i=1}^{n} x_i = \\mu n"
+      ]
+    },
+    "unnumbered_equation": {
+      "identifiers": ["simple_display", "unnumbered_formula"],
+      "environment": "equation*",
+      "usage": "single line mathematical expression without numbering",
+      "template": "\\begin{equation*}\n{CONTENT}\n\\end{equation*}",
+      "numbering": "none",
+      "examples": [
+        "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+        "\\lim_{x \\to \\infty} f(x) = L"
+      ]
+    },
+    "aligned_equations": {
+      "identifiers": ["multi_line", "step_by_step", "derivation", "system"],
+      "environment": "align",
+      "usage": "multiple equations with alignment",
+      "template": "\\begin{align}\n{CONTENT}\n\\end{align}",
+      "numbering": "each_line",
+      "alignment_character": "&",
+      "examples": [
+        "f(x) &= ax^2 + bx + c \\\\\n&= a(x + \\frac{b}{2a})^2 - \\frac{b^2 - 4ac}{4a}"
+      ]
+    },
+    "gathered_equations": {
+      "identifiers": ["grouped_equations", "multiple_related"],
+      "environment": "gather",
+      "usage": "multiple equations without alignment",
+      "template": "\\begin{gather}\n{CONTENT}\n\\end{gather}",
+      "numbering": "each_line",
+      "examples": [
+        "f(x) = ax^2 + bx + c \\\\\ng(x) = dx^3 + ex^2 + fx + g"
+      ]
+    },
+    "split_equation": {
+      "identifiers": ["long_equation", "line_break"],
+      "environment": "split",
+      "usage": "single equation split across multiple lines",
+      "template": "\\begin{equation}\n\\begin{split}\n{CONTENT}\n\\end{split}\n\\end{equation}",
+      "numbering": "single_number",
+      "alignment_character": "&",
+      "examples": [
+        "f(x) &= a_1x^{10} + a_2x^9 + a_3x^8 + a_4x^7 + a_5x^6 \\\\\n&\\quad + a_6x^5 + a_7x^4 + a_8x^3 + a_9x^2 + a_{10}x + a_{11}"
+      ]
+    },
+    "matrix_equations": {
+      "identifiers": ["matrix", "vector", "linear_algebra"],
+      "environments": ["pmatrix", "bmatrix", "vmatrix", "Vmatrix"],
+      "usage": "matrices and vectors",
+      "templates": {
+        "pmatrix": "\\begin{pmatrix}\n{CONTENT}\n\\end{pmatrix}",
+        "bmatrix": "\\begin{bmatrix}\n{CONTENT}\n\\end{bmatrix}",
+        "vmatrix": "\\begin{vmatrix}\n{CONTENT}\n\\end{vmatrix}",
+        "Vmatrix": "\\begin{Vmatrix}\n{CONTENT}\n\\end{Vmatrix}"
+      },
+      "examples": [
+        "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}",
+        "\\begin{bmatrix} x_1 \\\\ x_2 \\\\ \\vdots \\\\ x_n \\end{bmatrix}"
+      ]
+    }
+  },
+  "mathematical_notation": {
+    "vectors": {
+      "bold_notation": "\\mathbf{{VARIABLE}}",
+      "arrow_notation": "\\vec{{VARIABLE}}",
+      "usage": "use bold for vectors in ML/AI, arrows in physics"
+    },
+    "matrices": {
+      "bold_uppercase": "\\mathbf{{VARIABLE}}",
+      "usage": "bold uppercase letters for matrices"
+    },
+    "sets": {
+      "blackboard_bold": "\\mathbb{{VARIABLE}}",
+      "common_sets": {
+        "real_numbers": "\\mathbb{R}",
+        "integers": "\\mathbb{Z}",
+        "natural_numbers": "\\mathbb{N}",
+        "complex_numbers": "\\mathbb{C}",
+        "rational_numbers": "\\mathbb{Q}"
+      }
+    },
+    "functions": {
+      "regular_functions": "f(x), g(x), h(x)",
+      "special_functions": {
+        "trigonometric": "\\sin, \\cos, \\tan",
+        "logarithmic": "\\log, \\ln",
+        "exponential": "\\exp",
+        "limits": "\\lim_{x \\to a}",
+        "derivatives": "\\frac{d}{dx}, \\frac{\\partial}{\\partial x}"
+      }
+    },
+    "statistical_notation": {
+      "probability": "P(X), \\Pr(X)",
+      "expectation": "E[X], \\mathbb{E}[X]",
+      "variance": "\\text{Var}(X), \\sigma^2",
+      "standard_deviation": "\\sigma, \\text{SD}",
+      "correlation": "\\rho, \\text{Corr}(X,Y)",
+      "regression": "\\hat{y}, \\beta_0, \\beta_1",
+      "hypothesis_testing": "H_0, H_1, p\\text{-value}"
+    },
+    "ml_ai_notation": {
+      "neural_networks": {
+        "weights": "\\mathbf{W}, \\mathbf{w}",
+        "biases": "\\mathbf{b}, b",
+        "activations": "\\mathbf{a}, a",
+        "layers": "\\mathbf{h}^{(l)}",
+        "loss_function": "\\mathcal{L}, J"
+      },
+      "optimization": {
+        "gradients": "\\nabla_\\theta J",
+        "learning_rate": "\\alpha, \\eta",
+        "parameters": "\\theta, \\phi"
+      }
+    }
+  },
+  "equation_fixes": {
+    "environment_selection": {
+      "single_line_numbered": "equation",
+      "single_line_unnumbered": "equation*",
+      "multiple_aligned": "align",
+      "multiple_unaligned": "gather",
+      "long_equation_split": "split inside equation",
+      "matrices": "appropriate matrix environment"
+    },
+    "common_errors": {
+      "missing_dollar_signs": "wrap in $ or $$",
+      "wrong_environment": "select appropriate environment",
+      "missing_alignment": "add & for alignment",
+      "improper_line_breaks": "use \\\\ for line breaks",
+      "missing_labels": "add \\label for important equations",
+      "inconsistent_notation": "standardize throughout document"
+    },
+    "formatting_standards": {
+      "spacing": "proper spacing around operators",
+      "punctuation": "equations are part of sentences",
+      "alignment": "align at = or main operator",
+      "numbering": "number important equations only",
+      "referencing": "use \\eqref for equation references"
+    }
+  },
+  "validation_rules": {
+    "syntax": [
+      "balanced_delimiters",
+      "proper_environment_nesting",
+      "correct_command_usage",
+      "valid_math_mode"
+    ],
+    "style": [
+      "consistent_notation",
+      "appropriate_spacing",
+      "proper_alignment",
+      "readable_layout"
+    ],
+    "semantics": [
+      "meaningful_variable_names",
+      "consistent_mathematical_style",
+      "appropriate_complexity_level",
+      "clear_mathematical_logic"
+    ]
+  }
+}

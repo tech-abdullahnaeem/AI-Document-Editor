@@ -1,0 +1,132 @@
+{
+  "table_types": {
+    "experimental_results": {
+      "identifiers": ["accuracy", "precision", "recall", "f1", "rmse", "mae", "mse", "r2", "auc"],
+      "structure": {
+        "typical_columns": ["Method", "Dataset", "Metric", "Score", "P-value", "Std Dev"],
+        "column_alignment": ["left", "center", "center", "right", "right", "right"],
+        "header_style": "bold",
+        "data_formatting": {
+          "numeric_alignment": "right",
+          "decimal_places": 3,
+          "statistical_significance": "asterisk_notation",
+          "best_results": "bold"
+        }
+      },
+      "latex_template": "\\begin{table*}[t]\n\\centering\n\\caption{{CAPTION}}\n\\begin{tabular}{{ALIGNMENT}}\n\\toprule\n{HEADERS} \\\\\n\\midrule\n{DATA}\n\\bottomrule\n\\end{tabular}\n\\label{{LABEL}}\n\\end{table*}",
+      "required_packages": ["booktabs", "array"]
+    },
+    "comparison_table": {
+      "identifiers": ["vs", "versus", "comparison", "model", "approach", "method"],
+      "structure": {
+        "typical_columns": ["Feature", "Model A", "Model B", "Model C", "Advantage"],
+        "column_alignment": ["left", "center", "center", "center", "left"],
+        "header_style": "bold",
+        "highlighting": {
+          "best_results": "bold",
+          "advantages": "checkmark",
+          "disadvantages": "cross"
+        }
+      },
+      "latex_template": "\\begin{table}[h]\n\\centering\n\\caption{{CAPTION}}\n\\begin{tabular}{{ALIGNMENT}}\n\\toprule\n{HEADERS} \\\\\n\\midrule\n{DATA}\n\\bottomrule\n\\end{tabular}\n\\label{{LABEL}}\n\\end{table}",
+      "required_packages": ["booktabs", "array", "xcolor"]
+    },
+    "dataset_description": {
+      "identifiers": ["dataset", "data", "corpus", "collection", "samples", "instances"],
+      "structure": {
+        "typical_columns": ["Dataset", "Size", "Features", "Type", "Source"],
+        "column_alignment": ["left", "right", "right", "center", "left"],
+        "header_style": "bold",
+        "data_formatting": {
+          "numbers": "comma_separated",
+          "sizes": "human_readable"
+        }
+      },
+      "latex_template": "\\begin{table}[h]\n\\centering\n\\caption{{CAPTION}}\n\\begin{tabular}{{ALIGNMENT}}\n\\toprule\n{HEADERS} \\\\\n\\midrule\n{DATA}\n\\bottomrule\n\\end{tabular}\n\\label{{LABEL}}\n\\end{table}",
+      "required_packages": ["booktabs", "array"]
+    },
+    "statistical_summary": {
+      "identifiers": ["mean", "std", "median", "min", "max", "statistics", "summary"],
+      "structure": {
+        "typical_columns": ["Variable", "Mean", "Std Dev", "Min", "Max", "N"],
+        "column_alignment": ["left", "right", "right", "right", "right", "right"],
+        "header_style": "bold",
+        "data_formatting": {
+          "decimal_places": 2,
+          "scientific_notation": "when_needed",
+          "confidence_intervals": "parentheses"
+        }
+      },
+      "latex_template": "\\begin{table}[h]\n\\centering\n\\caption{{CAPTION}}\n\\begin{tabular}{{ALIGNMENT}}\n\\toprule\n{HEADERS} \\\\\n\\midrule\n{DATA}\n\\bottomrule\n\\end{tabular}\n\\label{{LABEL}}\n\\end{table}",
+      "required_packages": ["booktabs", "array", "siunitx"]
+    },
+    "hyperparameter_table": {
+      "identifiers": ["hyperparameter", "parameter", "config", "setting", "tuning"],
+      "structure": {
+        "typical_columns": ["Parameter", "Value", "Range", "Description"],
+        "column_alignment": ["left", "center", "center", "left"],
+        "header_style": "bold",
+        "data_formatting": {
+          "code_style": "monospace",
+          "ranges": "dash_notation"
+        }
+      },
+      "latex_template": "\\begin{table}[h]\n\\centering\n\\caption{{CAPTION}}\n\\begin{tabular}{{ALIGNMENT}}\n\\toprule\n{HEADERS} \\\\\n\\midrule\n{DATA}\n\\bottomrule\n\\end{tabular}\n\\label{{LABEL}}\n\\end{table}",
+      "required_packages": ["booktabs", "array", "courier"]
+    }
+  },
+  "table_fixes": {
+    "alignment_corrections": {
+      "numeric_data": "right",
+      "text_data": "left",
+      "categorical_data": "center",
+      "boolean_data": "center"
+    },
+    "formatting_standards": {
+      "use_booktabs": true,
+      "no_vertical_lines": true,
+      "consistent_spacing": true,
+      "proper_captions": true,
+      "labels_for_reference": true
+    },
+    "common_errors": {
+      "missing_toprule": "\\toprule",
+      "missing_midrule": "\\midrule", 
+      "missing_bottomrule": "\\bottomrule",
+      "wrong_alignment": "fix_based_on_data_type",
+      "inconsistent_decimals": "standardize_precision",
+      "missing_caption": "add_descriptive_caption",
+      "missing_label": "add_unique_label"
+    },
+    "width_adjustments": {
+      "single_column": {
+        "max_width": "\\columnwidth",
+        "font_size": "\\small or \\footnotesize if needed"
+      },
+      "two_column": {
+        "spanning_table": "table* environment",
+        "column_table": "adjust width to \\columnwidth"
+      }
+    }
+  },
+  "table_validation_rules": {
+    "structural": [
+      "matching_begin_end_environments",
+      "correct_column_count",
+      "proper_row_termination",
+      "balanced_ampersands"
+    ],
+    "formatting": [
+      "consistent_alignment",
+      "appropriate_spacing",
+      "professional_appearance",
+      "readable_fonts"
+    ],
+    "semantic": [
+      "appropriate_table_type",
+      "meaningful_headers",
+      "consistent_data_types",
+      "proper_statistical_notation"
+    ]
+  }
+}

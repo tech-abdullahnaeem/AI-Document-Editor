@@ -1,0 +1,242 @@
+{
+  "syntax_errors": {
+    "unmatched_braces": {
+      "patterns": [
+        "\\{[^}]*$",
+        "^[^{]*\\}",
+        "\\{[^}]*\\{[^}]*$"
+      ],
+      "fixes": [
+        "add_missing_closing_brace",
+        "remove_extra_opening_brace",
+        "balance_nested_braces"
+      ],
+      "severity": "critical"
+    },
+    "unmatched_environments": {
+      "patterns": [
+        "\\\\begin\\{([^}]*)\\}(?!.*\\\\end\\{\\1\\})",
+        "\\\\end\\{([^}]*)\\}(?<!\\\\begin\\{\\1\\}.*)"
+      ],
+      "fixes": [
+        "add_missing_end_environment",
+        "remove_extra_end_environment",
+        "match_begin_end_pairs"
+      ],
+      "severity": "critical"
+    },
+    "malformed_commands": {
+      "patterns": [
+        "\\\\[a-zA-Z]*(?![a-zA-Z\\s\\{\\[])",
+        "\\\\(?![a-zA-Z])[^\\\\\\s]",
+        "\\\\\\\\"
+      ],
+      "fixes": [
+        "correct_command_syntax",
+        "escape_special_characters",
+        "fix_double_backslashes"
+      ],
+      "severity": "high"
+    },
+    "missing_math_delimiters": {
+      "patterns": [
+        "\\b[a-zA-Z]*[αβγδεζηθικλμνξπρστυφχψω][a-zA-Z]*\\b(?!.*\\$)",
+        "\\\\[a-zA-Z]+(?!.*[\\$\\\\\\(\\\\\\[])",
+        "[=<>±∞∑∏∫](?!.*[\\$\\\\\\(\\\\\\[])"
+      ],
+      "fixes": [
+        "wrap_in_math_mode",
+        "add_inline_math_delimiters",
+        "convert_to_display_math"
+      ],
+      "severity": "high"
+    },
+    "table_syntax_errors": {
+      "patterns": [
+        "\\\\begin\\{tabular\\}(?!\\{[lcr|]*\\})",
+        "&(?![^\\\\]*\\\\\\\\)",
+        "\\\\\\\\(?![^&]*&|[^\\\\]*\\\\end)"
+      ],
+      "fixes": [
+        "add_column_specification",
+        "fix_column_separators",
+        "fix_row_terminators"
+      ],
+      "severity": "high"
+    }
+  },
+  "formatting_errors": {
+    "inconsistent_spacing": {
+      "patterns": [
+        "\\s{2,}",
+        "\\\\section\\{[^}]*\\}\\s*\\n\\s*\\n\\s*",
+        "\\$[^$]*\\s+[^$]*\\$"
+      ],
+      "fixes": [
+        "normalize_whitespace",
+        "standardize_section_spacing",
+        "fix_math_spacing"
+      ],
+      "severity": "medium"
+    },
+    "improper_quotation_marks": {
+      "patterns": [
+        "\"([^\"]*?)\"",
+        "'([^']*?)'",
+        "\u201c([^\u201d]*?)\u201d",
+        "\u2018([^\u2019]*?)\u2019"
+      ],
+      "fixes": [
+        "convert_to_latex_quotes",
+        "use_backtick_apostrophe",
+        "fix_smart_quotes"
+      ],
+      "severity": "medium"
+    },
+    "wrong_dash_usage": {
+      "patterns": [
+        "\\b\\w+-\\w+\\b",
+        "\\s-\\s",
+        "\\d+-\\d+",
+        "pp\\. \\d+-\\d+"
+      ],
+      "fixes": [
+        "use_hyphen_for_compounds",
+        "use_en_dash_for_ranges",
+        "use_em_dash_for_breaks"
+      ],
+      "severity": "low"
+    }
+  },
+  "structural_errors": {
+    "missing_document_class": {
+      "patterns": [
+        "^(?!.*\\\\documentclass)"
+      ],
+      "fixes": [
+        "add_document_class"
+      ],
+      "severity": "critical"
+    },
+    "missing_begin_document": {
+      "patterns": [
+        "^(?!.*\\\\begin\\{document\\})"
+      ],
+      "fixes": [
+        "add_begin_document"
+      ],
+      "severity": "critical"
+    },
+    "content_before_begin_document": {
+      "patterns": [
+        "\\\\begin\\{document\\}.*\\n(.+)\\n.*\\\\begin\\{document\\}"
+      ],
+      "fixes": [
+        "move_content_after_begin_document"
+      ],
+      "severity": "high"
+    },
+    "section_hierarchy_errors": {
+      "patterns": [
+        "\\\\subsection(?!.*\\\\section)",
+        "\\\\subsubsection(?!.*\\\\subsection)"
+      ],
+      "fixes": [
+        "fix_section_hierarchy",
+        "promote_subsections_to_sections"
+      ],
+      "severity": "medium"
+    }
+  },
+  "academic_specific_errors": {
+    "missing_abstract": {
+      "patterns": [
+        "^(?!.*\\\\begin\\{abstract\\}|.*\\\\section\\*?\\{Abstract\\})"
+      ],
+      "fixes": [
+        "add_abstract_placeholder"
+      ],
+      "severity": "medium",
+      "context": "research_paper"
+    },
+    "improper_citation_format": {
+      "patterns": [
+        "\\[[^\\]]*[a-zA-Z][^\\]]*\\]",
+        "\\([^)]*\\d{4}[^)]*\\)(?!.*\\\\cite)",
+        "et al\\.?(?!.*\\\\cite)"
+      ],
+      "fixes": [
+        "convert_to_latex_citations",
+        "standardize_citation_format"
+      ],
+      "severity": "medium"
+    },
+    "missing_references_section": {
+      "patterns": [
+        "\\\\cite\\{[^}]+\\}(?!.*\\\\bibliography|.*\\\\begin\\{thebibliography\\})"
+      ],
+      "fixes": [
+        "add_bibliography_section"
+      ],
+      "severity": "medium"
+    }
+  },
+  "emergency_fixes": {
+    "compilation_stoppers": [
+      {
+        "error_type": "undefined_control_sequence",
+        "pattern": "Undefined control sequence",
+        "fixes": [
+          "comment_out_undefined_command",
+          "replace_with_known_equivalent",
+          "add_required_package"
+        ]
+      },
+      {
+        "error_type": "missing_number",
+        "pattern": "Missing number, treated as zero",
+        "fixes": [
+          "add_missing_dimension",
+          "fix_numeric_parameter",
+          "provide_default_value"
+        ]
+      },
+      {
+        "error_type": "runaway_argument",
+        "pattern": "Runaway argument",
+        "fixes": [
+          "close_runaway_brace",
+          "terminate_command_properly",
+          "fix_argument_structure"
+        ]
+      }
+    ],
+    "last_resort_fixes": [
+      "comment_out_problematic_lines",
+      "replace_with_minimal_working_equivalent",
+      "insert_error_recovery_commands"
+    ]
+  },
+  "fix_priorities": {
+    "critical": [
+      "unmatched_braces",
+      "unmatched_environments", 
+      "missing_document_structure"
+    ],
+    "high": [
+      "malformed_commands",
+      "missing_math_delimiters",
+      "table_syntax_errors"
+    ],
+    "medium": [
+      "formatting_inconsistencies",
+      "academic_structure_issues",
+      "citation_format_problems"
+    ],
+    "low": [
+      "typography_improvements",
+      "spacing_optimizations",
+      "style_enhancements"
+    ]
+  }
+}

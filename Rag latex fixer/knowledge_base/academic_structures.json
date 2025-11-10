@@ -1,0 +1,165 @@
+{
+  "research_paper_sections": {
+    "abstract": {
+      "identifiers": ["\\\\begin\\{abstract\\}", "\\\\section\\*\\{Abstract\\}", "\\\\section\\{Abstract\\}"],
+      "position": "first",
+      "length_range": [150, 400],
+      "required_elements": ["problem_statement", "methodology", "key_results", "conclusion"],
+      "formatting": {
+        "environment": "abstract",
+        "font_style": "normal",
+        "paragraph_style": "single_paragraph",
+        "spacing": "normal"
+      },
+      "common_patterns": [
+        "context → problem → method → results → conclusion",
+        "objective → approach → findings → implications"
+      ]
+    },
+    "introduction": {
+      "identifiers": ["\\\\section\\{Introduction\\}", "\\\\section\\*\\{1\\. Introduction\\}", "\\\\section\\*\\{Introduction\\}"],
+      "typical_length": "2-4 pages",
+      "citation_density": "moderate_to_high",
+      "subsections": "optional",
+      "content_pattern": "background → motivation → problem → solution → contributions",
+      "formatting": {
+        "numbering": "automatic",
+        "subsection_allowed": true,
+        "citation_heavy": true
+      }
+    },
+    "related_work": {
+      "identifiers": ["\\\\section\\{Related Work\\}", "\\\\section\\{Literature Review\\}", "\\\\section\\{Background\\}"],
+      "citation_density": "very_high",
+      "comparison_tables": "common",
+      "content_pattern": "categorization → comparison → gap_identification",
+      "formatting": {
+        "comparison_tables": true,
+        "subsections_by_category": true,
+        "heavy_citations": true
+      }
+    },
+    "methodology": {
+      "identifiers": ["\\\\section\\{Methodology\\}", "\\\\section\\{Methods\\}", "\\\\section\\{Approach\\}"],
+      "equations": "frequent",
+      "algorithms": "common",
+      "figures": "technical_diagrams",
+      "subsections": "highly_structured",
+      "formatting": {
+        "algorithm_blocks": true,
+        "equation_numbering": true,
+        "technical_figures": true,
+        "detailed_subsections": true
+      }
+    },
+    "experiments": {
+      "identifiers": ["\\\\section\\{Experiments\\}", "\\\\section\\{Experimental Setup\\}", "\\\\section\\{Evaluation\\}"],
+      "tables": "results_heavy",
+      "figures": "graphs_and_charts",
+      "subsections": "by_experiment_type",
+      "formatting": {
+        "results_tables": true,
+        "statistical_significance": true,
+        "performance_graphs": true
+      }
+    },
+    "results": {
+      "identifiers": ["\\\\section\\{Results\\}", "\\\\section\\{Findings\\}", "\\\\section\\{Analysis\\}"],
+      "tables": "data_heavy",
+      "figures": "analytical",
+      "statistical_content": "high",
+      "formatting": {
+        "numerical_tables": true,
+        "statistical_notation": true,
+        "confidence_intervals": true,
+        "p_values": true
+      }
+    },
+    "discussion": {
+      "identifiers": ["\\\\section\\{Discussion\\}", "\\\\section\\{Analysis\\}", "\\\\section\\{Interpretation\\}"],
+      "citation_density": "moderate",
+      "content_pattern": "interpretation → implications → limitations",
+      "formatting": {
+        "interpretive_content": true,
+        "limitation_discussion": true
+      }
+    },
+    "conclusion": {
+      "identifiers": ["\\\\section\\{Conclusion\\}", "\\\\section\\{Conclusions\\}", "\\\\section\\{Summary\\}"],
+      "position": "near_end",
+      "content_pattern": "summary → contributions → future_work",
+      "formatting": {
+        "summary_style": true,
+        "future_work_subsection": "optional"
+      }
+    },
+    "acknowledgments": {
+      "identifiers": ["\\\\section\\{Acknowledgments\\}", "\\\\section\\*\\{Acknowledgments\\}"],
+      "position": "before_references",
+      "formatting": {
+        "unnumbered": true,
+        "brief": true
+      }
+    },
+    "references": {
+      "identifiers": ["\\\\bibliography", "\\\\begin\\{thebibliography\\}", "\\\\section\\{References\\}"],
+      "position": "last",
+      "formatting": {
+        "citation_style": "venue_specific",
+        "alphabetical_or_numerical": true,
+        "two_column": "optional"
+      }
+    }
+  },
+  "document_structure_patterns": {
+    "ieee_conference": {
+      "title_format": "\\\\title\\{.*\\}",
+      "author_format": "\\\\author\\{.*\\}",
+      "abstract_required": true,
+      "keywords_required": true,
+      "two_column": true,
+      "section_numbering": "roman_numerals",
+      "reference_style": "ieee"
+    },
+    "acm_journal": {
+      "title_format": "\\\\title\\{.*\\}",
+      "author_format": "\\\\author\\{.*\\}",
+      "abstract_required": true,
+      "categories_required": true,
+      "two_column": true,
+      "section_numbering": "arabic",
+      "reference_style": "acm"
+    },
+    "nature_article": {
+      "title_format": "\\\\title\\{.*\\}",
+      "author_format": "\\\\author\\{.*\\}",
+      "abstract_required": true,
+      "single_column": true,
+      "section_numbering": "none",
+      "reference_style": "nature"
+    },
+    "arxiv_preprint": {
+      "title_format": "\\\\title\\{.*\\}",
+      "author_format": "\\\\author\\{.*\\}",
+      "abstract_required": true,
+      "single_column": true,
+      "section_numbering": "arabic",
+      "reference_style": "flexible"
+    }
+  },
+  "section_validation_rules": {
+    "required_order": [
+      "title", "author", "abstract", "keywords", "introduction", 
+      "main_content", "conclusion", "acknowledgments", "references"
+    ],
+    "optional_sections": [
+      "related_work", "background", "literature_review", 
+      "discussion", "limitations", "future_work"
+    ],
+    "forbidden_patterns": [
+      "conclusion_before_results",
+      "references_in_middle",
+      "abstract_after_introduction"
+    ]
+  }
+}

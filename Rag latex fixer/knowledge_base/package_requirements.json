@@ -1,0 +1,483 @@
+{
+  "essential_packages": {
+    "document_structure": {
+      "geometry": {
+        "purpose": "Page layout and margins",
+        "usage": "\\\\usepackage[margin=1in]{geometry}",
+        "options": ["margin", "top", "bottom", "left", "right", "paper", "landscape"],
+        "conflicts": "None major",
+        "alternatives": ["typearea (KOMA-Script)"]
+      },
+      "fancyhdr": {
+        "purpose": "Custom headers and footers",
+        "usage": "\\\\usepackage{fancyhdr}\\n\\\\pagestyle{fancy}",
+        "commands": ["\\\\fancyhead", "\\\\fancyfoot", "\\\\renewcommand{\\\\headrulewidth}"],
+        "conflicts": "Some classes override",
+        "alternatives": ["scrlayer-scrpage (KOMA-Script)"]
+      },
+      "titlesec": {
+        "purpose": "Custom section formatting",
+        "usage": "\\\\usepackage{titlesec}",
+        "commands": ["\\\\titleformat", "\\\\titlespacing"],
+        "conflicts": "KOMA-Script classes",
+        "alternatives": ["sectsty"]
+      }
+    },
+    "mathematics": {
+      "amsmath": {
+        "purpose": "Enhanced math environments and commands",
+        "usage": "\\\\usepackage{amsmath}",
+        "provides": ["align", "gather", "multline", "split", "cases", "subequations"],
+        "essential": true,
+        "conflicts": "None major",
+        "load_order": "Before other math packages"
+      },
+      "amsfonts": {
+        "purpose": "AMS mathematical fonts",
+        "usage": "\\\\usepackage{amsfonts}",
+        "provides": ["\\\\mathbb", "\\\\mathfrak", "additional symbols"],
+        "essential": true,
+        "conflicts": "None major"
+      },
+      "amssymb": {
+        "purpose": "AMS mathematical symbols",
+        "usage": "\\\\usepackage{amssymb}",
+        "provides": ["Extended symbol set", "negated symbols"],
+        "essential": true,
+        "requires": "amsfonts",
+        "conflicts": "None major"
+      },
+      "mathtools": {
+        "purpose": "Extension of amsmath with fixes and additions",
+        "usage": "\\\\usepackage{mathtools}",
+        "provides": ["Enhanced environments", "better spacing", "additional commands"],
+        "loads": "amsmath automatically",
+        "recommended": true
+      },
+      "physics": {
+        "purpose": "Physics notation shortcuts",
+        "usage": "\\\\usepackage{physics}",
+        "provides": ["\\\\dd", "\\\\pdv", "\\\\dv", "\\\\eval", "\\\\order"],
+        "field_specific": "Physics, Engineering",
+        "conflicts": "Some math packages (command redefinition)"
+      }
+    },
+    "graphics_figures": {
+      "graphicx": {
+        "purpose": "Include and manipulate graphics",
+        "usage": "\\\\usepackage{graphicx}",
+        "commands": ["\\\\includegraphics", "\\\\scalebox", "\\\\rotatebox"],
+        "essential": true,
+        "conflicts": "graphics (older version)"
+      },
+      "float": {
+        "purpose": "Enhanced float placement",
+        "usage": "\\\\usepackage{float}",
+        "provides": ["H placement option", "\\\\floatstyle", "custom floats"],
+        "useful": true,
+        "alternatives": ["placeins"]
+      },
+      "caption": {
+        "purpose": "Customize captions",
+        "usage": "\\\\usepackage{caption}",
+        "commands": ["\\\\captionsetup", "custom caption formatting"],
+        "recommended": true,
+        "conflicts": "Some document classes override"
+      },
+      "subcaption": {
+        "purpose": "Subfigures and subcaptions",
+        "usage": "\\\\usepackage{subcaption}",
+        "environments": ["subfigure", "subtable"],
+        "requires": "caption",
+        "alternatives": ["subfig", "subfigure (obsolete)"],
+        "recommended": "subfigure over subfig"
+      }
+    },
+    "tables": {
+      "booktabs": {
+        "purpose": "Professional table formatting",
+        "usage": "\\\\usepackage{booktabs}",
+        "commands": ["\\\\toprule", "\\\\midrule", "\\\\bottomrule", "\\\\cmidrule"],
+        "essential": true,
+        "best_practice": "Always use for professional tables"
+      },
+      "array": {
+        "purpose": "Enhanced array and tabular environments",
+        "usage": "\\\\usepackage{array}",
+        "provides": ["New column types", ">{} and <{}", "m and b columns"],
+        "useful": true,
+        "conflicts": "None major"
+      },
+      "multirow": {
+        "purpose": "Cells spanning multiple rows",
+        "usage": "\\\\usepackage{multirow}",
+        "commands": ["\\\\multirow{rows}{width}{content}"],
+        "common": true,
+        "conflicts": "None major"
+      },
+      "longtable": {
+        "purpose": "Tables spanning multiple pages",
+        "usage": "\\\\usepackage{longtable}",
+        "environments": ["longtable"],
+        "special_commands": ["\\\\endfirsthead", "\\\\endhead", "\\\\endfoot", "\\\\endlastfoot"],
+        "use_case": "Very long tables"
+      },
+      "tabularx": {
+        "purpose": "Tables with specified total width",
+        "usage": "\\\\usepackage{tabularx}",
+        "provides": ["X column type", "automatic width calculation"],
+        "useful": true,
+        "alternatives": ["tabulary"]
+      }
+    },
+    "citations_bibliography": {
+      "natbib": {
+        "purpose": "Flexible bibliography citations",
+        "usage": "\\\\usepackage{natbib}",
+        "commands": ["\\\\citep", "\\\\citet", "\\\\citeauthor", "\\\\citeyear"],
+        "styles": ["numerical", "author-year"],
+        "conflicts": "biblatex",
+        "traditional": true
+      },
+      "biblatex": {
+        "purpose": "Modern bibliography system",
+        "usage": "\\\\usepackage[style=numeric]{biblatex}\\n\\\\addbibresource{refs.bib}",
+        "advantages": ["Better customization", "Unicode support", "advanced features"],
+        "conflicts": "natbib",
+        "modern": true,
+        "recommended": "For new documents"
+      },
+      "cite": {
+        "purpose": "Improved citations",
+        "usage": "\\\\usepackage{cite}",
+        "provides": ["Compressed citations", "sorted citations"],
+        "conflicts": "natbib, biblatex",
+        "simple": true
+      }
+    },
+    "fonts_encoding": {
+      "fontenc": {
+        "purpose": "Font encoding",
+        "usage": "\\\\usepackage[T1]{fontenc}",
+        "essential": true,
+        "encoding": "T1 recommended for European languages",
+        "alternatives": ["T2A for Cyrillic", "T3 for phonetics"]
+      },
+      "inputenc": {
+        "purpose": "Input encoding",
+        "usage": "\\\\usepackage[utf8]{inputenc}",
+        "essential": true,
+        "note": "Default in modern LaTeX",
+        "alternatives": ["latin1", "cp1252"]
+      },
+      "lmodern": {
+        "purpose": "Latin Modern fonts",
+        "usage": "\\\\usepackage{lmodern}",
+        "advantages": ["Scalable fonts", "better quality"],
+        "recommended": true,
+        "alternatives": ["cm-super"]
+      },
+      "fontspec": {
+        "purpose": "Advanced font selection (XeLaTeX/LuaLaTeX)",
+        "usage": "\\\\usepackage{fontspec}",
+        "commands": ["\\\\setmainfont", "\\\\setsansfont", "\\\\setmonofont"],
+        "engines": ["xelatex", "lualatex"],
+        "conflicts": "fontenc, inputenc"
+      }
+    },
+    "language_localization": {
+      "babel": {
+        "purpose": "Language support and localization",
+        "usage": "\\\\usepackage[english]{babel}",
+        "languages": ["english", "spanish", "french", "german", "italian", "portuguese"],
+        "provides": ["Hyphenation", "date formats", "language-specific typography"],
+        "essential": "For non-English documents"
+      },
+      "polyglossia": {
+        "purpose": "Modern language support (XeLaTeX/LuaLaTeX)",
+        "usage": "\\\\usepackage{polyglossia}\\n\\\\setmainlanguage{english}",
+        "engines": ["xelatex", "lualatex"],
+        "advantages": ["Better Unicode support", "more languages"],
+        "conflicts": "babel"
+      }
+    },
+    "hyperlinks_pdf": {
+      "hyperref": {
+        "purpose": "Hyperlinks and PDF features",
+        "usage": "\\\\usepackage[hidelinks]{hyperref}",
+        "options": ["hidelinks", "colorlinks", "pdfstartview", "pdftitle", "pdfauthor"],
+        "load_order": "Usually last package",
+        "conflicts": "Some packages if loaded in wrong order",
+        "essential": "For PDF features"
+      },
+      "url": {
+        "purpose": "Typeset URLs",
+        "usage": "\\\\usepackage{url}",
+        "commands": ["\\\\url", "\\\\urlstyle"],
+        "loaded_by": "hyperref",
+        "standalone": "Can be used without hyperref"
+      },
+      "cleveref": {
+        "purpose": "Intelligent cross-referencing",
+        "usage": "\\\\usepackage{cleveref}",
+        "commands": ["\\\\cref", "\\\\Cref", "\\\\crefrange"],
+        "load_order": "After hyperref",
+        "recommended": true
+      }
+    },
+    "algorithms_code": {
+      "algorithm": {
+        "purpose": "Algorithm float environment",
+        "usage": "\\\\usepackage{algorithm}",
+        "provides": ["algorithm environment", "List of Algorithms"],
+        "requires": "algorithmic or algpseudocode"
+      },
+      "algorithmic": {
+        "purpose": "Algorithmic pseudocode (older)",
+        "usage": "\\\\usepackage{algorithmic}",
+        "commands": ["\\\\STATE", "\\\\IF", "\\\\FOR", "\\\\WHILE"],
+        "alternatives": ["algpseudocode (recommended)"]
+      },
+      "algpseudocode": {
+        "purpose": "Modern algorithmic pseudocode",
+        "usage": "\\\\usepackage{algpseudocode}",
+        "commands": ["\\\\State", "\\\\If", "\\\\For", "\\\\While"],
+        "part_of": "algorithmicx package",
+        "recommended": true
+      },
+      "listings": {
+        "purpose": "Source code listings",
+        "usage": "\\\\usepackage{listings}",
+        "environments": ["lstlisting"],
+        "commands": ["\\\\lstinputlisting", "\\\\lstinline"],
+        "customizable": true,
+        "alternatives": ["minted (requires Python)"]
+      },
+      "minted": {
+        "purpose": "Syntax-highlighted code listings",
+        "usage": "\\\\usepackage{minted}",
+        "requires": "Python Pygments",
+        "compilation": "Requires -shell-escape",
+        "advantages": ["Better syntax highlighting", "more languages"],
+        "drawbacks": ["External dependency", "security concerns"]
+      }
+    },
+    "specialized_scientific": {
+      "siunitx": {
+        "purpose": "Typeset numbers and units",
+        "usage": "\\\\usepackage{siunitx}",
+        "commands": ["\\\\SI{value}{unit}", "\\\\num{number}", "\\\\ang{angle}"],
+        "advantages": ["Proper spacing", "consistent formatting", "uncertainty notation"],
+        "recommended": "For any document with measurements"
+      },
+      "chemformula": {
+        "purpose": "Chemical formulas",
+        "usage": "\\\\usepackage{chemformula}",
+        "commands": ["\\\\ch{H2SO4}", "\\\\ch{A -> B}"],
+        "field": "Chemistry",
+        "part_of": "chemmacros bundle"
+      },
+      "tikz": {
+        "purpose": "Creating graphics programmatically",
+        "usage": "\\\\usepackage{tikz}",
+        "capabilities": ["Diagrams", "plots", "flowcharts", "geometric figures"],
+        "libraries": ["shapes", "arrows", "positioning", "calc"],
+        "learning_curve": "Steep but powerful"
+      },
+      "pgfplots": {
+        "purpose": "Create plots and charts",
+        "usage": "\\\\usepackage{pgfplots}",
+        "requires": "tikz",
+        "advantages": ["High-quality plots", "LaTeX integration", "customizable"],
+        "alternatives": ["Include external plots from Python/R/MATLAB"]
+      }
+    }
+  },
+  "package_loading_order": {
+    "critical_first": [
+      "fontenc",
+      "inputenc", 
+      "babel/polyglossia"
+    ],
+    "early": [
+      "geometry",
+      "amsmath",
+      "amsfonts", 
+      "amssymb",
+      "graphicx"
+    ],
+    "middle": [
+      "booktabs",
+      "array",
+      "multirow",
+      "natbib/biblatex",
+      "algorithm",
+      "algorithmic/algpseudocode"
+    ],
+    "late": [
+      "hyperref"
+    ],
+    "very_late": [
+      "cleveref"
+    ]
+  },
+  "common_conflicts": {
+    "natbib_vs_biblatex": {
+      "issue": "Cannot use both citation systems",
+      "resolution": "Choose one based on needs",
+      "recommendation": "biblatex for new documents"
+    },
+    "subfig_vs_subcaption": {
+      "issue": "Conflicting subfigure implementations", 
+      "resolution": "Use subcaption (modern)",
+      "migration": "Replace \\\\subfloat with \\\\begin{subfigure}"
+    },
+    "hyperref_loading_order": {
+      "issue": "Hyperref must be loaded late",
+      "resolution": "Load hyperref near end",
+      "exceptions": ["geometry can be loaded after if needed"]
+    },
+    "tikz_externalization": {
+      "issue": "Slow compilation with many TikZ figures",
+      "resolution": "Use externalization library",
+      "setup": "\\\\usetikzlibrary{external}\\n\\\\tikzexternalize"
+    }
+  },
+  "field_specific_packages": {
+    "computer_science": {
+      "essential": ["algorithm", "algpseudocode", "listings", "amsmath", "amssymb"],
+      "recommended": ["cleveref", "hyperref", "booktabs", "graphicx"],
+      "optional": ["minted", "tikz", "pgfplots"]
+    },
+    "mathematics": {
+      "essential": ["amsmath", "amsfonts", "amssymb", "amsthm"],
+      "recommended": ["mathtools", "cleveref", "hyperref"],
+      "specialized": ["tikz-cd", "xy", "pb-diagram"]
+    },
+    "physics": {
+      "essential": ["amsmath", "amssymb", "physics", "siunitx"],
+      "recommended": ["graphicx", "booktabs", "cleveref"],
+      "specialized": ["feynmf", "tikz-feynman", "braket"]
+    },
+    "engineering": {
+      "essential": ["amsmath", "graphicx", "booktabs", "siunitx"],
+      "recommended": ["tikz", "pgfplots", "algorithm", "listings"],
+      "specialized": ["circuitikz", "pgfgantt", "pstricks"]
+    },
+    "chemistry": {
+      "essential": ["chemformula", "siunitx", "graphicx"],
+      "recommended": ["booktabs", "cleveref"],
+      "specialized": ["chemfig", "mhchem", "chemnum"]
+    },
+    "biology": {
+      "essential": ["graphicx", "booktabs", "siunitx"],
+      "recommended": ["longtable", "cleveref", "hyperref"],
+      "specialized": ["biocon", "texshade"]
+    }
+  },
+  "troubleshooting_guide": {
+    "compilation_errors": {
+      "undefined_control_sequence": {
+        "common_causes": [
+          "Missing package",
+          "Typo in command", 
+          "Package not loaded",
+          "Wrong engine (XeLaTeX vs pdfLaTeX)"
+        ],
+        "solutions": [
+          "Check package documentation",
+          "Verify spelling",
+          "Add required \\\\usepackage",
+          "Use appropriate engine"
+        ]
+      },
+      "option_clash": {
+        "cause": "Same package loaded twice with different options",
+        "solution": "Use \\\\PassOptionsToPackage before \\\\documentclass"
+      },
+      "file_not_found": {
+        "common_files": ["Image files", "Bibliography files", "Style files"],
+        "solutions": [
+          "Check file paths",
+          "Verify file existence",
+          "Check file permissions",
+          "Use relative paths"
+        ]
+      }
+    },
+    "package_specific_issues": {
+      "hyperref_warnings": {
+        "token_not_allowed": {
+          "cause": "LaTeX commands in PDF bookmarks",
+          "solution": "Use \\\\texorpdfstring{tex}{pdf}"
+        },
+        "destination_with_same_identifier": {
+          "cause": "Duplicate labels or anchors",
+          "solution": "Use unique labels throughout document"
+        }
+      },
+      "babel_conflicts": {
+        "shorthand_conflicts": {
+          "cause": "Language shorthands conflicting with packages",
+          "solution": "Disable shorthands or load babel earlier"
+        }
+      },
+      "float_placement_issues": {
+        "too_many_unprocessed_floats": {
+          "cause": "Too many figures/tables without placement",
+          "solutions": [
+            "Use \\\\clearpage",
+            "Adjust float parameters",
+            "Use [H] placement sparingly"
+          ]
+        }
+      }
+    }
+  },
+  "performance_considerations": {
+    "slow_packages": [
+      {
+        "package": "tikz",
+        "reason": "Complex graphics compilation",
+        "optimization": "Use externalization for production"
+      },
+      {
+        "package": "minted", 
+        "reason": "External Python dependency",
+        "optimization": "Use listings for simpler code"
+      },
+      {
+        "package": "microtype",
+        "reason": "Character-level adjustments",
+        "optimization": "Disable during drafting"
+      }
+    ],
+    "memory_intensive": [
+      {
+        "package": "pgfplots",
+        "reason": "Large data sets and complex plots",
+        "optimization": "Externalize plots or use external tools"
+      }
+    ]
+  },
+  "modern_alternatives": {
+    "obsolete_packages": {
+      "subfigure": {
+        "replacement": "subcaption",
+        "reason": "Better interface and maintained"
+      },
+      "epsfig": {
+        "replacement": "graphicx",
+        "reason": "More features and better maintained"
+      },
+      "a4": {
+        "replacement": "geometry",
+        "reason": "More flexible page layout"
+      },
+      "fancybox": {
+        "replacement": "tcolorbox",
+        "reason": "Modern box creation with more features"
+      }
+    }
+  }
+}

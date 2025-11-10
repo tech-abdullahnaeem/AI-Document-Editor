@@ -1,0 +1,1333 @@
+\documentclass[journal]{IEEEtran}
+
+%
+% If IEEEtran.cls has not been installed into the LaTeX system files,
+% manually specify the path to it like:
+% \documentclass[journal]{../sty/IEEEtran}
+
+
+% *** GRAPHICS RELATED PACKAGES ***
+%
+\ifCLASSINFOpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[table]{xcolor}
+  \usepackage{hyperref}
+    \usepackage{color}
+    \usepackage{subcaption}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../pdf/}{../jpeg/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\else
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
+  % will default to the driver specified in the system graphics.cfg if no
+  % driver is specified.
+  % \usepackage[dvips]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../eps/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.eps}
+\fi
+
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\begin{document}
+%
+
+% PAPER:
+\title{FluentNet: End-to-End Detection of Speech Disfluency with Deep Learning}
+
+% Thesis:
+%\title{Toward Smarter Classrooms: Automated Generation of Speech Analytics and Detection of Disfluency with Deep Learning}
+
+
+
+% paper title
+% Titles are generally capitalized except for words such as a, an, and, as,
+% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
+% not capitalized unless they are the first or last word of the title.
+% Linebreaks \\ can be used within to get better formatting as desired.
+% Do not put math or special symbols in the title.
+% \title{FluentNet: Squeeze-and-Excitation Residual Network with Attentive Long Short-Term Memory for Detecting Speech Disfluencies}
+%
+%
+% author names and IEEE memberships
+% note positions of commas and nonbreaking spaces ( ~ ) LaTeX will not break
+% a structure at a ~ so this keeps an author's name from being broken across
+% two lines.
+% use \thanks{} to gain access to the first footnote area
+% a separate \thanks must be used for each paragraph as LaTeX2e's \thanks
+% was not built to handle multiple paragraphs
+%
+
+\author{Tedd~Kourkounakis,
+        Amirhossein~Hajavi,
+        and~Ali~Etemad
+\thanks{All the authors are with the Department
+of Electrical and Computer Engineering, Queen's University, Kingston,
+ON, K7L3N6 Canada, e-mail: tedd.kourkounakis@queensu.ca.}}% <-this % stops a space
+% \thanks{J. Doe and J. Doe are with Anonymous University.}% <-this % stops a space
+% \thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
+
+
+% The paper headers
+% \markboth{IEEE/ACM TRANSACTIONS ON AUDIO, SPEECH, AND LANGUAGE PROCESSING, %~Vol.~14, No.~8, August~
+% 2020}%
+% {Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
+
+
+% The only time the second header will appear is for the odd numbered pages
+% after the title page when using the twoside option.
+% 
+% *** Note that you probably will NOT want to include the author's ***
+% *** name in the headers of peer review papers.                   ***
+% You can use \ifCLASSOPTIONpeerreview for conditional compilation here if
+% you desire.
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract or keywords.
+\begin{abstract}
+Strong presentation skills are valuable and sought-after in workplace and classroom environments alike. %Though they are necessary for day-to-day life, there is a lack of effective resources to help improve upon these abilities. This paper presents a speech assessment tool capable of providing feedback on different metrics of speech quality during a presentation. The information provided by this application has the ability to identify obstacles in one's vocal performance and allows users to further develop these skills. 
+Of the possible improvements to vocal presentations, disfluencies and stutters in particular remain one of the most common and prominent factors of someone's demonstration. Millions of people are affected by stuttering and other speech disfluencies, with the majority of the world having experienced mild stutters while communicating under stressful conditions. While there has been much research in the field of automatic speech recognition and language models, there lacks the sufficient body of work when it comes to disfluency detection and recognition. To this end, we propose an end-to-end deep neural network, FluentNet, capable of detecting a number of different disfluency types. FluentNet consists of a Squeeze-and-Excitation Residual convolutional neural network which facilitate the learning of strong spectral frame-level representations, followed by a set of bidirectional long short-term memory layers that aid in learning effective temporal relationships. Lastly, FluentNet uses an attention mechanism to focus on the important parts of speech to obtain a better performance. We perform a number of different experiments, comparisons, and ablation studies to evaluate our model. Our model achieves state-of-the-art results by outperforming other solutions in the field on the publicly available UCLASS dataset. Additionally, we present LibriStutter: a disfluency dataset based on the public LibriSpeech dataset with synthesized stutters. We also evaluate FluentNet on this dataset, showing the strong performance of our model versus a number of benchmark techniques.
+ 
+
+\end{abstract}
+
+% Note that keywords are not normally used for peer review papers.
+\begin{IEEEkeywords}
+Speech, stutter, disfluency, deep learning, squeeze-and-excitation, BLSTM, attention.
+\end{IEEEkeywords}
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+
+
+\section{Introduction} \label{Introduction}
+
+% \subsection{Motivation}
+\IEEEPARstart{C}LEAR and comprehensive speech is the vital backbone to strong communication and presentation skills \cite{ferguson2018talker}. Where some occupations consist mainly of presenting, most careers require and thrive from the ability to communicate effectively. Research has shown that oral communication remains one of the more employable skills in both the perception of employers and new graduates \cite{robinson2007}. Simple changes to ones speaking patterns such as volume or appearance of disfluencies can have a huge impact on the ability to convey information effectively. By providing simplified, quantifiable data concerning ones speech patterns, as well as feedback on how to change ones speaking habits, drastic improvements could be made to anyone's communication skills \cite{mayo_clinic_stuttering}.  
+
+%With presentation skills being desirable traits in the workplace, it is only natural that these skills would be taught throughout the entirety of one's educational journey. Alongside reading and writing, oral communication is also considered one of the core communication pillars and yet has significantly less focus upon it \cite{dewlawter1966}. Meanwhile, when applying language to everyday scenarios, oral skills hold higher value than written communication \cite{macarthur2006}. 
+%The premise behind smart classrooms is to enable an ever-evolving learning environments for students by introducing and incorporating technology to help apply modern approaches to teaching. The concept of adding new tools and technologies to the classroom is not entirely new, dating back to 1995 when the digitization of classic learning, teaching, and grading methods \cite{smart_classroom} were introduced. This has led to now common classroom applications such as smart boards, plagiarism checkers, and others. In the context of smart classrooms, there lies potential for improved and effective feedback mechanisms for students, which could help them to recognize areas of improvements that can be made to their public speaking skills, and also provides instructors with a subjective way to judge the oral aspects of presentations.
+% Though it has clear advantages in a classroom setting, it can be used for a variety of other purposes. For example, business meetings and presentations heavily rely on strong marketing and speaking skills in order to succeed in one's career. Anyone from a young student aiming to better their grades, to a high ranking politician mastering their speech can always improve upon there speaking skills. This tool has been designed to be as accessible to as many people as possible; its requirements lie independent of age, vocabulary, gender, etc. The only caveat being that as the stutter recognition was trained on a dataset consisting of English speech, the stutter recognition component of this application is met with the same language restraint. This however, could be fixed with the introduction of labelled stutter datasets in other languages. Even so, the tool in its current form would still be usable in any language, with the stutter count being the only metric sacrificed.
+In regard to presentation skills, disfluent speech remains one of the more common factors \cite{ROBOCOP}. Any abnormality or generally uncommon component of one's speech patterns is referred to as a speech disfluency \cite{ASHA}. There are hundreds of different speech disfluencies often grouped together alongside language and swallowing disorders. Of these afflictions, stuttering proves to be one of the most common and most recognized of the lot \cite{ASHA}.
+
+Stuttering, also known as stammering, as a disorder can be generally defined as issues pertaining to the consistency of the flow and fluency of speech. This often involves involuntary additions of sounds and words, and the delay or inability to consistently progress through a phrase. %Stuttering affects approximately one in twelve children, and around one in fifty adults around the world \cite{nidcd}. Approximately 60\% of these children remain undiagnosed due to the lack of specialization from their healthcare providers, and lack of awareness from parents. Those who suffer from the more serious side of the stuttering spectrum will stammer their words regardless of their environment; it is a completely involuntary act for them and minimally treatable with age. Those with severe stuttering struggle to effectively communicate throughout their daily endeavors. 
+Although labelled as a disorder, stuttering can occur in any person’s speech, often induced by stress or nervousness \cite{nhs}. These cases however do not correlate with stammering as a disorder, but are caused by performance anxiety \cite{adaa}. The use of stutter detection does not only apply to those with long term stutter impairments, but can appeal to the majority of the world as it can help with the improvement of communication skills. 
+
+% Although stuttering remains a disorder affecting over 100 million people around the world, there has been little advancement towards the treatment of stuttering \cite{stutteringfoundation_faq}. The most commonly used approach is through the works of a speech language pathologist (SLP). These practitioners are trained to help those with a variety of oral issues, such as language, voice, fluency, and swallowing \cite{sac}. They work with their patients to help them gain a better understanding and awareness of their stutters in order to combat them, such as identifying trigger words, or providing vocal tips and techniques to practice. They often rely on manual disfluency detection and assistance methods as there exist few available tools to automate this process. Other speech language disfluencies such as semantic and progressive non-fluent aphasia \cite{aphasia} and childhood apraxia \cite{apraxia}, have been identified using machine learning classifiers \cite{Le2014} \cite{Kohlschein2017} \cite{shahin2019}, however these models are not presently utilized in workplace applications.
+
+%As most of those who stutter are children, they are also the primary patients of SLPs \cite{sac_children}. However, this is also because most stutters are able to be treated at a younger age, and those who stammer into adulthood are often unable to brush their disorder away \cite{healthy_children}.
+
+% Though not often directly implemented into stuttering therapy methods, 
+%There are a number of speech therapy and feedback tools that utilize artificial intelligence for speech analysis. Tools have been created for both the identification of speech disfluencies, as well as for interactive assistance \cite{ROBOCOP}. Such systems provide users with direct feedback on their stuttering, as well as other speech metrics within a presentation. Some even provide \textit{real-time} analysis and feedback, providing further assistance to users and expanding the applications of such tools. 
+
+% Instead of simply showcasing errors in one's speech, automated disfluency detection could be easily adapted to correct recording audio clips in order to create a `clean' audio file \cite{interspeech2018} \cite{Chen2020}. Being able to record audio without the need to re-record due to stuttering errors could save an incredible amount of time for those who deal with speech recording and editing. These tools could also provide quantifiable feedback and results for a presentation, allowing for a completely objective method of grading in a classroom setting. Additionally, the provided feedback can be used by users to practice and enhance their presentation skills.
+
+
+% \subsection{Problem}
+As the breadth of applications using machine learning techniques have flourished in recent decades, they have only recently began to be utilized in the field of speech disfluency and disorder detection. 
+While deep learning has dominated many areas of speech processing, for instance speech recognition \cite{wang2020} \cite{he2019}, speaker recognition \cite{amir} \cite{snyder2019}, and speech synthesis \cite{prenger2019} \cite{li2019}, very little work has been done toward the problem of speech disfluency detection.
+% There are an abundance of deep learning applications in the realm of speech language processing, however these models are much less common if looking for those focusing on language disorders, with an even more refined count for stuttering in particular. 
+%When it comes to the overarching area of deriving speech analytics, while certain aspects of speech such as volume and inflection are largely viewed as solved problems (given that there are agreeable thresholds and can be easily measured), the ability to consider how to measure a stutter is much less trivial \cite{Yaruss1997}. 
+Disfluencies, including stutters, are not easily definable; they come in many shapes and variations. This means that factors such as gender, age, accent, and the language themselves will affect the contents of each stutter, greatly complicating the problem space. As well, there are many classes of stutter, each with their own sub-classes and with wildly different structures, making the identification of all stutter types with a single model a difficult task. Even a specific type of stutter applied to a single word can be conducted in a wide variety of ways. Where people are great at identifying stutters through their experience with them, machine learning models have historically struggled with this (as we show in Section \ref{Related Work}).
+
+Another common issue is the sheer lack of sufficient training data available. Many previous works often rely on their own manually recorded, transcribed, and labelled datasets, which are often quite small due to the work involved in their creation \cite{howell1995} \cite{howell1997} \cite{dash2018} \cite{interspeech2018}. There is only one commonly used public dataset, UCLASS \cite{UCLASS}, that is widely used amongst works in this area, though it still is also quite small. 
+
+% To assist those who want to improve upon their oral communication skills, there are many tools available to provide feedback based on a user's speech, providing criticism to help users get an understanding of what needs to be improved upon \cite{nidcd}. Though the tools available are plentiful, they often focus on similar, more simplistic aspects of speech such as volume, rate of speech, and vocal inflection \cite{ROBOCOP} \cite{orai} \cite{ummo}. Data is provided to the user either summarized at the end of their audio recording, or may show live data for real-time feedback. 
+Many disfluency detection solutions provide some form of filler word identification, flagging and counting any spoken interjections (e.g. `okay', `right', etc.). However, upon further investigation, these applications simply request a list of interjections from the user and use Speech-to-Text (STT) tools in order to match the spoken word with any interjections in the list. % In other words, rather than classifying interjections, they simply use a word match. 
+Though this may work fine for interjections such as \textit{`um'} and \textit{`uh'} (assuming the used STT tool has the necessary embeddings), this can lead to serious overall errors in classification for most other utterances that are actual words, such as \textit{`like'}, which is commonly used as a filler word in the English language. 
+% but this method of classification would have no distinction between a grammatically correct or improper use of said word. 
+% If one were to say the phrase \textit{`I like to swim.'}, and the word \textit{`like'} appeared in the list of interjections to identify, it would be classified as a stutter. There lacks methods to effectively distinguish interjections from cleanly spoken speech.
+
+Early works in stutter detection, realizing the challenges mentioned above, first sought out to test the viability of identifying stutters from clean speech. These models primarily focused on machine learning models with very small datasets, consisting of a single stutter type, or even a single word \cite{howell1995}, \cite{tan2007}. In more recent years, and due to the rise of automatic speech recognition (ASR), language models have been used to tackle stutter recognition. These works have proven to be strong at identifying certain stutter types, and have been showing ever improving results \cite{interspeech2018}, \cite{dash2018}. However, due to the uncertainty surrounding  relations between cleanly spoken and stuttered word embeddings, it remains difficult for these models to generalize across multiple stutter types. It is hypothesized that by bypassing the use of language models, and by focusing solely on phonetics through the use of convolution networks, a model can be created that both maintains a strong average accuracy while also being effective across all stutter types.
+
+
+% \subsection{Contributions}
+In this paper, %we design and develop a software tool capable of monitoring speech and deriving analytics on volume, rate of speech, and intonation. By providing a simple to use application with feedback in many aspects of speech, students of most ages would be able to interact with the tool without complication. Instructors could use this tool's quantitative feedback as a reference point, removing subjectivity and any potential favouritism from any graded presentations. This tools functionality lies independent of both gender and age.
+we propose a model capable of detecting speech disfluencies. To this end, we design FluentNet, a deep neural network (DNN) for automated speech disfluency detection. The proposed network does not apply any language model aspects, but instead focuses on the direct classification of speech signals. This allows for the avoidance of complex and time consuming ASR as a pre-processing steps in our model, and would provide the ability to view the scenario as an end-to-end solution using a single deep neural network. We validate our model on a commonly used benchmark dataset UCLASS \cite{UCLASS}. To tackle the issue of scarce stutter-related speech datasets, we also develop a synthetic dataset based on a non-stuttered speech dataset (LibriSpeech \cite{LibriSpeech}), which we entitle LibriStutter. This dataset is created to mimic stuttered speech and vastly expand the amount of data available for use. Our end-to-end neural network takes spectrogram feature images as inputs, and uses Squeeze-and-Excitation residual (SE-ResNet) blocks for learning the speech embedding. Next, a bidirectional long short-term memory (BLSTM) network is used to learn the temporal relationships, followed by an attention mechanism to focus on the more salient parts of the speech. Experiments show the effectiveness of our approach in generalizing across multiple classes of stutters while maintaining a high accuracy and strong consistency between classes on both datasets. 
+
+The key contributions of our work can be summarized as follows:
+% \begin{itemize}
+(1) We propose FluentNet, an end-to-end deep neural network capable of detection of several types of speech disfluencies;
+(2) We develop a synthesized disfluency dataset called \textit{LibriStutter} based on the publicly available LibriSpeech dataset by artificially generating several types of disfluencies, namely sound, word, and phrase repetitions, as well as prolongations and interjections. The dataset contains the output labels that can be used in training deep learning methods;
+(3) We evaluate our model (FluentNet) on two datasets, \textit{UCLASS} and LibriStutter. The experiments show that our model achieves state-of-the-art results on both datasets outperforming a number of other baselines as well as previously published work;
+(4) We make our annotations on the existing UCLASS dataset, along with the entire LibriStutter dataset and its labels, publicly available\footnote{1 \url{http://aiimlab.com/resources.html}} to contribute to the field and facilitate further research.
+% \end{itemize}
+
+% The key contributions of our work can be summarized as follows:
+% \begin{itemize}
+% \item We propose FluentNet, an end-to-end deep neural network capable of detection of several types of speech disfluencies;
+% \item We develop a synthesized disfluency dataset called \textit{LibriStutter} based on the publicly available LibriSpeech dataset by artificially generating several types of disfluencies, namely sound, word, and phrase repetitions, as well as prolongations and interjections. The dataset contains the output labels that can be used in training deep learning methods.
+% \item We evaluate our model (FluentNet) on two datasets, \textit{UCLASS} and LibriStutter. The experiments show that our model achieves state-of-the-art results on both datasets by outperforming a number of other baseline models as well as previously published work.
+% \item We intend to make our annotations on the publicly available UCLASS dataset available. Additionally, we intent to make the entire LibriStutter dataset and its labels publicly available to contribute to the field and facilitate further research.
+% \end{itemize}
+
+% \subsection{Publications}
+% The material presented in this paper are published or under review as follows:
+% \begin{itemize}
+%     \item T. Kourkounakis, A. Hajavi, and A. Etemad, ``Detecting Multiple Speech Disfluencies using a Deep Residual Network with Bidirectional Long Short-Term Memory'', \textit{IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, pp. 6089--6093, 2020.
+    
+%     \item T. Kourkounakis, A. Hajavi, and A. Etemad, ``FluentNet: End-to-End Detection of Speech Disfluency with Deep Learning'', \textit{Submitted to: IEEE/ACM Transactions on Audio, Speech, and Language Processing}.
+% \end{itemize}
+
+% The paper published at ICASSP is the preliminary version and results of an end-to-end speech disfluency detection approach with a simpler network, which we use in this paper for comparison to the more sophisticated FluentNet. The other paper currently under review, presents FluentNet and the final results.
+
+
+This is an extension of our earlier work titled ``Detecting Multiple Speech Disfluencies using a Deep Residual Network with Bidirectional Long Short-Term Memory'', published in the 2020 IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP). This paper focused on tackling the problem of detection and classification of different forms of stutters. %As opposed to most existing works that identify stutters with language models, this work proposed a model that relies solely on acoustic features, allowing for identification of several variations of stutter disfluencies without the need for speech recognition. 
+The model used a deep residual network and bidirectional long short-term memory layers to classify different types of stutters.
+% , and achieves an average miss rate of 10.03\%, outperforming the state-of-the-art by almost 27\%.
+In this extended work, we replace the previously used residual blocks of the spectral encoder with residual squeeze-and-excitation blocks. Additionally, we add an attention mechanism after the recurrent network to better focus the network on salient parts of input speech. Furthermore, we develop a new dataset, which we present in this paper and make publicly available. Lastly, we perform thorough experiments, for instance through additional benchmark comparisons and ablation studies. Our experiments show the improvements made by FluentNet over our preliminary work, as validated on both the UCLASS dataset (previously used) as well as the newly developed dataset. This new model provides greater advancement towards end-to-end disfluency detection and classification.
+% further refining our previous model and evaluating it on two datasets.
+
+
+% In this extended work, we update the spectral encoder by using residual squeeze-and-excitation blocks as opposed to the previously used residual blocks. Additionally, we add an attention mechanism after the recurrent network to better focus the network on salient parts of the input speech. Additionally, we develop a new dataset, which we present in this paper, and subsequently use to evaluate our model. Lastly, we perform thorough experiments for example additional benchmark comparisons and ablation studies. Our experiments show the improvements made by FluentNet over our preliminary work, on both the UCLASS dataset (previously used) as well as the new dataset, further refining our previous model and evaluating it on two datasets.
+
+% \subsection{Organization of Work}
+% The rest of this paper is organized as follows: \begin{itemize}
+
+% \item Chapter \ref{Related Work} presents a discussion of the disfluency types mentioned throughout this paper. This is followed by a background of classical machine learning solutions for stutter recognition. A final discussion of deep learning methods for disfluency classification is also included.
+% \item Chapter \ref{System Overview} presents the design and implementation of the speech analytics tool developed in this study. This section also provides a breakdown of the four speech metrics used namely  volume, rate of speech, inflection and disfluencies.
+% % including steps towards their generations and the optimal values of each.
+% \item Chapter \ref{Proposed Method} presents FluentNet, our deep end-to-end neural network, designed for classifying different disfluency types. The implementation details are also provided in this chapter.
+% % succeeded by a detail breakdown of each component of the end-to-end model: the convolution network, recurrent layers and attention mechanism. This chapter concludes with a detailed look at the implementation details of FluentNet.
+% \item Chapter \ref{Experiments} first presents a breakdown of the two datasets used: UCLASS and LibriStutter, followed by a description of the benchmark works and models used for comparison purposes.
+% \item Chapter \ref{Results} contains the results of FluentNet's performance against the aforementioned datasets. This chapter also includes analysis and comparisons towards previous works in stutter classification, as well as our baseline and ablation experiments. 
+% % It is concluded with general discussion of the results.
+% \item Chapter \ref{Conclusion} contains a summary of our work and achievements. This chapter also discusses possible future work for our research. 
+
+% \end{itemize}
+The rest of this paper is organized as follows; a discussion of previous contributions towards stutter recognition in Section \ref{Related Work} followed by our methodology including a breakdown of the model in Section \ref{Proposed Method}, the datasets and benchmark models applied in Section \ref{Experiments}, a discussion of our results in Section \ref{Results}, and our conclusion in the final section.
+
+
+
+\section{Related Work} \label{Related Work}
+There has recently been increasing interest in the fields of deep learning, speech, and audio processing. However, as discussed earlier in section \ref{Introduction}, there has been minimal research targeting automated detection of speech disfluencies including stuttering, most likely  as a result of insufficient data and smaller number of potential applications in comparison to other speech-related problems such as speech recognition \cite{zeghidour2018} \cite{he2019} and speaker recognition \cite{amir} \cite{snyder2019}. In the following sections we first provide a summary of the type of disfluencies commonly targeted in the area, followed by a review of the existing work that fall under the umbrella of speech disfluency detection and classification.
+
+% This is likely due to the clouded application of successful recognition detection of these stutters. 
+% Speech processing has clear uses for its models, such as text to speech tools, 
+
+% However, the direct use of disfluency recognition as a medical tool has not been tested enough within therapeutics for it to be considered beneficial. Nonetheless, despite their relative rarity, there still have been many works focusing on the recognition, detection, and correction of stutters.
+
+
+
+\begin{table*}
+\begin{center}
+\small
+\caption{Types of stutters considered for training and testing labels.}
+\label{table: stutters}
+\begin{tabular}{l l l l} 
+\hline
+Label & Stutter Disfluency & Description & Example \\
+\hline\hline
+
+S & Sound Repetition & Repetition of a phoneme & th-th-this \\
+% \hline
+PW & Part-Word Repetition & Repetition of a syllable & bec-because \\
+%  \hline
+W & Word Repetition & Repetition of any word & why why \\
+% \hline
+PH & Phrase Repetition & Repetition of multiple successive words &  I know I know that\\
+% \hline
+R & Revision & Repetition of thought, rephrased mid sentence & I think that- I believe that \\
+% \hline
+I & Interjection & Addition of fabricated words or sounds & um, uh, like\\ 
+% \hline
+PR & Prolongation & Prolonged sounds & whoooooo is there \\
+% \hline
+B & Block & Involuntary pause within a phrase & I want \textit{(pause)} to \\
+\hline
+\end{tabular}
+\end{center}
+\end{table*}
+
+\subsection{Background: Types of Speech Disfluency}
+
+% Stuttering remains a broad and all-encompassing term for many types of disfluent speech. 
+There are a number of different stuttering types, often categorized into four main groups: repetitions, prolongations, interjections, and blocks. A summary of all these disfluency types and examples of each have been presented in Table \ref{table: stutters}. The descriptions for each of these categories is as follows.
+
+Repetitions
+% , also referred to as reparandums,
+are classified as any part of an utterance repeated at quick pace. As this definition still remains general, repetitions are often further sub-categorized \cite{ASHA}. These sub-categories have been used in previous works classifying stutter disfluencies \cite{yairiambrose} \cite{justeandrade} \cite{interspeech2018}, which include sound, word, and phrase repetitions, as well as revisions.
+%  These sub-categories have been used in previous works classifying stutter disfluencies \cite{yairiambrose} \cite{justeandrade} \cite{interspeech2018}.
+Sound repetitions (S) are repetitions of a single phoneme, or short sound, often consisting of a single letter. Part-word, or syllable repetitions (PW), as its name suggests, are classified as the repetition of syllables, which can consist of multiple phonemes. Similarly, word repetitions (W) are defined as any repetition of a single word, and phrase repetitions (PH) are the repetition of phrases, consisting of multiple consecutive words. The final repetition-type disfluency is revision (R). Similar to phrase repetitions, they consist of repeated phrases, where the repeated segment is rephrased, containing new or different information from the first iteration. %This may include adding words that were absent from the first utterance for instance \textit{`My dog is brown', followed by, `My dog is black and brown'}, or completely rephrasing the previous utterance, for instance \textit{`Do you want to' followed by `Have you ever though about'}.  
+A rise in pitch may accompany this disfluency type \cite{stutteringfoundation_pitch}.
+
+Interjections (I), often referred to as filler words, consist of the addition of any utterance that does not logically belong in the spoken phrase. Common interjections in the English language include exclamations, such as \textit{`um'} and \textit{`uh'}, as well as discourse markers such as \textit{`like'}, \textit{`okay'}, and \textit{`right'}. 
+
+Prolongation (PR) stutters are presented as a lengthened or sustained phoneme. The duration of these prolonged utterances vary alongside the severity of the stutter. Similar to repetitions, this disfluency is often accompanied by a rise in pitch.
+
+The final category of stuttering are silent blocks (B), which are sudden cutoffs of vocal utterances. These are often involuntary and are presented as pauses within a given phrase. 
+
+
+\subsection{Stutter Recognition with Classical Machine Learning}
+
+Before the focus of stutter recognition targeted maximizing accuracy in classification of stammers, a number of works were performed toward testing the viability of stutter detection. In 1995, Howell et al. \cite{howell1995}, who later helped to create the UCLASS dataset \cite{UCLASS} used in this paper, employed a set of pre-defined words to identify repetition and prolongation stutters. From these, they extracted the autocorrelation features, spectral information, and envelope parameters from the audio. Each was used as an input to a fully connected artificial neural network (ANN). Findings showed that the model achieved its strongest classification results against severe disfluencies, and was weakest for mild ones. These models were able to achieve a maximum detection rate of 0.82 on severe prolongation stutters.%After successfully classifying stutters, 
+Howell et al. \cite{howell1997} later furthered their work using a larger set of data, as well as a wider variety of audio parameters. This work also introduced an ANN model for both repetition and prolongation types, and more judges were used to identify stutters with strict restrictions towards agreement of disfluency labeling. Results showed that the best parameters for disfluency classification were fragmentation spectral measures for whole words, as well as duration and supralexical disfluencies of energy in part-words. %This work shows similar results to its predecessor with its expanded contributions, and relayed insight towards to possible subjectivity in categorization and labelling.
+
+Tan et al. \cite{tan2007} worked on testing the viability of stutter detection through a simplified approach in order to maximize the possible results. By collecting audio samples of clean, stuttered, and artificially generated copies of single pre-chosen words, they were able to reach an average accuracy of 96\% on the human samples using a hidden Markov model (HMM). This served as a temporary benchmark towards the possible best average results for stutter detection.
+
+Ravikumar et al. have attempted a variety of classifiers on syllable repetitions, including an HMM \cite{ravikumarHMM} and support vector machine (SVM) \cite{ravikumar2009} using Mel-frequency cepstral coefficients (MFCCs) features. Their best results were obtained when classifying this stutter type using the SVM on 15 participants, achieved an accuracy of 94.35\%. No other disfluency types were considered.
+
+%Speech disorder detection, although generally targeting a different problem than the focus of this paper (disfluency detection), may have some commonalities with disfluency detection. In one of the examples of the works in this area, Franciscatto et al. utilized spectrograms of user's audio to identify the existence of speech disorders \cite{franciscatto2018}. A decision tree was used achieving an average accuracy of 92\%. 
+
+A detailed summary of previously attempted stutter classification methods, including some of the aforementioned classical models, is available in the form of a review paper in \cite{chee2009_overview}. This paper provides background on the use of three different models (ANNs, HMMs and SVM) towards the application of stutter recognition. Of the works considered in that review paper in 2009, it was concluded that HMMs achieve the best results in stutter recognition.
+
+
+
+
+
+
+\begin{table*}
+\begin{center}
+\scriptsize
+\setlength\tabcolsep{2pt}
+\caption{Summary of previous stutter disfluency classification methods.}
+\label{table: literature}
+\resizebox{\linewidth}{!}{\begin{tabular}{l l l p{4cm} p{4cm} l}
+\hline
+Year & Author & Dataset & Features & Classification Method & Results\\
+\hline\hline 
+1995 & Howell et al. \cite{howell1995} & N/A & autocorrelation function, spectral information, envelope parameters & ANN & Acc.: 82\%\\\hline
+1997 & Howell et al. \cite{howell1997} & 12 Speech Samples & oscillographic and spectrographic parameters & ANN & Avg. Acc.: 92\%\\\hline
+2007 & Tan et al. \cite{tan2007} & 20 Samples (single word) & MFCC & HMM & Acc.: 96\% \\\hline
+2009 & Ravikumar et al. \cite{ravikumar2009} & 15 Speech Samples & MFCC & SVM & Acc.: 94.35\%\\\hline
+2016 & Zayats et al. \cite{zayats2016} & Switchboard Corpus & MFCC & BLSTM w/ Attention & F1: 85.9\\\hline
+2018 & Alharbi et al. \cite{interspeech2018} & UCLASS & Word Lattice & Finite State Transducer, Amplitude and Time Thresholding & Avg. MR: 37\%\\\hline
+2018 & Dash et al. \cite{dash2018} & 60 Speech Samples & Amplitude & STT, Amplitude Thresholding & Acc.: 86\%\\\hline
+2019 & Villegas et al. \cite{villegas2019} & 68 Participants & Respiratory Biosignals & Perceptron & Acc.: 95.4\%\\\hline
+2019 & Santoso et al. \cite{santoso2019} & PASD, UUDB & MFCC & BLSTM w/ Attention & F1: 69.1\\\hline
+2020 & Chen et al. \cite{Chen2020} & In-house Chinese Corpus & Word \& Position Embeddings & CT-Transformer & MR: 38.5\%\\
+\hline
+\end{tabular}}
+\end{center}
+\end{table*}
+
+
+
+
+\subsection{Stutter Recognition with Deep Learning}
+With the recent advancements in deep learning, disfluency detection and classification has seen an increase in popularity within the field with a higher tendency towards end-to-end approaches. ASR has become an increasingly popular method of tackling the problem of disfluency classification. As some stuttered speech results in repeated words, as well as prolonged utterances, these can be represented by word embeddings and sound amplitude features, respectively. To exploit this concept, Alharbi et al. \cite{interspeech2018} detected sound and word repetitions, as well as revision disfluencies using task-oriented finite state transducer (FST) lattices. They also utilized amplitude thresholding techniques to detect prolongations in speech. These methods resulted in an average 37\% miss rate across the 4 different types of disfluencies. 
+
+Dash et al. \cite{dash2018} have used an STT model in order to identify word and phrase repetitions within stuttered speech. To detect prolongation stutters, they integrated a neural network capable of finding optimal cutoff amplitudes for a given speaker to expand upon simple thresholding methods. As these ASR works required full word embeddings to classify repetitions, they either fared poorly against, or did not attempt sound or part word repetitions.
+
+Deep recurrent neural networks (RNN), namely BLSTM, have been used to tackle stutter classification. Zayats et al. \cite{zayats2016} trained a BLSTM with Integer Linear Programming (ILP) \cite{ILP} on a set of MFCC features to detect repetitions with an F-score of 85.9. Similarly, a work done by Santoso et al. applied a BLSTM followed by an attention mechanism to perform stutter detection based on input MFCC features, obtaining an maximum F-score of 69.1 \cite{santoso2019}. More recently in a study by Chen et al., a Controllable Time-delay Transformer (CT-Transformer) has been used to detect speech disfluencies and correct punctuation in real time \cite{Chen2020}. In our initial work on stutter classification, we utilized spectrogram features of stuttered audio and used a BLSTM \cite{kourkounakis2020} to learn temporal relationships following spectral frame-level representation learning by a ResNet. This model achieved a 91.15\% average accuracy across six different stutter categories.
+
+In an interesting recent work, Villegas et al. utilized respiratory biosignals in order to better detect stutters \cite{villegas2019}. By correlating respiratory volume and flow, as well as heart rate measurements correlating to the time when a stutter occurs, they were able to classify block stutters with an accuracy of 95.4\% using an MLP. % Their model performed accurately, but its respiratory measurement requirements may serve difficult to use in wide-spread application scenarios compared to models only utilizing audio.
+
+A 2018 summary and comparison of different features and classification methods for stuttering has been conducted by Khara et al. \cite{khara2018}. This work discusses and compares different popular feature extraction methods, classifiers and their uses, as well as their advantages and shortcomings. The paper discusses that MFCC feature extraction has historically provided the strongest results.%, with its only downsides being its large computations, training time, and poor results on noisy data. 
+Similarly, ANNs provide the most flexibility and adaptability compared to other models, especially linear ones.%, but also suffers from longer processing times. %This paper implies that through the use MFCCs or similar feature extraction methods paired with neural networks should yield the best results in stutter classification with noise-free data.
+
+Table \ref{table: literature} provides a summary of the related works on disfluency detection and classification. It can be observed and concluded that disfluency classification has been progressing in one of two fronts \textit{i}) end-to-end speech-based methods, or \textit{ii}) language-based models relying on an ASR pre-processing step. Our work in this paper is positioned in the first category in order to avoid the reliance on an ASR step. Moreover, from Table \ref{table: literature}, we observe that although progresses is being made in the area of speech disfluency recognition, the lack of available data remains a hindrance to potential further achievements in the field.
+
+
+
+
+
+
+% Besides speech disorders, there have been other works conducting similar experiments with the focus on styles of speech. A paper from Tits et al. creates a TTS tool with the ability to change emotional expressiveness of synthetic speech through the use of convolution model \cite{Tits2019}. Similar to the network proposed in this paper, they use MFCC inputs passed through a series of convolution layers in order to extract information from the processed speech. 
+
+
+
+%\section{System Overview} \label{System Overview}
+%We design a presentation assistance software tool that allows users to interact with in order to improve upon their public speaking skills. Users can either submit previously recorded speech samples or present live to this system, and will in turn receive feedback on different analytics and metrics of their speech. This includes volume, rate of speech, monotonicity, and stutter rate. We believe repeated use of this tool may help users recognize their personal styles to ultimately improve upon areas that require more attention. Instructors may also use this tool as a way to objectively grade students on their public speaking skills.
+
+% Although the system's greatest feature lies in its stutter classification, the overall use of this tool encompasses several other aspects of speech, including volume, rate of speech, voice inflection. By analyzing these metrics of speech, the application is able to compute what are considered desirable speech traits, and relay to the users how they are doing/how they did and provide feedback as to what they can improve upon. By using the tool, users will be able to identify their specific weak points of public speaking, allowing them to target where their improvements should lie. Together, the speech quality metrics used encompass the major contributors associated to oral presentations and when mastered, should give the user qualities of a strong presenter.
+
+
+%\subsection{Software Details}
+%We built an initial prototype for this system entitled Presentativ. The front end for our tool was built using HTML and CSS.  The backbone runs on the Flask web framework \cite{flask} in PHP in order to manipulate submitted audio samples and connect the HTML pages to the back end of this software. All the speech processing and calculation of metrics are performed in Python. The Librosa speech library \cite{mcfee2015librosa} is the main package used to deal specifically with the speech data transformation and any speech-related algorithms. The Matplotlib library \cite{matplotlib} is also used to visualize the results for the users. 
+% Once the audio is submitted, it would be uploaded to the cloud where these operations would take place.
+% was built to demonstrate how the system would work in a live release. 
+%Images of the user interface are presented in Figure \ref{fig:UI}. 
+%Whereas a commercial production of this system would be ran in the cloud, this prototype's framework was ran locally.
+
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=1\columnwidth]{frontend.png}
+%     \end{center}
+% \caption{The user interface for the presentation assistance tool, including a) a main page, and two sample results pages showing b) volume and c) stutters.}
+% \label{fig:UI}
+% \end{figure}
+
+
+
+
+
+%\subsection{Architecture}
+
+% A high-level overview of the software architecture can be found in Figure \ref{fig:full_system}. Users interact with a web interface allowing them to either live record or submit a previously recorded audio clip. This audio file is then passed to the cloud, where it will be processed through a series of Python scripts, one for each associated speech metric. After a short delay, the system will relay the user analytics on their performance. The audio file, if recorded live, as well as the results can be saved to the users computer in order to reference their previous attempts and view their improvements. Following is a breakdown of each metric and how they each were tackled.
+%A high-level overview of the software architecture can be found in Figure \ref{fig:full_system}. 
+%The main page of this software allows users to either select an existing audio recording saved on their computer, or record a new presentation using their computer main microphone. After selection, users may request feedback on all speech metrics, or a particular metric of interest. 
+%The selected audio file is then processed through a series of Python scripts, one for each associated speech metric. Users are then presented with information showcasing their performance on each given metric, both as a series of metrics along the presentation timeline as well as average metrics measured over the entire presentation. Following is a breakdown of each metric and how they each were tackled.
+
+
+
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=1\columnwidth]{Full_System_Diagram.jpg}
+%     \end{center}
+% \caption{System overview and walk-through of the presentation assistance tool.}
+% \label{fig:full_system}
+% \end{figure}
+
+
+% \subsubsection{Volume}
+% % Determining one's volume is a simple task, but with a few conditions to consider. 
+% % This metric was incorporated into Presentativ assuming that the user will be relying on a generic microphone, such as the ones built into a phone or laptop. Two questions were considered for this metric: what would be considered an appropriate volume range, and how to determine that the current volume is appropriate for the current situation. Both of these issues rely on each other in order to be solved. 
+% % What may be considered a good volume when speaking to a close-by patron will not be suitable when addressing a large room or auditorium. In order to normalize the audio, the user will have to place the microphone at the approximate distance of the center most audience member. For example, if presenting in front of a classroom, the microphone should be place at the center point of the room. The first reason for this being, it simulates the hearing of the average user, therefore what the microphone picks up is what the average listener will hear. If placed at the back to ensure that the user is staying above the minimum volume threshold, the microphone is less likely to pick up enough clear words, preventing the other speech metrics from being calculated. Also, if at the average audience location, normalization becomes much easier.
+
+% To calculate the volume, the audio file is processed through Python using the Librosa library \cite{mcfee2015librosa} as an audio time series. The time series values can be averaged using a root mean square (RMS) to determine an average perceived volume of the audio. These values can be converted to decibels as it is the standard scale by which volume is often quantified. Although the acceptable range of volumes in decibels widely varies based on specific situations and ambient conditions for a presentation, a range of 60 to 70 \textit{db}, just above that of normal conversation, is found to be optimal \cite{alberta_volume}. To reduce noise in the output, as caused by ambient sounds picked up by the microphone, an averaging filter is applied to the output over a one second interval. The feedback is relayed to the user as a chart plotting volume over time, with two horizontal lines representing the optimal volume range. A single average volume value is also presented to provide the user with an overall idea as to how their volume was managed throughout the entirety of the presentation.
+
+
+% \subsubsection{Rate of Speech}
+% % Determining ones rate of speech is considerably the easiest of metrics, given that most of the difficult aspects surrounding it can be outsourced by existing software and libraries. 
+
+% It has been found that an optimal rate of speech for clear presentations is between 3 to 5 syllables per second \cite{ROBOCOP}. After approximately 8 syllables per second, the clarity of the speech may be compromised. An increase in verbal pace is usually caused by nervousness and a lack of confidence or knowledge of the subject \cite{kopf2015}. Below three syllables per second, though clear, the speech becomes slower than the average conversational English, and may show signs of fatigue \cite{speech_rate_breakdown}. Users may also find this rate tedious, resulting in reduced focus and relays boredom towards the audience \cite{burkhardt2000verification}.
+
+
+% To calculate the rate of speech of the incoming audio file, the Google Cloud Text-to-Speech Python client library \cite{googleTTS} was used to generate a transcription of each word, as well as their associated timestamps. With this information, the rate of speech is calculated over a window of time by dividing the word count over the time frame. The window size was set to twenty-seconds long similar to \cite{ROBOCOP}.
+% % As this system processes information after all audio is recorded, each window was five seconds long, centered around the current position in time, and new data points were generated for every second. This window sizing allows time for brief pauses without causing the calculated rate of speech to plummet. 
+% Although using the rate of syllables might be a more appropriate metric compared to the rate of words, using the estimated average conversion rate of about 1.2 syllables per word \cite{syllable_to_word} greatly simplifies this problem with minimal change in error. This estimate is used instead of actual counting of syllables as the latter would require either another layer mapping each word to a table containing its syllable count, or by directly detecting syllables in the audio time series, both of which would unnecessarily add to the complexity of the system by a considerable margin. Two horizontal lines in the software interface demonstrate the 3 and 5 syllables per second thresholds to inform the user of their performance. A rate of speech value for the entirety of the presentation is also shared with the user.
+
+
+
+% \subsubsection{Inflection \& Monotonicity}
+% How monotonous someone speaks is a more complicated topic compared to the previous metrics. Some people naturally speak with very vibrant speaking patterns, while other may speak rather flat. However, it has been shown that those who speak with greater inflection in their voice invoke more perceived passion and concern for the content of their speech \cite{inflection}. Exaggerated inflection can better help to clarify questions, sincerity, suspense, sarcasm, and many other expressive tones. 
+
+% To quantify this metric, we used the same metrics as those used in \cite{ROBOCOP}. By analyzing the speech of 24 subjects, their work showed that a variation in speech frequency of over 120 Hz is a considerably strong amount of inflection. This value was calculated as an average of all recordings between the 10th and 90th percentile of the sample group's pitches. Though there is such thing as too much inflection, this issue is rarely the case. For this to occur, it would require the speaker to extremely dramatize their speech and expression, which does not often occur naturally when presenting.
+
+% One issue that arises with this threshold value is that it is a constant. Every person has a different vocal range, with men tending to have lower pitch voices than females. Because of the non-linear relationship between notes and frequency, an average male who's vocal range consisting of the same number of octaves then their female counterpart will have a smaller range when calculated in Hertz. This would mean that if the threshold of 120Hz was applied to all users, those with deep voices would have to inflect their voices much more than someone with a high-pitched voice. To remedy this, the monotonicity threshold was scaled with the average pitch of the user's voice so that those with higher pitch voices would require a greater inflection in Hertz.
+
+% In order to calculate the inflection, the Python Librosa library was used to import the audio and convert the time series to Hertz. From there, the inflection range was calculated by finding the difference between the minimum and maximum pitch over a twenty-second window, similar to that of our speech rate metric, as was also used in \cite{ROBOCOP}. An inflection value was calculated for every second of provided audio. Our software tool shows the different inflection values at each given time interval throughout the audio recording, and how they relate to the user's threshold value. An average inflection value, represented as the average of the inflection values of every time step, is also displayed in the interface.
+
+
+%\subsubsection{Disfluencies}
+%Disfluencies are the most difficult of the speech metrics to analyze and enumerate. Whereas disfluencies can be quite easily classified manually, there is no simple algorithm that can identify them. Stutters and other speech disfluencies can take a variety of different forms, and it becomes difficult for a single method to classify any and every disfluent utterance. In order to combat this, this tool relies upon a deep learning model, FluentNet, an end-to-end network which we develop and present in the following chapters, to accurately classifying multiple different disfluency types. Whereas other speech coaches and public speaking tools may only incorporate a word detection tool for common filler words, FluentNet not only has the ability of classifying between contextually correct and or stuttered filler words, but can also identify repetition and prolongation disfluencies. This tool takes the user's audio recording and passes it through FluentNet six times, each instance of which has a different set of trained parameters (one for each disfluency type being classified), and returns information to the user about the type and time of the disfluencies. A total stutter count for the given presentation is also provided to users. As the input to FluentNet accepts four-second audio segments, the existence of stutters is calculated for every four-seconds of the given audio file. Though overlapping audio segments may be used as inputs to better triangulate the exact timing of a disfluency, this would also scale up the run-time of the application remarkably. As this would only increase specificity by a few seconds, which becomes less valuable in longer recordings, this approach was not used. 
+
+%In order to effectively relay the analysis of a user's speech back to them, the window size of each time frame is an important factor to consider. For example, showing someone only their average rate of speech may not reveal any need for improvement if they were speaking both too quickly at times, and too slowly during others. However, this information is designed to give users an understanding of the quality of their speech as a whole; if the performer takes a brief pause, they do not need to be informed that the are not speaking fast enough. It is important to decide over what time intervals to relay this information as to not miss any factors that could be improved upon without overwhelming the user with information. This is especially critical as most of the feedback this tool provides will be constructive criticism and what to improve upon. Bombarding a user with too many instances of sub-par performance may dissuade them from wanting to continue using this software \cite{baron1988}. Whether these time intervals were of fixed or variable length relative to the recording size is also a consideration. Providing feedback on volume for a short advertisement may be sufficient at two second intervals, but if the audio recording in 20 minutes long, then 600 data points becomes overwhelming to user. However, creating variable sized windows can increase the computation time exponentially relative to the audio length.
+
+%Communicating the results of the other metrics are quite different when compared to stutters. Optimally there would be no window; the ideal tool would relay each and every stutter spoken alongside its timestamp and type of stutter. However, because these stutters are classified using a convolution deep neural network, there needs to be some fixed size input to the model. FluentNet was built such that it could identify whether a certain type of stutter exists in a given audio sample. Passing the entire audio file would not only take hours to compute, but would only provide a binary result as to whether there are stutters in the file. Because of this, a four-second window was chosen; the tool should be able to tell the user whether they stuttered and which type of stutters there were (if any) every four-seconds. 
+
+
+%The software created has the potential for real-time feedback applications, but this addition adds some complications. It has been shown that real-time feedback in public speaking has is overall more beneficial to the user than post presentation feedback, though other works have shown that this may instead  serve as a distraction to the user \cite{tanveer2015} \cite{donmez2007safety}. By only relaying users with results after submitting their audio, this tool's uses are withheld solely for practicing and judging purposes. Adding a real-time feedback element would allow for users to aid themselves during their live presentations. The viability of real time application for the proposed speech metrics are individual matters dependant on the nature of each speech quality measure and how they are designed.
+
+%One major consideration of real-time speech quality feedback is how the information is portrayed to the user. When a presenter is examines the tool's analysis after presenting, they have plenty of time to inspect the communicated information for themselves to see where they went wrong and what to improve upon for the next trial. However, when presenting live, it becomes more difficult to focus on four different plots trying to convey information at once, while also trying to present effectively. This may even have inverse effects towards the quality of the presentation \cite{behnke2009}. For the ease and benefit of the user, the results of the algorithms need to be summarized in short and easy too understand messages. Instead of showing a moving plot with the current volume bouncing around a threshold, a clear message containing \textit{'Good Volume!'} or \textit{'Speak Up!'} relays the same information much more quickly. Though these messages streamline the information to the presenter, having multiple lines of instruction appearing at once can still be overwhelming. If many of those lines contain criticism as opposed to positive reinforcement, this can become very disheartening for the user. Because of this, presenting only one piece of information at a time to the user helps to focus at a single task at time.
+
+%To decide the priority between each speech quality category we use the results gathered by Trinh et al., containing a collection of speech coach feedback and the frequency that each category was mentioned \cite{ROBOCOP}. Within these findings, it is shown that of our metrics used, speaking rate was the most critiqued, followed by filler word rate and lastly inflection. Though volume was absent from this list, it is not only a common criticism, but also vital for the tool to work correctly; speech that is too quiet prevents any of the other metrics from being generated. This results in the final priority order of feedback display being volume, rate of speech, stutter rate, pitch variation, and finally an empowering message if all other metrics are satisfied.
+
+%Similar to the section above, the inevitable effects of noise must also be dealt with. If the system is constantly flickering different analytics (such as quickly switching between showing the presenter that their volume is good and too quiet), the display becomes confusing for the user, and they will likely avoid its live feedback altogether.
+
+%The ability to conduct real-time feedback would require some streaming capabilities. The back-end of the software would become increasingly more complex, and would require a user interface that could manage the consistent flow of data. It would also need a system to manage the audio compression and decompression. However, where this may be a more stringent issue for video, audio should not heed too much concern.
+
+%Speech volume is of little concern in relation to real-time usage as the current volume could simply be displayed to the user. As long as the volume is filtered to reduce noise, it should be very clear to the presenter what the feedback system is trying to tell them. Though the results of the speech rate and inflection algorithms could be calculated in near real-time, there window sizes become a point of interest. The currently displayed results would have to be over some previous window of time which may confuse users. For example, if the presenter was speaking quickly for the past period of time, then stopped speaking altogether, a real-time solution will still display a rate of speech that is too quick. The window sizes and overlap strides would need to be small enough to relay information quickly to the user, but large enough that they can encompass enough data to prevent noise. Unfortunately, FluentNet cannot be run in real time. As every audio segment of the entire speech must be four-seconds long, there is no way to speed up the prediction of the model to be under four-seconds. This would mean that the stutter tool's usage in real-time would be limited to providing a delayed total count of stutters spoken.
+
+
+
+%\subsection{Applications}
+
+
+
+%Other applications focus on preventative measures in order to aid with presentations. \textit{Public Speaking with Andrew Johnson} is an app targeted towards treating the anxiety associated with public speaking and in turn the associated issues it may cause. It consists of a variety of meditation and relaxation techniques to help calm the user before it is time to present or speak. There are a variety of virtual reality applications that set up a virtual environment to better simulate the actual presentation date. It has even been known for some to use metronomes whilst practicing in order to help regulate their rate of speech. Though these tools can be effective, they won't be helpful during a presentation. For example, although meditation can be incredibly helpful prior to a stressful presentation, there may not be opportunities for such, especially in a classroom setting. Similarly, one cannot present to others while using a virtual reality headset or a metronome. Since the proposed application has the potential to provide some real-time results as you present, it is not only a useful tool to practice with, but also usable while one presents providing invaluable assistance whilst also remaining discrete.
+
+
+
+
+
+\section{Proposed Method} \label{Proposed Method}
+\subsection{Problem and Solution Overview}
+
+Our goal in this section is to design and develop a system that can be used for detecting various types of disfluencies. While one approach to tackle this concept is to design a multi-class problem, another approach is to design an ensemble of single-disfluency detectors. In this paper, given the relatively small size of available stutter datasets, we use the latter approach which can help reduce the complexity of each binary task. 
+% we follow the second route in order to avoid problems such as the small dataset size problem and the large imbalance problem. Given the relatively small size of existing stutter datasets, a multi-class network is in higher risk of overfitting. 
+Accordingly, the goal is to design a single network architecture that can be trained separately to detect different disfluency types with each trained instance, where together they could detect a number of different disfluencies. Figure \ref{fig:overview} shows the overview of our system. The designed network should possess the capability of learning spectral frame-level representations as well as temporal relationships. Moreover, the model should be able to focus on salient parts of the inputs in order to effectively learn the disfluencies and perform accurately. %In the following sub-sections, we describe our end-to-end model designed for disfluency detection.
+
+\begin{figure}[!t]
+    \begin{center}
+    \includegraphics[width=0.7\columnwidth]{Overview.pdf}
+    \end{center}
+\caption{Full model overview using FluentNet for disfluency classification.}
+\label{fig:overview}
+\end{figure}
+
+
+% ****** ******* ******
+% Lastly, the scarcity of the datasets in this area should be tackled. While collecting real-world in-the-wild datasets are always the preferred route, labelling a disfluency dataset collected from real-world scenarios is cumbersome. Moreover, as disfluencies are sparse throughout recordings, very large real datasets would need to be recorded in order to encounter sufficient positive disfluent phonetics. As a result, our goal is to generate a synthesized stutter dataset, which would allow us to integrate as many stutters throughout the dataset as needed and with the desired intensities. 
+
+
+\subsection{Proposed Network: FluentNet}
+We propose an end-to-end network, FluentNet, which uses the short-time Fourier transform (STFT) spectrograms of audio clips as inputs. These inputs are passed through a Squeeze-and-Excitation Residual Network (SE-ResNet) to learn frame-level spectral representations. As most stutter types have distinct spectral and temporal properties, a bidirectional LSTM network is introduced to learn the temporal relationships present among different spectrograms. An attention mechanism is then added to the final recurrent layer to better focus on the necessary features needed for stutter classification. FluentNet's final output reveals a binary classification to detect a specific disfluency type that it has been trained for. The architecture of the network is presented in Figure \ref{fig:workflow}(a). In the following, we describe each of the components of our model in detail.
+
+\begin{figure*}[!ht]
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{Workflow_and_SEResNet.pdf}
+    \end{center}
+\caption{a) A full workflow of FluentNet is presented. This network consists of 8 SE residual blocks, two BLSTM layers, and a global attention mechanism. b) The breakdown of a single SE-ResNet block in FluentNet is presented.}
+\label{fig:workflow}
+\end{figure*}
+
+
+
+\subsubsection{Data Representation}
+% For use within FluentNet, the audio of the LibriStutter dataset was segmented into four-second clips. A spectrogram for each stuttered audio sample was generated and labelled appropriately.
+
+%As FluentNet requires a fixed-size input to the model, each conversation was broken down into four-second audio clips. This length of time can encapsulate any stutter apparent in the dataset, with no stutters lasting longer than four seconds. %Though a shorter duration would increase the preciseness of a disfluency's timing, many stutters would not fit in a single frame, and therefore four-second windows were used. %The functionality of the model holds a much greater priority in this case.
+Input audio clips recorded with a sampling rate of 16 \textit{khz} are converted to spectrograms using STFT with 256 filters (frequency bins) to be fed to our end-to-end model. A sample spectrogram can be seen in Figure \ref{fig:workflow} where the colours represent the amplitude of each frequency bin at a given frame, with blue representing lower amplitudes, and green and yellow representing higher amplitudes. Following the common practice in audio-signal processing, a 25 \textit{ms} frame has been used with an overlap of 10 \textit{ms}. %Four-second long segments were selected to calculate each spectrogram to be used as an input. The audio sampling frequency was 16000 \textit{Hz}.
+% , these equate to a window size of 400 and a stride of 160, Given each input audio segment is four-seconds long, this produced a width of 398 for each image.
+% Each spectrogram contained 256 frequency bins ranging from 0 to 20 kHz. 
+% Spectrograms and MFCCs stand as one of the more common and reliable inputs to deep networks for speech processing. MFCCs have been used since around 1970s, with spectrograms being used even earlier so \cite{mermelstein1976}. The two feature representations are very similar, with the only difference being a single calculation ??? to generate MFCCs from spectrograms. 
+% % It is difficult to distinguish which feature is more popular, as they are often used interchangeably, and are rarely compared within a single paper. 
+% Our network uses spectrograms as inputs. To generate these representations from the given audio clip, the data is segmented into frames (further explained in the Implementation Details section below) followed by a Fourier transform applied to each frame. The power spectrums are then calculated, followed by applying the mel-filterbank \cite{melscale}. A logarithmic scale is then finally applied to spread out the distribution of the data. The resulting output would be an image has a column for each frame, organized chronologically as the audio was provided.
+
+
+\subsubsection{Learning Frame-level Spectral Representations}
+FluentNet first focuses on learning effective representations from each input spectrogram. To do so, CNN architectures are often used. Though both residual networks \cite{resnet} and squeeze-and-excitation (SE) networks \cite{SENet} are relatively new in the field of deep learning, both have proven to improve on previous state-of-the-art models in a variety of different application areas \cite{szegedy2016inception}, \cite{roy2018}. The ResNet architecture has proven a reliable solution to the vanishing or exploding gradient problems, both common issues when back-propagating through a deep neural network. In many cases, as the model depth increases, the gradients of weights in the model become increasing smaller, or inversely, explosively larger with each layer. This may eventually prevent the gradients from actually changing the weights, or from the weights becoming too large, thus preventing improvements in the model. A ResNet, overcomes this by
+% passing some embeddings straight through to the following layers, 
+utilizing shortcuts all through its CNN blocks
+resulting in norm-preserving blocks capable of carrying gradients through very deep models.
+
+% A typical convolution block takes input $x$ and performs some convolution steps, batch normalization, activation functions, and others, to obtain some output $F(x)$. A residual block in a ResNet architecture, by comparison contains an ``identity shortcut connection'', effectively passing a copy of the input embedding to the output of the block. This results in an output of $F(x) + x$. The information passed does not need to be the original input data, but can be a latent form as well, for instance $R(x)$, leading to an output of $F(x) + R(x)$. Overviews of these networks can be seen in Figure \ref{fig:resnet_example}.
+
+% \begin{figure}[!ht]
+%     \begin{center}
+%     \includegraphics[width=1\columnwidth]{ResNet_Math.pdf}
+%     \end{center}
+% \caption{Examples of ResNets with identity shortcut connections containing a) the original input and b) a smaller convolution.}
+% \label{fig:resnet_example}
+% \end{figure}
+
+
+Squeeze-and-excitation modules have been recently proposed and have shown to outperform various DNN models using previous CNN architectures, namely VGG and ResNet, as their backbone architectures \cite{SENet}. SE networks were first proposed for image classification, reducing the relative error compared to previous works on the ImageNet dataset by approximately 25\% \cite{SENet}. 
+
+Every kernel within a convolution layer of a CNN results in an added channel (depth) for the output feature map. Whereas recent works have focused on expanding on the spectral relationships within these models \cite{bell2016} \cite{newell2016}, SE-blocks build stronger focus on channel-wise relationships within a CNN. These blocks consist of two major operations. The \textit{squeeze} operation aggregates a feature map across both its height and width resulting in a one-dimensional channel descriptor. The \textit{excitation} operation consists of fully connected layers providing channel-wise weights, which are then applied back to the original feature map.
+
+%SE blocks work by better defining relation between channels of the input, which are normally equally weighted. Rather than simply applying a weight to each each channel, these networks pass the channel information through a small network containing fully connected layers in order to better evaluate the importance of each channel. 
+
+To exploit the capabilities of both ResNet and SE architectures and learn effective spectral frame-level representations from the input, we use an SE-ResNet model in our end-to-end network. The network consists of 8 SE-ResNet blocks, as shown in Figure \ref{fig:workflow}(a).
+Each SE-ResNet block in FluentNet, illustrated in Figure \ref{fig:workflow}(b), consists of three sets of two-dimensional convolution layers, each succeeded by a batch normalization and Rectified Linear Unit (ReLU) activation function. A separate residual connection shares the same input as the block's non-identity branch, and is added back to the non-identity branch before the final ReLU function, but after the SE unit (described below). Each residual connection contains a convolution layer followed by batch normalization. The Squeeze-and-Excitation unit within each SE-ResNet block begins with a global pooling layer. The output is then passed through two fully connected layers: the first followed by a ReLU activation function, and the second succeeded with a sigmoid gating function. The main convolution branch is scaled with the output of the SE unit using channel-wise multiplication.
+
+
+
+% \begin{figure*}[!ht]
+%     \begin{center}
+%     \includegraphics[width=0.8\linewidth]{SEResNetBlock.pdf}
+%     \end{center}
+% \caption{The breakdown of a single SE-ResNet block in FluentNet.}
+% \label{fig:SEResNet}
+% \end{figure*}
+
+
+\subsubsection{Learning Temporal Relationships}
+In order to learn the temporal relationships between the representations learned from the input spectrogram, we use an RNN. In particular, LSTM \cite{LSTM} networks have shown to be effective for this purpose in the past and are widely used for learning sequences of spectral representations obtained from consecutive segments of time-series data \cite{ma2018lstm} \cite{kim2018forecasting} \cite{li2020}. 
+
+% \begin{figure}[!ht]
+%     \begin{center}
+%     \includegraphics[width=0.8\columnwidth]{LSTM_block.pdf}
+%     \end{center}
+% \caption{A breakdown of a single LSTM unit.}
+% \label{fig:LSTM}
+% \end{figure}
+
+% Figure \ref{fig:LSTM} illustrates the flow of information through an LSTM block. 
+
+%%%%%%%%%%% CANDADITE 1 %%%%%%%%%%%%%%%%%%%%%
+% Each LSTM unit contains a cell state, which holds information contained in previous units allowing the network to learn temporal relationships. This cell state is part of the LSTM's memory unit, where there lie several gates that together control which information from inputs, as well as from the previous cell and hidden states, will be used to generate the current cell and hidden states. These gates, namely the forget gate, input gate, and output gate, are represented in Equations \ref{f_gate}, \ref{i_gate}, and \ref{o_gate}, respectively. 
+% \begin{equation}
+%     f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
+% \label{f_gate}
+% \end{equation}
+% \begin{equation}
+%     i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)
+% \label{i_gate}
+% \end{equation}
+% \begin{equation}
+%     o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)
+% \label{o_gate}
+% \end{equation}
+% where $\sigma$ represents the sigmoid function. The forget gate and input gate are utilized to learn what information from each of the respective previous cell state and newly generated candidate cell state will be saved within the new current state, $C_t$ as shown by the following equation:
+% \begin{equation}
+%     C_t = f_t \* \ast C_{t-1} + i_t * tanh(W_C \cdot [h_{t-1}, x_t] + b_C)
+% \end{equation}
+% where the $*$ operator denotes point-wise multiplication. This new cell state, along with the output gate are used to generate the hidden state of the unit, $h_t$, as represented by:
+
+% \begin{equation}
+%     h_t = o_t * tanh(C_t) 
+% \end{equation}
+
+% The cell state and hidden state are then passed to successive LSTM units, allowing the network to learn long-term dependencies.
+
+%%%%%%%%%%%CANDADITE 2%%%%%%%%%%%%%%%%%%%%%
+
+Each LSTM unit contains a cell state, which holds information contained in previous units allowing the network to learn temporal relationships. This cell state is part of the LSTM's memory unit, where there lie several gates that together control which information from inputs, as well as from the previous cell and hidden states, will be used to generate the current cell and hidden states. Namely, the forget gate, $f_t$, and input gate, $i_t$, are utilized to learn what information from each of these respective states will be saved within the new current state, $C_t$. This is shown by the following equations:
+\begin{equation}
+    f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
+\end{equation}
+\begin{equation}
+    i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)
+\end{equation}
+\begin{equation}
+    C_t = f_t \* \ast C_{t-1} + i_t * tanh(W_C \cdot [h_{t-1}, x_t] + b_C)
+\end{equation}
+where $\sigma$ represents the sigmoid function, and the $*$ operator denotes point-wise multiplication. This new cell state, along with an output gate, $o_t$, are used to generate the hidden state of the unit, $h_t$, as represented by:
+\begin{equation}
+    o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)
+\end{equation}
+\begin{equation}
+    h_t = o_t * tanh(C_t) 
+\end{equation}
+
+The cell state and hidden state are then passed to successive LSTM units, allowing the network to learn long-term dependencies.
+
+
+
+
+% Each LSTM unit generates a hidden state $h_t$, from the given inputs $x_t$, and the current cell state $C_t$, both of which will be passed on to the next unit. This cell state is part of the LSTM's memory unit, where there lie several gates that together control which information from inputs, as well as from the previous cell state and output, will be used to generate the current cell state and hidden state. Each unit's cell state is generated as a function of both the previous unit's cell state $C_{t-1}$, and a newly calculated state $\bar{C}_t$, utilizing the forget gate and input gate to learn what information from each of these respective states will be saved within the current state. The output of the LSTM block is dependant on both the cell state as well as the output gate. The cell state and output are passed on to successive LSTM units, allowing the network to learn long-term dependencies. The operations within an LSTM block are represented in the following equations:
+
+
+% where $\sigma$ represents the sigmoid function, and $f$, $i$, $C$, and $o$ show the input gate, output gate, the new cell state, and the output gate, respectively. The $*$ operator is used to show point-wise multiplication.
+
+We used a BLSTM network \cite{BiLSTM} in FluentNet. 
+% Typical RNNs process information in a single direction making use of information from the past. However, as a real-time performance has not been a focus of this study, we also exploit the information contained in future audio segments as well. 
+BLSTMs consist of two LSTMs advancing in opposite directions, maximizing the available context from relationships of both the past and future. The outputs of these two networks are multiplied together into a single output layer. FluentNet consists of two consecutive BLSTMs, each utilizing LSTM cells with 512 hidden units. A dropout \cite{dropout} of 20\% was also applied to each of these recurrent layers. To avoid overfitting given the size of the dataset, the randomly masked neurons caused by dropout forces the model to be trained using a sparse representation of the given data.
+
+
+\subsubsection{Attention} 
+The recent introduction of attention mechanisms \cite{bahdanau2014} and its subsequent variations \cite{FEFA2020} have allowed for added focus on more salient sections of the learned embedding. These mechanisms have recently been applied to speech recognition models to better focus on strong emotional characteristics within utterances \cite{mirsamadi2017} \cite{sun2019}, and have similarly been used in FluentNet to improve focus on specific parts of utterances with disfluent attributes. FluentNet uses global attention \cite{luong2015}, which incorporates all hidden state values of the encoder (in this case the BLSTM). A diagram showing the attention model is presented in Figure \ref{fig:attention}. 
+
+The final output value of the second layer of the BLSTM, $h_t$, as well as a context vector, $C_t$, derived through the use of the attention mechanism are used to generate FluentNet's final classification, $\tilde{h}_t$. This is done by applying a tanh activation function, as shown by: 
+\begin{equation}
+\tilde{h}_t = tanh(W_c[C_t; h_t])
+\end{equation}
+
+The context vector of the global attention is the weighted sum of all hidden state outputs of the encoder. An alignment vector, generated as a relation between $h_t$ and each hidden state value is passed through a softmax layer, which is then used to represent the weights to the context vector. Dot product was used as the alignment score function for this attention mechanism. The calculation for the context vector can be represented by:
+\begin{equation}
+C_t = \sum_{i = 1}^{t} \bar{h}_i (\frac{e^{h_t^\top \cdot \bar{h}_i}}{\sum_{i` = 1}^{t} e^{h_t^\top \cdot \bar{h}_{i`}}})
+\end{equation}
+where $\bar{h}_i$ represents the $i$th BLSTM hidden state's output.
+
+\begin{figure}[!t]
+    \begin{center}
+    \includegraphics[width=0.7\columnwidth]{attention.pdf}
+    \end{center}
+\caption{Global attention addition to binary classifier of recurrent network.}
+\label{fig:attention}
+\end{figure}
+
+
+
+\subsection{Implementation} \label{Implementation Details}
+% 2 paragraphs
+%keras, code, GPU, parameters
+%code for librispeech  
+%hyper parameter table for conv sizes 
+% audio sr and other values (maybe put in dataset / feature extraction)
+FluentNet was implemented using Keras \cite{chollet2015keras} with a Tensorflow \cite{abadi2016tensorflow} backend. The model was trained with a learning rate of $10^{-4}$ yielded the strongest results. A root mean square propagation (RMSProp) optimizer, and a binary cross-entropy loss function were used. All experiments were trained using an Nvidia GeForce GTX 1080 Ti GPU. Python's Librosa library \cite{mcfee2015librosa} was used for audio importing and manipulation towards creating our synthetic dataset as described later. Each STFT spectrogram was generated using four-second audio clips. This length of time can encapsulate any stutter apparent in the dataset, with no stutters lasting longer than four seconds.
+
+
+
+\section{Experiments}  \label{Experiments}
+% \subsection{Experiments}
+\subsection{Datasets} 
+
+Despite an abundance of datasets for speech-related tasks such as ASR and speaker recognition \cite{LibriSpeech} \cite{TIMIT} \cite{voxceleb}, there is a clear lack of corpora that are focused on speech disfluencies. An ideal speech disfluency dataset would require the labelling and categorization of each existing disfluent utterance. In this paper, to tackle this problem, in addition to using the UCLASS dataset which is a commonly used stuttered speech corpus \cite{Chee2009_MFCC} \cite{ai2012} \cite{interspeech2018}, a second dataset was created through adding speech disfluencies into clean speech. This synthetic corpus contributes a drastic expansion to the available training and testing data for disfluency classification. Through the following subsections, we describe the UCLASS dataset used in our study, as well as the approach for creating the synthetic dataset, LibriStutter, which we created using the original non-stuttered LibriSpeech dataset.
+
+\subsubsection{UCLASS}
+%UCLASS - similar to ICASSP
+%some more discussion on previous downfalls and restrictions
+The University College London’s Archive of Stuttered Speech (UCLASS) \cite{UCLASS} is the most commonly used dataset for disfluency-related studies with machine learning. This corpus came in two releases, in 2004 and 2008, from the university's Division of Psychology and Language Sciences. The dataset consists of 457 audio recordings including monologues, readings, and conversations of children with known stutter disfluency issues. Of those recordings, a select few contain written transcriptions of their respective audio files; these were either standard, phonetic or orthographic transcriptions.% A standard transcription simply translates spoken words to text, with no other information. Phonetic transcriptions are used to record the pronunciation of the each spoken word within a speech segment using specialized symbology. Orthographic transcriptions use the standard alphabet to relay exactly how a speech sample was orated, including representations of stutters and pauses. Examples of each transcription style is demonstrated in Table \ref{table: transcriptions}.
+Orthographic format is the best option for manual labelling of the dataset for disfluency as they try to transcribe the exact sounds uttered by the speaker in the form of standard alphabet. This helps to identify the presence of disfluency in an utterance more easily. 
+% Orthographic transcriptions were necessary to generate a labelled dataset as they contain a visualization as to how each word was uttered, allowing for the identification of disfluent speech.% On the other hand, neither standard nor phonetic transcriptions provide information regarding disfluent speech. 
+The resulting applicable data consisted of 25 unique conversations between an examiner and a child between the ages of 8 and 18, totalling to just over one hour of audio.
+
+% \font\tenipa=tipa10
+% \def\schwa{{\tenipa\char64}}
+
+
+% \begin{table}
+% \begin{center}
+% \small
+% \caption{Examples of different transcription types}
+% \label{table: transcriptions}
+% \begin{tabular}{l l l} 
+% \hline
+% Transcription & Example \\
+% \hline\hline
+% Standard  & Can I help you?\\
+% Phonetic &  k\schwa n $`$aI help ju? \\
+% Orthographic  & C C Can I help you? \\
+
+% \hline
+% \end{tabular}
+% \end{center}
+% \end{table}
+
+In order to pair the utterances with their transcriptions, each audio file and its corresponding orthographic transcription were passed through a forced time alignment tool. The resulting table related each alphabetical token in the transcription to its matching timestamp within the audio. This process was then manually checked for outlaying utterances not matching their transcriptions. 
+% Any utterances who's timing was not identified through this process were manually timestamped.
+
+The provided orthographic transcriptions only flagged the existence of disfluencies (through the use of capitalization), but gave no information towards a disfluency type. To build a more detailed dataset and be able to classify the type of disfluency, all utterances were manually labelled as one of the seven represented classes for our model. These included clean (no stutter), sound repetitions, word repetitions, phrase repetitions, revisions, interjections, and prolongations. The annotation methods applied in \cite{yairiambrose} and \cite{justeandrade} were used as guidelines when manually categorizing each utterance. 
+Out of the 8 disfluencies, 6 were used: sound, word, and phrase repetitions, as well as revisions, interjections, and prolongations.. Of the usable audio in the dataset, only three instances of `part-word repetitions' appeared, lacking sufficient positive training samples to feasibly classify these types of stutters. As `block disfluencies' exist as the absence of sound, they could not feasibly be represented in the orthographic transcriptions, which represent how utterances are performed. 
+
+
+
+
+\subsubsection{LibriStutter}
+The 2015 LibriSpeech ASR corpus by Panayotov et al. \cite{LibriSpeech} includes 1000 hours of prompted English speech extracted from audio books derived from the LibriVox project. We used this dataset as the basis for our synthetic stutter dataset, which we name LibriStutter. LibriStutter's creation compensates for two shortcomings of the UCLASS corpus: the small amount of labelled stuttered speech data available and the imbalance of the dataset (several disfluency types in UCLASS consisted of a small number of samples). 
+
+% Individual algorithms for each stutter type was created using the LibriSpeech dataset audio, as well as the generated transcriptions and timestamps. 
+To allow for a manageable size for LibriStutter and feasible training times, we used a subset of LibriSpeech and set the size of LibriStutter to 20 hours. LibriStutter includes synthetic stutters for sound repetitions, word repetitions, phrase repetitions, prolongations, and interjections. We generated these stutter types by sampling the audio within the same utterance, the details of which are described below. Revisions were excluded from LibriStutter, as this disfluency type requires the speaker to change and revise what was initially said. This would require added speech through the use of complex language models and voice augmentation tools to mimic the revised phrase, both of which fall out of scope for this project.
+
+% The same forced time alignment method used to create the UCLASS dataset timing information could have been applied to the LibriSpeech audio. Note, however, that the generated translations provided by the TTS tool was of little concern; only the timings were the only matters of importance. As, it was faster to generate both the transcriptions and timings using the Google TTS API than it was to generate only the timestamps using forced time alignment, the TTS API was used. 
+
+% Here we describe the creation of the LibriStutter dataset. 
+For each audio file selected from the LibriSpeech dataset, we used the Google Cloud Speech-to-Text API \cite{googleTTS} to generate a timestamp corresponding to each spoken word. For every four-second window of speech within a given audio file, either a random disfluency type was inserted and labelled accordingly, or alternatively left clean. Each disfluency type underwent a number of processes to best simulate natural stutters. 
+% Although utterances may exist within multiple disfluency classes (eg. \textit{`ummmmm'}, each generated disfluency remained independent of all others.
+
+All repetition stutters relied upon copying existing audio segments already present within each audio file. Sound repetitions were generated by copying the first fraction of a random spoken word within the sample and repeating this short utterance a several times before said word. Although repetitions of sounds can occur at the end of words, known as word-final disfluencies, this is rarely the case \cite{van2005}. One to three repeated sound utterances were added in each stuttered word. After each instance of the repeated sound, a random empty pause duration of 100 to 350 \textit{ms} was appended as this range sounded most natural. Inserted audio may leave sharp cutoffs, especially part-way through an utterances. To avoid this, interpolation was used to smooth the added audio's transition into the existing clip. 
+
+Both word and phrase repetitions underwent similar processes to that of sound repetitions. For word repetitions we repeated one to two copies of a randomly selected word before the original utterance. For phrase repetitions, a similar approach was taken, where instead of repeating a particular word, a phrase consisting of two to three words were repeated. The same pause duration and interpolation techniques used for sound repetitions were applied to both word and phrase repetition disfluencies.
+
+Prolongations consist of sustained sounds, primarily at the end of a word. To mimic this behaviour, the last portion of a word was stretched to simulate prolonged speech. For a randomly chosen word, the latter 20\% of the signal was stretched by a factor of 5. This prolonged speech segment replaced the original word ending. As applying time stretching to audio results in a drop in pitch, pitch shifting was used to realign the pitch with the original audio. The average pitch of the given speech segment was used to normalize the disfluent utterance.
+
+Unlike the aforementioned classes, interjection disfluencies cannot be created from existing speech within a sample as it requires the addition of filler words absent from the original audio (for example `umm'). Multiple samples of common filler words from the UCLASS were isolated and saved separately to create a pool of interjections. To create interjection disfluencies, a random filler word from this pool was inserted between two random words, followed by a short empty pause. The same pitch scaling and normalization method as used for prolongations was applies to match the pitches between the interjection and audio clip. Interpolation was used as in repetition disfluencies to smooth sharp cutoffs caused by the added utterance.
+
+
+
+\begin{figure}[!ht]
+    \begin{center}
+    \includegraphics[width=1\linewidth]{LibriStutter.pdf}
+    \end{center}
+\caption{Spectrograms of the same stutters found in the UCLASS dataset and generated in the LibriStutter dataset.}
+\label{fig:spectrogram_images}
+\end{figure}
+
+
+\begin{table}
+\begin{center}
+\footnotesize
+\caption{Cosine similarity between a UCLASS dataset stutter and a matching LibriStutter stutter, as well as the average of 100 random samples from the LibriStutter dataset.}
+\label{table: cosine_similarity}
+\begin{tabular}{ l c c }
+\hline
+ Stutter & UCLASS vs. LibriStutter & UCLASS vs. Random\\ \hline\hline
+Sound Repetition & $3.73893\mathrm{e}{-3}$ & $2.58116\mathrm{e}{-4}$\\
+Word Repetition & $3.14077\mathrm{e}{-3}$ & $2.61084\mathrm{e}{-4}$\\
+Prolongation & $7.70236\mathrm{e}{-3}$  & $2.57234\mathrm{e}{-4}$\\
+\hline
+\end{tabular}%
+\end{center}
+\end{table}
+
+
+
+
+
+
+% Moreover, the algorithms for each disfluency type only require the audio to perform the augmentation; this speech synthesis code can be applied to other speech samples, within the restrictions of the Google TTS  API capabilities of transcription. 
+% This contribution adds an explosive amount of training and tested data for the use of stutter classification. 
+%The LibriStutter corpus may be applied to existing speech recognition models in order to view the effects of stuttering on these language models.
+% The stutter generation algorithms behind LibriStutter allow for extended control over the balance and contents of the dataset. Count of consecutive repetitions, duration of prolongations and pauses, total stutter count, and preferred interjections are all variables within this software. 
+
+To ensure that sufficient realism was incorporated into the dataset, a registered speech language pathologist 
+% of the augmented speech \cite{synthetic_speech}, Adrienne Nobbe is 
+% an advisory member of Kingston Integrated Healthcare at the Hotel Dieu Hospital Site, 
+was consulted for this project. Nonetheless, it should be mentioned that despite our attention to creating a perceptually valid and realistic dataset, the notion of ``realism'' itself is not a focus of this dataset. Instead, much like synthetic datasets in other areas such as image processing, the aim is for the dataset to be \textit{valid enough} such that machine learning and deep learning methods can be trained and evaluated with, and later on transferred to real large-scale datasets [in the future] with little to no adjustments to the model architectures. 
+% She provided insight on disfluent speech, including the physical and psychological causes of formation of stutters, different tests and treatments to determine the severity of disfluencies, as well as the feasibility of generating artificial stutters and methods of detecting voluntary or pseudo-stuttering. This background information was taken into consideration when designing each artificial disfluency type. 
+
+%For repetition type stutters, factors such as number of repetitions, pauses between repetition, and cutoffs were examined. Common stuttered utterances within each individual stutter type were also considered. Each disfluency type underwent some form of audio processing to better incorporate the added speech; this includes smoothing, time stretching, and pitch scaling.
+
+
+
+
+% \begin{table*}
+% \begin{center}
+% \footnotesize
+% \caption{Spectrogram images of the same stutters found in the UCLASS dataset and generated in the LibriStutter dataset.}
+% \label{table: spectrogram_images}
+% \begin{tabular}{|c|c|c|}
+% \hline
+
+% Sound Repetition & \includegraphics[width=0.3\textwidth]{uclass_sound.png} & \includegraphics[width=0.3\textwidth]{libristutter_sound.png}\\ \hline
+% Word Repetition & \includegraphics[width=0.3\textwidth]{uclass_word.png} & \includegraphics[width=0.3\textwidth]{libristutter_word.png}\\ \hline
+%  & UCLASS & LibriStutter \\ \hline
+% Prolongation & \includegraphics[width=0.3\textwidth]{uclass_pro.png} & \includegraphics[width=0.3\textwidth]{libristutter_pro.png}\\ 
+% \hline
+% \end{tabular}%
+% \end{center}
+% \end{table*}
+
+
+Figure \ref{fig:spectrogram_images} displays side by side comparisons of spectrograms of real stuttered data from the UCLASS dataset, and artificial stutters from LibriStutter. Each pairing represents a single stutter type, with the same word or sound being spoken in each. It can be observed that the UCLASS stutter samples and their corresponding LibriStutter examples show clear similarities.
+% To compensate for the differences in age, gender, and volume within each speech sample affecting the colouration of each corresponding spectrograms, the matrices were normalized to highlight the similarities between each disfluency type pairing. 
+Moreover, to numerically compare the samples, cosine similarity \cite{cosine_similarity} was calculated between the UCLASS and LibriStutter spectrogram samples shown earlier.
+% in Table \ref{table: cosine_similarity}. 
+% These values are used as validation towards the realism of the LibriStutter dataset's disfluencies compared to real stutters. The differences between the samples, namely age, gender, accent, and volume, result in a single comparison between two spectrogram images holding minimal value without a frame of reference. 
+To add relevance to these values, a second comparison was performed for each UCLASS spectrogram with respect to 100 random samples from the LibriStutter dataset, and the average score was used as the represented comparison value. These scores are summarized in Table \ref{table: cosine_similarity}. We observe that the UCLASS cosine similarity scores corresponding to the matching LibriStutter samples are noticeably (approximately between 10$\times$ to 30$\times$) greater than those compared to random audio samples, confirming that the disfluent utterances contained in LibriStutter share phonetic similarities with real stuttered samples, empirically showing the similarity between a few sample real and synthesized stutters.
+
+
+
+The LibriStutter dataset consists of approximately 20 hours of speech data
+% augmented from the 100 hour clean training set provided in the LibriSpeech dataset. 
+from the LibriSpeech train-clean-100 (training set of 100 hours ``clean'' speech). In turn, LibriStutter shares a similar make up to that of its predecessor. It consists of \textit{disfluent} prompted English speech from audiobooks. 
+% As the LibriSpeech training set used consisted of an equivalent number of male and female speakers, it can be assumed that the random sample of speech used in LibriStutter maintains a similar relation in gender. 
+It also contains 23 male and 27 female speakers, with an approximate 53\% of the audio coming from males, and 47\% from females. There are 15000 disfluencies in this dataset, with equal counts for each of the five disfluency types: 3000 sound, word, and phrase repetitions, as well as prolongations and interjections. Each audio file has a corresponding CSV file containing each word or utterance spoken, the start and end time of the utterance, and its disfluency type, if any. 
+% Table ??? presents a summary of the dataset.
+
+
+
+% \begin{table}
+% \begin{center}
+% \footnotesize
+% \caption{?????.}
+% \label{table: LibriStutter}
+% \begin{tabular}{|c|c|}
+% \hline
+%  Disfluency Type & No. of Instances \\ \hline\hline
+% Sound Repetition & 3000  \\
+% Word Repetition & 3000  \\
+% Phrase Repetition & 3000  \\
+% Interjection & 3000  \\
+% Prolongation & 3000  \\
+% \hline
+% \end{tabular}%
+% \end{center}
+% \end{table}
+
+
+
+
+% \begin{figure}[!ht]
+%     \begin{center}
+%     \includegraphics[width=0.9\columnwidth]{Benchmark_Networks.pdf}
+%     \end{center}
+% \caption{Network diagrams for the VGG-16, VGG-19, and ResNet convolution models.}
+% \label{fig:benchmark_networks}
+% \end{figure}
+
+\subsection{Benchmarks}
+For a thorough analysis of our results, we compare the results obtained by the proposed FluentNet to a number of other models. In particular, we employ two type of solutions for comparison purposes. First, we compare our results to related works and the state-of-the-art as follows:
+
+% \begin{itemize}
+    % \item 
+    \textbf{Alharbi et al. \cite{interspeech2018}:} This work conducted classification of sound repetitions, word repetitions, revisions, and prolongations on the UCLASS dataset through the application of two different methods. First, an original speech prompt was aligned, and then passed to a task-oriented FST to generate word lattices. These lattices were used to detect repeated part-words, words, and phrases within the sample. %As these lattices can easily flag repeated word embeddings, t
+    This method scored perfect results on word repetition classification,%. However, as repeated sounds were not represented in these lattices, and they lack the context to recognize revised phrases, 
+    though the results on sound repetitions and revisions proved much weaker. To classify prolongation stutters, an autocorrelation algorithm consisting of two thresholds was used: the first to detect speech with similar amplitudes (sustained speech), and another dynamic threshold to decide whether the duration of similar speech would be considered a prolongation. Using this algorithm, perfect prolongation classification was achieved.
+    
+    % \item 
+    \textbf{Chen et al. \cite{Chen2020}:} A CT-Transformer was designed to conduct repetition and interjection disfluency detection on an in-house Chinese speech dataset. Both word and position embeddings of a provided audio sample were passed through a series of CT self attention layers and fully connected layers. This work was able to achieve an overall disfluency classification miss rate of 38.5\% (F1 score of 70.5). Notably, this is one of the few works to have attempted interjection disfluency classification, yielding a miss rate of 25.1\%. Note that the performance on repetition disfluencies encompasses all repetition-type stutters, including sound, word, and phrase repetitions, as well as revisions.
+    
+    % \item 
+    \textbf{Kourkounakis et al. \cite{kourkounakis2020}:} As opposed to other current models focusing on ASR and language models, our previous work proposed a model relying solely on acoustic and phonetic features, allowing for the classification of several multiple disfluencies types without the need for speech recognition methods. This model applied a deep residual network, consisting of 6 residual blocks (18 convolution layers) and two bidirectional long short-term memory layers to classify six different types of stutters. This work achieved an average miss rate of 10.03\% on the UCLASS dataset, and sustained strong accuracy and miss rates across all stutter types, prominently word repetitions and revisions.
+
+    % \item 
+    \textbf{Zayats et al. \cite{zayats2016}:} A recurrent network was used to classify repetition disfluencies within the Switchboard corpus. It consists of a BLSTM followed by an ILP post processing method. The input embedding to this network consisted of a vector containing each word's index, part of speech, as well as 18 other disfluency-based features. The method achieved a miss rate of 19.4\% across all repetitions disfluencies.
+
+    % \item 
+    \textbf{Villegas et al. \cite{villegas2019}:} This model was used a reference to compare the effectiveness of repository signals towards stutter classification. These features included the means, standard deviations, and distances of respiratory volume, respiratory flow, and heart rate. Sixty-eight participants were used to generate the data for their experiments. The best performing model in this work was an MLP with 40 hidden layers, resulting in a 82.6\% average classification accuracy between block and non-block type stutters.
+
+    % \item 
+    \textbf{Dash et al. \cite{dash2018}:} This method passed the maximum amplitude of the provided audio sample through a neural network to generate a custom threshold for each sample, trained on a set of 60 speech samples. This amplitude threshold was used to remove any perceived prolongations and interjections. The audio was then passed the audio through a SST tool, which allowed for the removal of any repeated words, phrases, or characters, achieving an overall stutter classification of 86\% on a test set of 50 speech segments.
+    
+% \end{itemize}
+
+
+Note that the latter three works only provide results on a group of disfluency types \cite{zayats2016}, a single disfluency type \cite{villegas2019}, or overall stutter classification \cite{dash2018}. As such, only their average disfluency classification results could be compared. Moreover, these works (\cite{Chen2020}, \cite{zayats2016}, \cite{villegas2019}, and \cite{dash2018}) have not used the UCLASS dataset, therefore the comparisons should be taken cautiously.
+
+Next, we also compare the performance of our solution to a number of other models for benchmarking purposes. These models were selected due to their popularity for time-series learning and their hyperparameters of these models are all tuned to obtain the best possible results given their architectures. These benchmarks are as follows:
+% \begin{itemize}
+    % \item 
+    (\textit{i}) VGG-16 (Benchmark 1): VGG-16 \cite{vgg} 
+    % are a set of deep convolutional networks used for image classification. 
+    % first proposed by the University of Oxford's Visual Geometry Group (VGG) where they achieved grand results against the ImageNet dataset \cite{deng2009imagenet}. 
+    % VGG16 
+    consists of 16 convolutional or fully connected layers, comprised of groups of two or three convolution layers with ReLU activation, with each grouping being followed by a max pooling layer.% This network is visualized in Figure \ref{fig:benchmark_networks}(a). 
+    % This totals to thirteen convolution and five max pooling layers. 
+    The model concludes with three fully connected layers and a final softmax function. 
+    % Of all the VGG networks trained in these works (as is discussed in the following chapter), the VGG-16 remains one of the strongest models.
+    % \item 
+    (\textit{ii}) VGG-19 (Benchmark 2): % As seen in Figure \ref{fig:benchmark_networks}(b), 
+    This network is very similar to its VGG-16 counterpart, with the only difference being an addition of three more convolution layers spread throughout the model. 
+    % This model was used as a benchmark as it yielded the strongest results of VGGs trained, and holds a similar convolutional depth to that of FluentNet. 
+    % In addition to the VGG-16 and VGG-19 described here, we also experimented with other VGG-based architectures in order to identify the optimum depth of this category of benchmarks.
+    % \item 
+    (\textit{iii}) ResNet-18 (Benchmark 3): 
+    % As residual networks have proven to effectively learn spatial representations in images, leading to the use of residual connection within FluentNet, a benchmark ResNet model has been used. 
+    % The ResNet architecture chosen was 
+    ResNet-18 was chosen as a benchmark, which contains 18 layers: eight consecutive residual blocks each containing two convolutional layers with ReLU activation, followed by an average pooling layer and a final fully connected layer. %This is shown in Figure \ref{fig:benchmark_networks}(c). 
+    % Though a ResNet containing 24 convolutional layers was most optimal on the given datasets, and in turn has been applied in FluentNet, ResNet-18 was used as the benchmark to differential between the ablation experiments to follow.
+    %\item 
+    % (\textit{iv}) VGG-19+LSTM (Benchmark 4): As disfluencies contain strong temporal features, a recurrent layer was added to the VGG-19 network. The output of the final max pooling layer within the VGG-19 network, instead of being passed to a fully connected layer, is instead flattened and passed through LSTM layers, who's final output yields the result of the binary disfluency classification.
+    % \item 
+%   (\textit{v}) ResNet-18+LSTM (Benchmark 5): Similar to the above, a recurrent layer was also added to the benchmark residual network. This model is identical to our third benchmark, ResNet-18, with the final fully connected layer of the model being replaced with two LSTM layers. 
+   %Of all benchmark architectures, this model most closely resembles that of FluentNet.
+    
+% \end{itemize}
+
+% Chen et al. \cite{Chen2020} have proposed a time-delay transformer using word embeddings to classify and correct disfluent speech. 
+
+% A paper from Santoso et al. contains some similar methods to FluentNet including BLSTM and MFCC inputs. This model was trained for both interjection and overall stutter classification. 
+
+% These works will only be compared to the results against the UCLASS dataset, at this dataset is more comparable in size as the ones used in the above models. Moreover, not all of the aforementioned works  represent their results through accuracy or miss rate, for example, they may use F-score. Although their results will be left out of the results tables to come, they will be discussed amongst the others in the chapter to follow.
+
+
+\section{Results and Analysis} \label{Results}
+
+\subsection{Validation}
+In order to rigorously test FluentNet on the UCLASS dataset, a leave-one-subject-out (LOSO) cross validation method was used. The results of models tested on this dataset are represented as the average between 25 experiments, each consisting of audio samples from 24 of the participants as training data, and a unique single participant's audio as a test set. A 10-fold cross validation method was used on the LibriStutter dataset with a random 90\% subset of the samples from each stutter being used for training along with 90\% of the clean samples chosen randomly. The remaining 10\% of both clean and stuttered samples were used for testing. All experiments were trained over 30 epochs, with minimal change in loss seen in further epochs. 
+
+
+% 3000 * 6 = 18000 samples
+% 90\% (random) * 18000  - 10\% * 18000
+
+
+% The LibriStutter dataset used to train and test our models consist of 18000 four-second audio clips (20 hours of speech). There are 3000 labelled samples for each of the classes mentioned above, as well as 3000 samples of clean speech.
+
+The two metrics used to measure the performance of the aforementioned experiments were miss rate and accuracy. Miss rate (1 - \textit{recall}) is used to determine the proportion of disfluencies which were incorrectly classified by the model. To balance out any bias this metric may hold, accuracy was used as a second performance metric. 
+% This metric refers to the overall model accuracy of all predictions (not only disfluency predictions).
+
+
+
+
+
+\begin{table*}
+\begin{center}
+\footnotesize
+% \setlength\tabcolsep{2pt}
+\caption {Percent miss rates (MR) and accuracy (Acc) of the six stutter types trained on the UCLASS dataset.}
+\label{table: results_uclass}
+\resizebox{\linewidth}{!}{\begin{tabular}{lll|cc|cc|cc|cc|cc|cc}
+\hline
+ & & & \multicolumn{2}{c|}{S} & \multicolumn{2}{c|}{W} & \multicolumn{2}{c|}{PH} & \multicolumn{2}{c|}{I} & \multicolumn{2}{c|}{PR} & \multicolumn{2}{c}{R} \\
+Paper & Method & Dataset & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$\\ \hline\hline
+Alharbi et al. \cite{interspeech2018} & Word Lattice & UCLASS & 60 & -- & \textbf{0} & -- & \cellcolor{gray!25} & \cellcolor{gray!25} & \cellcolor{gray!25} & \cellcolor{gray!25} & \textbf{0} & --  & 25 & --\\
+Kourkounakis et al. \cite{kourkounakis2020} & ResNet+BLSTM & UCLASS & 18.10 & 84.10 & 3.20 & \textbf{96.60} & 4.46 & 95.54 & 25.12 & 81.40 & 5.92 & 94.08 & 2.86 & 97.14 \\
+% \hline
+Benchmark 1 & VGG-16 & UCLASS & 20.80 & 81.03 & 6.54 & 93.01 & 12.82 & 87.91 & 28.44 & 72.03 & 9.04 & 90.83 & 5.20 & 94.90\\
+Benchmark 2 & VGG-19 & UCLASS & 19.41 & 81.35 & 5.22 & 95.42 & 10.13 & 91.60 & 26.06 & 73.64 & 5.72 & 94.21 & 4.72 & 96.32 \\
+Benchmark 3 & ResNet-18 & UCLASS & 19.51 & 81.38 & 5.26 & 94.50 & 7.32 & 94.01 & 25.55 & 76.38 & 7.02 & 93.22 & 5.16 & 94.74\\
+% Benchmark 4 & VGG-19+LSTM & UCLASS & 18.52 & 81.48 & 4.32 & 95.43 & 10.33 & 89.65 & 25.92 & 74.05 & 6.97 & 93.09 & 3.65 & 96.07\\
+% Benchmark 5 & ResNet-18+LSTM & UCLASS & 20.10 & 83.20 & 3.40 & 95.60 & 4.93 & 95.07 & 25.31 & 80.80 & 5.92 & 94.08 & 3.00 & 96.99\\
+% \hline
+\textbf{Ours} & \textbf{FluentNet} & UCLASS & \textbf{16.78} & \textbf{84.46} & 3.43 & 96.57 & \textbf{3.86} & \textbf{96.26} & \textbf{24.05} & \textbf{81.95} & 5.34 & \textbf{94.89} & \textbf{2.62} & \textbf{97.38} \\
+\hline
+% \hline
+Kourkounakis et al. \cite{kourkounakis2020} & ResNet+BLSTM & LibriStutter & 19.23 & 79.80 & 5.17 & 92.52 & 6.12 & 92.52 & 31.49 & 69.22 & 9.80 & 89.44 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+% \hline
+Benchmark 1 & VGG-16 & LibriStutter & 20.97 & 79.33 & 6.27 & 92.74 & 8.90 & 91.94 & 36.47 & 64.05 & 10.63 & 89.10 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+Benchmark 2 & VGG-19 & LibriStutter & 20.79 & 79.66 & 6.45 & 93.44 & 7.92 & 92.44 & 34.46 & 66.92 & 10.78 & 89.98 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+Benchmark 3 & ResNet-18 & LibriStutter & 22.47 & 78.71 & 6.22 & 92.70 & 6.74 & 93.36 & 35.56 & 64.78 & 10.52 & 90.32 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+% Benchmark 4 & VGG-19+LSTM & LibriStutter & 19.65 & 80.20 & 4.96 & 95.02 & 7.07 & 93.54 & 34.16 & 67.84 & 8.34 & 90.41 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+% Benchmark 5 & ResNet-18+LSTM & LibriStutter & 20.63 & 77.98 & 5.64 & 92.48 & 6.52 & 95.48 & 30.67 & 68.24 & 10.43 & 89.83 & \cellcolor{gray!25} & \cellcolor{gray!25}\\
+% \hline
+ \textbf{Ours} & \textbf{FluentNet} & LibriStutter & \textbf{17.65} & \textbf{82.24} & \textbf{4.11} & \textbf{94.69} & \textbf{5.71} & \textbf{94.32} & \textbf{29.78} & \textbf{70.12} & \textbf{7.88} & \textbf{92.14}& \cellcolor{gray!25} & \cellcolor{gray!25}\\
+\hline
+% \hline
+\end{tabular}}
+\end{center}
+\end{table*}
+
+
+
+
+
+
+
+
+\subsection{Performance and Comparison}
+The results of our model for recognition of each stutter type are presented for the UCLASS and LibriStutter datasets in Table \ref{table: results_uclass}. FluentNet achieves strong results against all the disfluency types within both datasets, outperforming nearly all of the related work as well as the benchmark models. 
+
+As some previous works have been designed to tackle specific disfluency types as opposed to a general solution for detecting different types of disfluencies, a few of FluentNet's individual class accuracies do not surpass previous works', namely word repetitions and prolongation. In particular, the work by Alharbi et al. \cite{interspeech2018} offers perfect word repetition classification, as word lattices can easily identify two words repeated one after the other. Amplitude thresholding also proves to be a successful prolongation classification method. It should be noted that FluentNet does achieve strong results for these disfluency types as well.
+% Where as these methods report less optimal performance on other disfluency types,  FluentNet effectively classifies all disfluency types, resulting in a significant increase in average accuracy. Note that FluentNet has the capabilities of classifying six disfluency types, as opposed to the one to four as done by other works. 
+Notably, our work is one of the only ones that has attempted classification of interjection disfluencies. %Other works often attempt overall disfluency classification \cite{dash2018} or do not attempt interjection classification \cite{interspeech2018}. %Most ASR models that rely on word recognition for repetitions would not be suited to handle this stutter type. Filler words, such as `\textit{like}', would only be detected if the word lay out of grammatical context. Other interjections which are not dictionary words may be misclassified or ignored by language models. 
+% These disfluent utterances lack the unique and phonetic and temporal patterns that, for instance, repetition or prolongation disfluencies contain, and may be present as a combination of these disfluency types as an interjection can be both prolonged or repeated. For these reasons, interjections remain the weakest category of classification by FluentNet, with a 24.05\% and 29.78\% miss rate on the UCLASS an LibriStutter datasets, respectively. Even so, it provides fair results given it has been historically avoided. 
+These disfluent utterances lack the unique phonetic and temporal patterns that, for instance, repetition or prolongation disfluencies contain. Moreover, they may be present as a combination of other disfluency types, for example an interjection can be both prolonged or repeated. For these reasons, interjections remain the hardest category, with a 24.05\% and 29.78\% miss rate on the UCLASS an LibriStutter datasets, respectively. Nonetheless, FluentNet provides good results, especially given that interjections have been historically avoided. 
+
+
+% and the model's focus has been to maximize average accuracy as opposed to interjections alone. 
+The task-oriented lattices generated in \cite{interspeech2018} show strong performance on word repetitions and prolongations, but struggle to detect sound repetitions and revision. Likewise, as is presented in \cite{Chen2020}, the CT-Transformer yields a comparable interjection classification miss rate to that of FluentNet. However, when the same model is applied to repetition stutters, the performance of the model drops severely, hindering its overall disfluency detection capabilities. The use of an attention-based transformer proves a viable method of classifying interjection disfluencies, however as the results suggest, the convolutional and recurrent architecture in FluentNet allows for effective representations to be learned for interjection disfluencies alongside repetitions and prolongations.
+
+%The this method does not includes a recurrent architecture, it lacks the ability to model temporal relationships found in stuttered speech. This is the likely cause of the transformer's weaker performance on repetition disfluencies.
+
+FluentNet's achievements surpass our previous work's across all disfluency types on the Libristutter dataset, and all but word repetition accuracy on the UCLASS dataset. The results show a greater margin of improvement against the LibriStutter dataset as compared to UCLASS between the two models. Notably, word repetitions and prolongation relay a decrease in miss rate of approximately 20\% between FluentNet and \cite{kourkounakis2020}. This implies the SE and attention mechanisms assist in better representing the disfluent utterances within stuttered speech found in the synthetic dataset.
+
+
+
+An interesting observation is that LibriStutter proves a more difficult dataset compared to UCLASS as evident by the lower performance of all the solutions including FluentNet. This is likely due to the fact that given the large number of controllable parameters for each stutter type, LibriStutter is likely to contain a larger variance of stutter styles and variations, resulting in a more difficult problem space.
+
+% It should be noted that the relative change in miss rate for each disfluency type across both datasets remains consistent, advocating the similarities LibriStutter shares with a real stuttered speech corpus.
+
+
+
+
+
+Table \ref{table: avg_uclass} presents the overall performance of our model with respect to all disfluency types on UCLASS and LibriStutter datasets. The results are compared with other works on respective datasets, and the benchmarks which we implemented for comparison purposes.
+% The average miss rate and accuracy values for the UCLASS and LibriStutter datasets are also reported in Table \ref{table: avg_uclass}. 
+We observe that FluentNet achieves average miss rates and accuracy of 9.35\% and 91.75\%on the UCLASS dataset, surpassing the other models and \textit{setting a new state-of-the-art}. A similar trend can be seen for the LibriStutter dataset where FluentNet outperforms the previous model along with all the benchmark models. 
+
+% ability to control the parameters of the disfluencies (for example number of phoneme repetitions in a sound repetition stutter), 
+% This is due to the quality limitations of synthetic datasets. To mimic the complexity and variety of stuttered speech apparent in the UCLASS dataset, appropriate procedures were conducted to transform the LibriSpeech corpus. Each pre-processing measure applied to any dataset may lead to potential inconsistencies in the final data. The LibriStutter dataset had noticeably more processing steps applied as compared to UCLASS, leading to an inferior data quality. 
+
+
+The BLSTM used in \cite{zayats2016} yields successful results towards repetition stutter classification by learning temporal relationships between words, however it remains impaired by its reliance solely on lexical model inputs. 
+% The existence of repetition disfluencies comprise of greater complexity than simply their parts of speech and distance to other words as they contain many phonetic patterns as well. 
+On the other hand, as shown by the results, FluentNet is better able to learn these phonetic details through the spectral and temporal representations of speech.
+
+% Although block-type disfluencies were not considered in our experiments, results achieved in \cite{villegas2019} show promising efforts towards the classification of block stutters. This work utilized information contained in respiratory flow, respiratory rate of speakers to detect stutters in their speech using a MLP. Respiratory signals have been estimated in speech through the use of spectral features and deep convolutional and recurrent neural networks to detect respiratory diseases \cite{nallanthighal2019}. The spectrograms as well as the convolution and recurrent components that make up FluentNet may also be used similarly to instead classify disfluent blocks, given sufficient training data.
+
+The work from \cite{dash2018} uses similar classification techniques to \cite{interspeech2018}, however improves upon the thresholding technique with the addition of a neural neural network. Though achieving an average accuracy of 86\% across the same disfluency types used in this work, FluentNet remains a stronger model given its effective spectral frame-level and temporal embeddings. Nonetheless, the results of this work contains only a single overall accuracy value across all of repetition, interjection, and prolongation disfluency detection. Little is discussed on the origin and makeup of the dataset used.
+
+
+% FluentNet was able to surpass our previous work in every category while trained with the LibriStutter dataset, and all but word repetitions with the UCLASS datasets. The introduction of attention, and more notably, the SE extension, as well as further experimentation of the convolution layer counts have refined the network to bring overall positive improvements to the model. The minuscule decline in accuracy and miss rate in word repetitions may be caused by randomness provided by the dropout. It is likely that without the dropout, though the overall results of both models would worsen, FluentNet would likely be superior in this category.
+
+% FluentNet surpassed all baseline experiments, there are still some interesting points to take from them. 
+Of the benchmark models without an RNN component, ResNet performs better than both VGG networks for both datasets, indicating that ResNet-style architectures are able to learn effective spectral representations of speech. This further justifies the use of a ResNet as the backbone of our model. Moreover, the addition of the LSTM component to the benchmarks shows that learning the temporal relationships through an RNN contributes to the performance. 
+
+% It is interestingly observed that many of the results reported by our model, the related work, and the benchmarks, are quite close to each other. This indicates that the datasets contain a reasonable number of disfluencies that are `easy' to detect, and a smaller number that are very `hard' in comparison. Hence, the relatively small improvements by FluentNet are noteworthy. 
+
+% , the most successful was the VGG-19 with the LSTM on both datasets. ResNet's have performed better on average compared to their equally sized VGG counterparts, but the addition of just a single recurrent layer proves that the convolution layers are not the only major cause of improvements. This third baseline experiment also surpassed the simpler VGGs, as was expected given the optimal size of the network, as will be discussed in the section to follow.
+
+
+
+
+% \begin{table*}
+% \begin{center}
+% \footnotesize
+% \caption {Percent miss rates (MR) and accuracy (Acc) of the six stutter types trained on the LibriStutter dataset.}
+% \label{table: results_libristutter}
+% \begin{tabular}{ll|cc|cc|cc|cc|cc}
+% \hline
+%  & & \multicolumn{2}{c|}{S} & \multicolumn{2}{c|}{W} & \multicolumn{2}{c|}{PH} & \multicolumn{2}{c|}{I} & \multicolumn{2}{c}{PR} \\
+% Paper & Method & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$\\ \hline\hline
+% Kourkounakis et al. \cite{kourkounakis2020} & ResNet+BLSTM & 19.23 & 79.80 & 5.17 & 92.52 & 6.12 & 95.52 & 31.49 & 69.22 & 9.80 & 89.44\\\hline
+% Benchmark 1 & VGG-16 & 20.97 & 79.33 & 6.27 & 92.74 & 8.90 & 91.94 & 36.47 & 64.05 & 10.63 & 89.10\\
+% Benchmark 2 & VGG-19 & 20.79 & 79.66 & 6.45 & 93.44 & 7.92 & 92.44 & 34.46 & 66.92 & 10.78 & 89.98\\
+% Benchmark 3 & ResNet-18 & 22.47 & 78.71 & 6.22 & 92.70 & 6.74 & 93.36 & 35.56 & 64.78 & 10.52 & 90.32\\
+% Benchmark 4 & VGG-19+LSTM & 19.65 & 80.20 & 4.96 & 95.02 & 7.07 & 93.54 & 34.16 & 67.84 & 8.34 & 90.41\\
+% Benchmark 5 & ResNet-18+LSTM & 20.63 & 77.98 & 5.64 & 92.48 & 6.52 & 95.48 & 30.67 & 68.24 & 10.43 & 89.83 \\
+% % Ours (previous work) & ResNet+BLSTM & & & & & & & & & & & & \\
+% \hline
+% \textbf{Ours} & \textbf{FluentNet} & \textbf{17.65} & \textbf{82.24} & \textbf{4.11} & \textbf{94.69} & \textbf{5.71} & \textbf{94.32} & \textbf{29.78} & \textbf{70.12} & \textbf{7.88} & \textbf{92.14}\\
+% \hline
+% \end{tabular}%
+% \end{center}
+% \end{table*}
+
+
+
+
+\begin{table}
+\begin{center}
+% \small
+% \footnotesize
+\caption{Average percent miss rates (MR) and accuracy (Acc) of disfluency classification models.}
+\label{table: avg_uclass}
+\resizebox{\columnwidth}{!}{\begin{tabular}{l l c c} 
+\hline
+Paper & Dataset & Ave. MR$\downarrow$ & Ave. Acc.$\uparrow$ \\
+\hline\hline
+Zayats et al. \cite{zayats2016} & Switchboard & 19.4 & -- \\
+Villegas et al. \cite{villegas2019} & Custom & -- & 82.6 \\
+Dash et al. \cite{dash2018}  & Custom &  -- & 86 \\
+Chen et al. \cite{Chen2020} & Custom & 38.5 & -- \\
+\hline
+Alharbi et al. \cite{interspeech2018}  & UCLASS & 37 & -- \\
+Kourkounakis et al. \cite{kourkounakis2020}  & UCLASS & 10.03 & 91.15\\
+Benchmark 1 (VGG-16) & UCLASS & 13.81 & 86.62\\
+Benchmark 2 (VGG-19) & UCLASS & 12.21 & 87.92\\
+Benchmark 3 (ResNet-18) & UCLASS & 12.14 & 89.14\\
+% Benchmark 4 (VGG-19+LSTM) & UCLASS & 11.62 & 88.30\\
+% Benchmark 5 (ResNet-18+LSTM) & UCLASS & 10.45 & 90.96\\
+\textbf{FluentNet} & UCLASS & \textbf{9.35} & \textbf{91.75} \\
+\hline
+Kourkounakis et al. \cite{kourkounakis2020} & LibriStutter & 14.36 & 85.30\\
+Benchmark 1 (VGG-16) & LibriStutter & 16.65 & 83.43\\
+Benchmark 2 (VGG-19) & LibriStutter & 16.08 & 84.49\\
+Benchmark 3 (ResNet-18) & LibriStutter & 16.30 & 83.97\\
+% Benchmark 4 (VGG-19+LSTM) & LibriStutter & 14.84 & 85.40\\
+% Benchmark 5 (ResNet-18+LSTM) & LibriStutter & 14.78 & 84.80\\
+\textbf{FluentNet} & LibriStutter & \textbf{13.03} & \textbf{86.70} \\
+\hline
+\end{tabular}}
+\end{center}
+\end{table}
+
+
+
+
+% \begin{figure}[ht]
+% \begin{subfigure}{.5\columnwidth}
+%   \centering
+%   % include first image
+%   \includegraphics[width=.7\linewidth]{ROC_UCLASS.pdf}  
+%   \caption{UCLASS}
+%   \label{fig:uclass_roc}
+% \end{subfigure}
+% \begin{subfigure}{.5\columnwidth}
+%   \centering
+%   % include second image
+%   \includegraphics[width=.7\linewidth]{ROC_LibriStutter.pdf}  
+%   \caption{LibriStutter}
+%   \label{fig:libristutter_roc}
+% \end{subfigure}
+% \caption{ROC curves for each stutter type tested on the UCLASS and LibriStutter datasets.}
+% \label{fig:roc}
+% \end{figure}
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=0.5\columnwidth]{ROC_UCLASS.pdf}
+%     \end{center}
+% \caption{}
+% \label{fig:ROC_UCLASS}
+% \end{figure}
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=0.5\columnwidth]{ROC_LibriStutter.pdf}
+%     \end{center}
+% \caption{ROC curves for each stutter type tested on the LibriStutter dataset.}
+% \label{fig:ROC_LibriStutter}
+% \end{figure}
+
+
+
+
+
+To further demonstrate the performance of FluentNet, the Receiver Operator Characteristic (ROC) curves were generated for each disfluency class on the UCLASS and LibriStutter datasets, as shown in Figures \ref{fig:roc}(a) and \ref{fig:roc}(b), respectively.
+% ROC curves remain independent of class distribution \cite{gonccalves2014roc}, and in turn prove as an effective performance measure against the UCLASS dataset, which contains moderately different positive sample counts of each disfluency type. 
+% The area under the curves (AUC) represent the overall performance of a binary classifier, with larger values detailing a better model. 
+It can be seen that word repetitions, phrase repetitions, revisions, and prolongations reveal very strong classification on both datasets. Both sound repetitions and interjections classification fair weakest, with the LibriStutter dataset, proving to be a more difficult dataset for FluentNet, as previously observed and discussed.
+
+
+
+
+
+
+
+
+
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[t]{0.5\columnwidth}
+        \centering
+        \includegraphics[width=1\columnwidth]{ROC_UCLASS.pdf}
+        \caption{UCLASS}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\columnwidth}
+        \centering
+        \includegraphics[width=1\columnwidth]{ROC_LibriStutter.pdf}
+        \caption{LibriStutter}
+    \end{subfigure}
+    \caption{ROC curves for each stutter type tested on the UCLASS and LibriStutter datasets.}
+\label{fig:roc}
+\end{figure}
+
+
+
+
+
+% \begin{figure}[ht]
+% \begin{subfigure}{.5\textwidth}
+%   \centering
+%   % include first image
+%   \includegraphics[width=.7\linewidth]{uclass_training_curve.pdf}  
+%   \caption{UCLASS}
+%   \label{fig:uclass_training}
+% \end{subfigure}
+% \begin{subfigure}{.5\textwidth}
+%   \centering
+%   % include second image
+%   \includegraphics[width=.7\linewidth]{libristutter_training_curve.pdf}  
+%   \caption{LibriStutter}
+%   \label{fig:libristutter_training}
+% \end{subfigure}
+% \caption{Average training accuracy for FluentNet on the considered stuttered types for the UCLASS and LibriStutter datasets.}
+% \label{fig:training}
+% \end{figure}
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=0.5\columnwidth]{uclass_training_curve.pdf}
+%     \end{center}
+% \caption{Average training accuracy for FluentNet on the considered stuttered types for the UCLASS dataset.}
+% \label{fig:training_uclass}
+% \end{figure}
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=0.5\columnwidth]{libristutter_training_curve.pdf}
+%     \end{center}
+% \caption{Average training accuracy for FluentNet on the considered stuttered types for the LibriStutter dataset.}
+% \label{fig:training_libristutter}
+% \end{figure}
+
+
+
+
+
+\begin{table*}
+\begin{center}
+\footnotesize
+\caption{Ablation experiment results, providing accuracy (Acc) and miss rates (MR) for each stutter type and model on the UCLASS dataset.}
+\label{table: ablation_uclass}
+\resizebox{\linewidth}{!}{\begin{tabular}{ll|cc|cc|cc|cc|cc|cc|cc}
+\hline
+ & & \multicolumn{2}{c|}{S} & \multicolumn{2}{c|}{W} & \multicolumn{2}{c|}{PH} & \multicolumn{2}{c|}{I} & \multicolumn{2}{c|}{PR} & \multicolumn{2}{c|}{R} & \multicolumn{2}{c}{Average}\\
+Method & Dataset & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$ & MR$\downarrow$ & Acc.$\uparrow$\\ \hline\hline
+\textbf{FluentNet} & UCLASS & 16.78 & 84.46 & 3.43 & 96.57 & 3.86 & 96.26 & 24.05 & 81.95 & 5.34 & 94.89 & 2.62 & 97.38 & 9.35 & 91.75\\
+% w/ Identity Shortcut Connection (ISC)& 16.76 & 83.35 & 3.24 & 96.44 & 3.94 & 96.16 & 2.68 & 97.32 & 23.76 & 82.24 & 6.54 & 93.47\\
+w/o Attention & UCLASS & 16.97 & 83.13 & 3.51 & 96.29 & 4.23 & 95.78 & 24.22 & 80.78 & 6.88 & 92.50 & 3.25 & 96.55 & 9.84 & 90.84\\
+w/o Squeeze-and-Excitation & UCLASS & 17.37 & 82.01 & 4.82 & 95.34 & 4.81 & 95.17 & 24.59 & 79.84 & 6.22 & 93.10 & 3.14 & 96.98 & 10.16 & 90.41\\
+% w/o Squeeze-and-Excitation \& w/ ISC & 18.28 & 81.83 & 5.86 & 94.25 & 6.24 & 93.32 & 3.73 & 96.16 & 28.75 & 71.23 & 8.32 & 91.57\\
+w/o Squeeze-and-Excitation \& Attention & UCLASS & 18.18 & 82.83 & 4.96 & 95.04 & 5.32 & 93.68 & 28.89 & 71.01 & 8.30 & 91.72 & 3.30 & 96.70 & 11.49 & 88.50\\
+\hline
+% \hline
+\textbf{FluentNet} & LibriStutter & 17.65 & 82.24 & 4.11 & 94.69 & 5.71 & 94.32 & 29.78 & 70.12 & 7.88 & 92.14 & \cellcolor{gray!25} & \cellcolor{gray!25} & 13.03 & 86.70\\
+w/o Attention &  LibriStutter & 18.91 & 81.14 & 4.17 & 94.01 & 5.92 & 93.73 & 31.26 & 68.91 & 8.53 & 91.24 &  \cellcolor{gray!25} & \cellcolor{gray!25} & 13.76 & 85.81 \\
+w/o Squeeze-and-Excitation &  LibriStutter & 19.11 & 80.72 & 4.95 & 94.60 & 5.87 & 94.15 & 31.14 & 70.02 & 8.80 & 91.28 & \cellcolor{gray!25} & \cellcolor{gray!25} & 13.97 & 86.15\\
+w/o Squeeze-and-Excitation \& Attention &  LibriStutter & 19.23 & 79.80 & 5.17 & 92.52 & 6.12 & 92.52 & 31.49 & 69.22 & 9.80 & 89.44 & \cellcolor{gray!25} & \cellcolor{gray!25} & 14.36 & 85.30\\
+\hline
+\end{tabular}}
+\end{center}
+\end{table*}
+
+
+
+
+
+
+\subsection{Parameters}
+Multiple parameters have been tuned in order to maximize the accuracy of FluentNet and the baseline experiments on both datasets. These include convolution window sizes, epochs, and learning rates, among others. Each has been individually tested in order to find the optimal values for the given model. Note that all of FluentNet's hyper-parameters remain the same across all disfluency types. 
+
+Thorough experiments were performed to obtain the optimum architecture of FluentNet. For the SE-ResNet component, we tested a different count of convolution blocks, ranging between 3 to 12, with each block consisting of 3 convolutional layers. Eight blocks were found to be the approximate optimal depth for training the model on the UCLASS dataset. Similarly, we experimented with the use of different number of BLSTM layers, ranging between 0 to 3 layers. The use of 2 layers yielded the best results. Moreover, the use of bi-directional layers proved slightly more effective than uni-directional layers. Lastly, we experimented with a number of different values and strategies for the learning rate where $10^{-4}$ showed the best results.
+
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[t]{0.5\columnwidth}
+        \centering
+        \includegraphics[width=1\columnwidth]{uclass_training_curve.pdf}
+        \caption{UCLASS}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\columnwidth}
+        \centering
+        \includegraphics[width=1\columnwidth]{libristutter_training_curve.pdf}
+        \caption{LibriStutter}
+    \end{subfigure}
+    \caption{Average training accuracy for FluentNet on the considered stuttered types for the UCLASS and LibriStutter datasets.}
+\label{fig:training}
+\end{figure}
+
+
+
+
+Figures \ref{fig:training}(a) and \ref{fig:training}(b) show FluentNet's performance for each stutter type against different epochs on the UCLASS and LibriStutter datasets, respectively. It can be seen that the training accuracy stabilizes after around 20 epochs. Whereas all disfluencies types in the UCLASS dataset approach perfect training accuracy, training accuracy plateaus at much lower accuracies for interjections and sound repetitions within the LibriStutter dataset.
+
+% \begin{figure}[!t]
+%     \begin{center}
+%     \includegraphics[width=0.9\columnwidth]{layer_curve.pdf}
+%     \end{center}
+% \caption{Average accuracies for each convolution layer count of ResNets and VGGs, and there associated trendlines, trained on the UCLASS dataset.}
+% \label{fig:layer_curve}
+% \end{figure}
+
+% Thorough experiments were performed on both the baseline VGG and residual networks to determine an optimal depth for each architecture. 
+% Figure \ref{fig:layer_curve} visualizes the changes in accuracy between different convolution layer counts for both baseline ResNet and VGG networks. For ResNets, each model tested contained a different count of residual blocks, ranging between 3 to 12 residual blocks, with each block consisting of 3 convolutional layers. Eight residual blocks, was found to be the approximate optimal depth for training the ResNet models on the UCLASS dataset. This experiment led to use of this convolution depth within FluentNet. With significantly more layers, the classification accuracy for every disfluency  type plummets. Both models extremely overfit the data with a high number of convolutions. %Although the ResNet's purpose is to minimize the effects of the vanishing gradient problem and overfitting, models of this depth can only withstand so much before this issues arises. Models larger than those tested would likely results in near random results, and were left out of testing as they would provide no important information. 
+% ResNet models shallower than 24 convolution layers provide similar results to FluentNet, only reducing the accuracy by a small margin. Though these models train faster, they do not provide the most optimal results. The relationship between VGG convolution layer count and accuracy relays similar trends to that of ResNets. The VGG-19 (16 convolutional layers) performed best on the UCLASS dataset, and was in turn used for both Benchmark 3 and 5. 
+
+% It can be seen that VGGs of equivelant convolutional depth to their ResNet counterparts fair overall weaker results. This further validates the residual networks excellence towards embedding spatial representation within speech and spectral features.
+
+
+
+
+
+
+%Although the ResNet's purpose is to minimize the effects of the vanishing gradient problem and overfitting, models of this depth can only withstand so much before this issues arises. Models larger than those tested would likely results in near random results, and were left out of testing as they would provide no important information. 
+% ResNet models shallower than 24 convolution layers provide similar results to FluentNet, only reducing the accuracy by a small margin. Though these models train faster, they do not provide the most optimal results. 
+
+%The relationship between VGG convolution layer count and accuracy relays similar trends to that of ResNets. The VGG-19 (16 convolutional layers) performed best on the UCLASS dataset, and was in turn used for both Benchmark 3 and 5. 
+
+% It can be seen that VGGs of equivelant convolutional depth to their ResNet counterparts fair overall weaker results. This further validates the residual networks excellence towards embedding spatial representation within speech and spectral features.
+
+
+
+
+
+\subsection{Ablation Experiments}
+To further analyze FluentNet, an ablation study was done in order to systematically evaluate how each component contributes towards the overall performance. Both the SE portion and attention mechanisms were removed, individually and together, in order to analyse the relationship between their absences, and how these affect both accuracy and miss rates for each disfluency class. The ablation results for both the UCLASS and LibriStutter datasets can be seen summarized in Table \ref{table: ablation_uclass}. Overall, FluentNet shows stronger accuracy and lower miss rates across both datasets and all stutter types, compared to the three variants. Although the drops in performance varies across different stutter types with the removal of each element, the experiment shows the general advantages of the different components of FluentNet. 
+% For example, observations show an increase in accuracy of over 10\% between the UCLASS `interjection' classification with FluentNet, versus its variant without the SE components and attention. UCLASS `prolongation' classification only shows an increased accuracy of approximately 3\% between these two models. 
+% When investigating the 
+% Both of these improvements however share a relative reduction in error of 35\% for their respective disfluency types.
+
+% For example, when comparing FluentNet to its SE ablation experiment, FluentNet's increase in accuracy across interjections is greater than that of phrase repetitions. They both however share a relative decrease in error of around 12\%. 
+% For example, when comparing FluentNet to its SE ablation experiment, FluentNet's increase in accuracy across interjections is greater than that of phrase repetitions. They both however share a relative decrease in error of around 12\%. 
+The results show that across both datasets, the SE component and the attention mechanism both individually benefit the model for most stutter types. Removal of the SE component yields the greatest drop in the accuracy and increase in miss rates across nearly all stutter types.
+% , increasing miss rate by a relative 5-8\%. 
+The removal of the SE components from FluentNet has the most negative impact. 
+% generates noticeably stronger results and adds minimal complexity and training time to the overall model. 
+The removal of the global attention mechanism as the final stage of the model, also reduces the classification accuracy of FluentNet. 
+Similarly, with both the SE component and attention removed, the model 
+% bears strong similarities to the solution proposed in \cite{kourkounakis2020}, aside from the residual block count. This variant 
+showed a decline in accuracy and miss rates across all classes tested. Note that the results of these ablation experiments hold similar conclusions for both the UCLASS and our synthesized dataset (with a slightly higher impact observed on UCLASS vs. LibriStutter), thereby reinforcing the validity of LibriStutter's similarity to real stutters. 
+% Lastly, the RNN components were removed...
+
+
+
+
+
+\section{Conclusion} \label{Conclusion}
+% \subsection{Summary}
+%Public speaking remains an important life skill that can be used to advance our careers and improve our daily interactions. %In this paper, a tool was created to help users receive feedback on underlying issues in their presentation skills that they could improved upon. The speech metrics provided include volume, rate of speech, intonation, and stutters. 
+Of the measurable metrics of speech, stuttering continues to be the most difficult to identify as their diversity and uniqueness make them challenging for simple algorithms to model. To this end, we proposed a deep neural network, FluentNet, to accurately classify these disfluencies. FluentNet is an end-to-end deep neural network designed to accurately classify stuttered speech across six different stutter types: sound, word, and phrase repetitions, as well as revisions, interjections, and prolongations. This model uses a Squeeze-and-Excitation residual network to learn effective spectral frame-level speech representations, followed by recurrent bidirectional long short-term memory layers to learn temporal relationships from stuttered speech. A global attention mechanism was then added to focus on salient parts of speech in order to accurately detect the required influences. Through comprehensive experiments, we demonstrate that FluentNet achieves state-of-the-art results on disfluency classification with respect to other works in the area as well as a number of benchmark models on the public UCLASS dataset. Given the lack of sufficient data to facilitate more in-depth research on disfluency detection, we developed a synthetic dataset, LibriStutter, based on the public LibriSpeech dataset. %This dataset is 20 hours long, considerably larger than UCLASS, and contains 15,000 disfluent samples equally distributed across 5 stutter types. We then further evaluated our model on this dataset, achieving strong performance for detecting the various synthesized disfluencies.
+% Moreover, LibriStutter, an augmented stutter dataset generating using the LibriSpeech ASR corpus was built to compensate for the lack of existing stuttered data in the field of stutter recognition.
+
+
+
+% \subsection{Limitations}
+% Detailed comparisons to previous works lay scarce due to the limited focus on the field of disfluency classification. Many works have focused on few specific disfluency categories \cite{zayats2016} \cite{villegas2019}, or conversely on the overall disfluency classification scores \cite{dash2018}. Models that attempt classification of multiple disfluency types often utilize different architectures for different types of disfluent utterances \cite{interspeech2018} \cite{dash2018}. There lacks available comparisons that classify wide breadths of stutter types or utilize a single architecture. Fortunately, there is a growing trend of works towards disfluency recognition which should aid to provide more comparisons for future works. Moreover, the addition of our work and the publication herein \cite{kourkounakis2020}, also contribute considerable results to the field.
+
+% The small number of works towards disfluency classification is partially due to the limited amount of publicly available stutter speech corpera. These datasets require considerable effort to create, calling for manual transcription of stuttered speech. Though UCLASS remains a notable dataset in the field of disfluency recognition, models trained on the scarce amount of disfluencies found within the UCLASS dataset limits their classification capabilities against other speech data. 
+% % FluentNet, though accurately classifying disfluencies in UCLASS, may better generalize stuttered speech classification had it been trained on a larger corpus. 
+% Many previous works have incorporated custom datasets to account for the lack of data (as seen in \cite{villegas2019}, \cite{dash2018}, and \cite{Chen2020}), which in turn makes it difficult to compare results. The creation of the LibriStutter dataset aims to stand as a benchmark dataset in which future works can apply to their experiments.
+
+
+% \subsection{Future Work}
+Future works may include improving on LibriStutter's realism, which could constitute conducting further research into the physical sound generation of stutters and how they translate to audio signals. %More work with disfluencies may involve both disfluency classification as well as the generation of a labelled stutter dataset through the use of generative adversarial networks (GANs). An interesting future research direction can be the use of GANs to convert stuttered speech into its `clean' form for audio processing applications.
+Whereas this work focuses on the educational and business applications of speech metric analysis, further work may focus towards medical and therapeutic use-cases.% Further work may include validating potential therapeutic uses for FluentNet. Expanded work alongside speech language pathologists would aid in this endeavor.
+
+
+\section*{Acknowledgment}
+The authors would like to thank Prof. Jim Hamilton for his support and valuable discussion throughout this work. We also wish to acknowledge Adrienne Nobbe for her consultation towards this project. 
+%I would like to express my sincerest gratitude to all who have shown support throughout my academic journey. I would firstly like to graciously thank Prof. Ali Etemad for his hearty support and invaluable guidance throughout the entirety of this work. I also wish to thank Prof. Jim Hamilton for helping fund this research and his valuable discussions throughout this endeavor. I would like to thank Amirhossein Hajavi for his assistance and collaboration on our works. I also wish to acknowledge Adrienne Nobbe for her consultation towards this project. I wish to acknowledge fellow members of the Aiim lab for their uplifting character and support. I would like to acknowledge the committee members for their comprehensive feedback and insight. I want to show thanks my friends who have helped keep my spirits high, and would like to give a final thanks to my parents, sister, and Brooklyn for their unwavering support and encouragement, both towards and outside of this endeavor.
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+\ifCLASSOPTIONcaptionsoff
+  \newpage
+\fi
+
+
+
+
+\small
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

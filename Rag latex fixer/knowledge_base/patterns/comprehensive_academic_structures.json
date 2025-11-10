@@ -1,0 +1,344 @@
+{
+  "research_paper_structures": {
+    "ieee_conference": {
+      "required_sections": [
+        "abstract",
+        "introduction", 
+        "related_work",
+        "methodology",
+        "experiments",
+        "results",
+        "conclusion",
+        "references"
+      ],
+      "optional_sections": [
+        "acknowledgments",
+        "appendix"
+      ],
+      "formatting_rules": {
+        "title": "\\\\title{Title Here}",
+        "author": "\\\\author{\\\\IEEEauthorblockN{Author Name}\\\\\\\\\\\\IEEEauthorblockA{Affiliation}}",
+        "section": "\\\\section{Section Title}",
+        "subsection": "\\\\subsection{Subsection Title}",
+        "figures": "\\\\begin{figure}[htbp]",
+        "tables": "\\\\begin{table}[htbp]",
+        "equations": "\\\\begin{equation}",
+        "citations": "\\\\cite{key}"
+      },
+      "page_limits": {
+        "conference": "6-8 pages",
+        "journal": "12-15 pages"
+      }
+    },
+    "acm_conference": {
+      "required_sections": [
+        "abstract",
+        "introduction",
+        "background",
+        "approach",
+        "evaluation", 
+        "related_work",
+        "conclusion",
+        "references"
+      ],
+      "formatting_rules": {
+        "title": "\\\\title{Title Here}",
+        "author": "\\\\author{Author Name}\\\\\\\\\\\\affiliation{Affiliation}\\\\\\\\\\\\email{email@domain.com}",
+        "section": "\\\\section{Section Title}",
+        "subsection": "\\\\subsection{Subsection Title}",
+        "citations": "\\\\cite{key}"
+      }
+    },
+    "nature_journal": {
+      "required_sections": [
+        "abstract",
+        "introduction",
+        "results",
+        "discussion", 
+        "methods",
+        "references"
+      ],
+      "formatting_rules": {
+        "citations": "\\\\cite{key}",
+        "figures": "Extended Data figures for supplementary material"
+      }
+    },
+    "arxiv_preprint": {
+      "required_sections": [
+        "abstract",
+        "introduction",
+        "conclusion",
+        "references"
+      ],
+      "flexible": true,
+      "formatting_rules": {
+        "title": "\\\\title{Title Here}",
+        "author": "\\\\author{Author Name\\\\\\\\Institution\\\\\\\\\\\\texttt{email@domain.com}}",
+        "date": "\\\\date{\\\\today}"
+      }
+    },
+    "thesis_dissertation": {
+      "required_sections": [
+        "title_page",
+        "abstract",
+        "acknowledgments",
+        "table_of_contents",
+        "list_of_figures",
+        "list_of_tables",
+        "introduction",
+        "literature_review", 
+        "methodology",
+        "results",
+        "discussion",
+        "conclusion",
+        "references",
+        "appendices"
+      ],
+      "formatting_rules": {
+        "chapter": "\\\\chapter{Chapter Title}",
+        "section": "\\\\section{Section Title}",
+        "double_spacing": "\\\\doublespacing",
+        "page_numbers": "required on all pages except title"
+      }
+    }
+  },
+  "section_patterns": {
+    "introduction": {
+      "typical_length": "1-2 pages",
+      "key_elements": [
+        "problem_statement",
+        "motivation",
+        "contributions", 
+        "paper_organization"
+      ],
+      "common_phrases": [
+        "In this paper, we",
+        "Our main contributions are",
+        "The rest of the paper is organized as follows"
+      ]
+    },
+    "related_work": {
+      "typical_length": "1-3 pages",
+      "organization": [
+        "chronological",
+        "thematic",
+        "comparative"
+      ],
+      "citation_density": "high"
+    },
+    "methodology": {
+      "typical_length": "2-4 pages", 
+      "key_elements": [
+        "problem_formulation",
+        "approach_description",
+        "algorithm_details",
+        "implementation_details"
+      ],
+      "common_environments": [
+        "algorithm",
+        "equation",
+        "figure"
+      ]
+    },
+    "experiments": {
+      "typical_length": "2-5 pages",
+      "key_elements": [
+        "experimental_setup",
+        "datasets",
+        "baselines",
+        "metrics",
+        "results_analysis"
+      ],
+      "common_environments": [
+        "table",
+        "figure",
+        "itemize"
+      ]
+    },
+    "results": {
+      "typical_length": "1-3 pages",
+      "key_elements": [
+        "quantitative_results",
+        "qualitative_analysis",
+        "comparison_with_baselines",
+        "statistical_significance"
+      ],
+      "heavy_use": [
+        "tables",
+        "figures",
+        "citations"
+      ]
+    },
+    "conclusion": {
+      "typical_length": "0.5-1 pages",
+      "key_elements": [
+        "summary_of_contributions",
+        "limitations",
+        "future_work"
+      ]
+    }
+  },
+  "document_class_patterns": {
+    "article": {
+      "best_for": ["conference papers", "journal articles", "short reports"],
+      "sections": ["section", "subsection", "subsubsection"],
+      "common_options": ["10pt", "11pt", "12pt", "twocolumn", "onecolumn"]
+    },
+    "report": {
+      "best_for": ["technical reports", "longer documents"],
+      "sections": ["chapter", "section", "subsection", "subsubsection"],
+      "includes_chapters": true
+    },
+    "book": {
+      "best_for": ["books", "theses"],
+      "sections": ["part", "chapter", "section", "subsection"],
+      "includes_parts": true
+    },
+    "IEEEtran": {
+      "best_for": ["IEEE conference and journal papers"],
+      "specific_commands": ["\\\\IEEEauthorblockN", "\\\\IEEEauthorblockA"],
+      "column_modes": ["onecolumn", "twocolumn"]
+    },
+    "ACM-Reference-Format": {
+      "best_for": ["ACM conference papers"],
+      "specific_commands": ["\\\\affiliation", "\\\\email"],
+      "modern_format": true
+    }
+  },
+  "abstract_patterns": {
+    "ieee_style": {
+      "structure": [
+        "background_sentence",
+        "problem_statement",
+        "approach_summary",
+        "key_results",
+        "conclusion"
+      ],
+      "word_limit": "150-250 words",
+      "tense": "present for general statements, past for specific work"
+    },
+    "acm_style": {
+      "structure": [
+        "context",
+        "problem",
+        "solution",
+        "evaluation",
+        "conclusion"
+      ],
+      "word_limit": "150-300 words"
+    }
+  },
+  "reference_patterns": {
+    "numbering_systems": {
+      "ieee": "numerical [1], [2], [3]",
+      "acm": "numerical [1], [2], [3]", 
+      "apa": "author-year (Smith, 2023)",
+      "chicago": "author-year or numerical footnotes"
+    },
+    "common_reference_types": [
+      "conference_paper",
+      "journal_article", 
+      "book",
+      "book_chapter",
+      "website",
+      "thesis",
+      "patent",
+      "technical_report",
+      "preprint"
+    ]
+  },
+  "figure_and_table_patterns": {
+    "figure_placement": {
+      "preferred_options": ["htbp", "H"],
+      "caption_position": "below figure",
+      "centering": "\\\\centering",
+      "width_specifications": [
+        "\\\\textwidth",
+        "0.8\\\\textwidth",
+        "0.5\\\\textwidth", 
+        "\\\\columnwidth"
+      ]
+    },
+    "table_placement": {
+      "preferred_options": ["htbp", "H"],
+      "caption_position": "above table",
+      "centering": "\\\\centering",
+      "professional_style": "booktabs package"
+    },
+    "numbering": {
+      "figures": "sequential within document",
+      "tables": "sequential within document", 
+      "cross_reference": "\\\\ref{fig:label} and \\\\ref{tab:label}"
+    }
+  },
+  "equation_patterns": {
+    "inline_math": {
+      "delimiters": ["$...$", "\\\\(...\\\\)"],
+      "use_cases": ["variables in text", "simple expressions"]
+    },
+    "display_math": {
+      "environments": ["equation", "align", "gather", "multline"],
+      "numbering": "automatic unless starred",
+      "alignment": "use & in align environment"
+    },
+    "multi_line_equations": {
+      "align": "for equations with alignment",
+      "gather": "for centered equations without alignment",
+      "split": "for breaking single equation across lines"
+    }
+  },
+  "appendix_patterns": {
+    "placement": "after references",
+    "numbering": "A, B, C... or A.1, A.2...",
+    "typical_contents": [
+      "additional_results",
+      "detailed_proofs",
+      "implementation_details",
+      "supplementary_figures",
+      "code_listings"
+    ]
+  },
+  "common_document_flows": {
+    "computer_science_paper": [
+      "abstract",
+      "introduction", 
+      "related_work",
+      "problem_formulation",
+      "methodology",
+      "experiments",
+      "results_and_discussion", 
+      "conclusion",
+      "references"
+    ],
+    "engineering_paper": [
+      "abstract",
+      "introduction",
+      "background",
+      "system_design",
+      "implementation",
+      "evaluation",
+      "related_work",
+      "conclusion",
+      "references"  
+    ],
+    "medical_paper": [
+      "abstract",
+      "introduction",
+      "methods",
+      "results", 
+      "discussion",
+      "conclusion",
+      "references"
+    ],
+    "physics_paper": [
+      "abstract", 
+      "introduction",
+      "theory",
+      "experimental_setup",
+      "results",
+      "discussion",
+      "conclusion",
+      "references"
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=cyan,}
+\urlstyle{same}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\graphicspath{ {./images/} }
+\usepackage{caption}
+\usepackage{stfloats}
+\usepackage{multirow}
+\usepackage{bbold}
+\usepackage[margin=0.75in]{geometry}
+
+\title{GlucoBench: Curated List of Continuous Glucose Monitoring Datasets with Prediction Benchmarks }
+
+\author{\IEEEauthorblockN{Renat Sergazinov, Elizabeth Chun, Valeriya Rogovchenko, Nathaniel Fernandes, Nicholas Kasman, Irina Gaynanova}\\
+\IEEEauthorblockA{Department of Statistics, Texas A\&M University\\
+Department of Electrical and Computer Engineering, Texas A\&M University}}
+
+\date{}
+
+%New command to display footnote whose markers will always be hidden
+\let\svthefootnote\thefootnote
+\newcommand\blfootnotetext[1]{%
+ \let\thefootnote\relax\footnote{#1}%
+ \addtocounter{footnote}{-1}%
+ \let\thefootnote\svthefootnote%
+}
+
+%Overriding the \footnotetext command to hide the marker if its value is `0`
+\let\svfootnotetext\footnotetext
+\renewcommand\footnotetext[2][?]{%
+ \if\relax#1\relax%
+ \ifnum\value{footnote}=0\blfootnotetext{#2}\else\svfootnotetext{#2}\fi%
+ \else%
+ \if?#1\ifnum\value{footnote}=0\blfootnotetext{#2}\else\svfootnotetext{#2}\fi%
+ \else\svfootnotetext[#1]{#2}\fi%
+ \fi
+}
+
+\begin{document}
+% Adjust float parameters for better table placement
+\setcounter{dbltopnumber}{2}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\dblfloatpagefraction}{0.7}
+
+\maketitle
+\captionsetup{singlelinecheck=false}
+
+\begin{abstract}
+The rising rates of diabetes necessitate innovative methods for its management. Continuous glucose monitors (\colorbox{yellow}{CGM}) are small medical devices that measure blood glucose levels at regular intervals providing insights into daily patterns of glucose variation. Forecasting of glucose trajectories based on \colorbox{yellow}{CGM} data holds the potential to substantially improve diabetes management, by both refining artificial pancreas systems and enabling individuals to make adjustments based on predictions to maintain optimal glycemic range. Despite numerous methods proposed for CGMbased glucose trajectory prediction, these methods are typically evaluated on small, private datasets, impeding reproducibility, further research, and practical adoption. The absence of standardized prediction tasks and systematic comparisons between methods has led to uncoordinated research efforts, obstructing the identification of optimal tools for tackling specific challenges. As a result, only a limited number of prediction methods have been implemented in clinical practice. To address these challenges, we present a comprehensive resource that provides (1) a consolidated repository of curated publicly available \colorbox{yellow}{CGM} datasets to foster reproducibility and accessibility; (2) a standardized task list to unify research objectives and facilitate coordinated efforts; (3) a set of benchmark models with established baseline performance, enabling the research community to objectively gauge new methods’ efficacy; and (4) a detailed analysis of performance-influencing factors for model development. We anticipate these resources to propel collaborative research endeavors in the critical domain of \colorbox{yellow}{CGM}-based glucose predictions. Our code is available online at \href{http://github.com/IrinaStatsLab/GlucoBench}{github.com/IrinaStatsLab/GlucoBench}.
+\end{abstract}
+
+\section*{1 Introduction}
+According to the International Diabetes Federation, 463 million adults worldwide have diabetes with 34.2 million people affected in the United States alone (IDF, 2021). Diabetes is a leading cause of heart disease (Nanayakkara et al., 2021), blindness (Wykoff et al., 2021), and kidney disease (Alicic et al. 2017). Glucose management is a critical component of diabetes care, however achieving target glucose levels is difficult due to multiple factors that affect glucose fluctuations, e.g., diet, exercise, stress, medications, and individual physiological variations.
+
+Continuous glucose monitors (\colorbox{yellow}{CGM}) are medical devices that measure blood glucose levels at frequent intervals, often with a granularity of approximately one minute. CGMs have great potential to improve diabetes management by furnishing real-time feedback to patients and by enabling an autonomous artificial pancreas (AP) system when paired with an insulin pump (Contreras \& Vehi, 2018, Kim \& Yoon, 2020). Figure 1 illustrates an example of a \colorbox{yellow}{CGM}-human feedback loop in a recommender setting. The full realization of \colorbox{yellow}{CGM} potential, however, requires accurate glucose prediction models. Although numerous prediction models (Fox et al., 2018, Armandpour et al., 2021, Sergazinov et al., 2023) have been proposed, only simple physiological (Bergman et al., 1979, Hovorka et al., 2004) or statistical (Oviedo et al., 2017; Mirshekarian et al., 2019; Xie \& Wang,
+
+\footnotetext{*Address correspondence to: \href{mailto:mrsergazinov@tamu.edu}{mrsergazinov@tamu.edu}, \href{mailto:irinag@tamu.edu}{irinag@tamu.edu}
+}\begin{figure*}[!htbp]
+\centering
+ \includegraphics[width=0.5\textwidth]{2025_10_06_a6e634cea56277999258g-02}
+\captionsetup{labelformat=empty}
+\caption{Figure 1: Sample of glucose curves captured by the Dexcom G4 Continuous Glucose Monitoring (\colorbox{yellow}{CGM}) system, with dates de-identified for privacy(Weinstock et al., 2016).}
+\label{fig:figure_1_sample_of_glucose_cur}
+
+\end{figure*}
+
+\begin{enumerate}
+ \setcounter{enumi}{2019}
+ \item models are utilized within current \colorbox{yellow}{CGM} and AP software. The absence of systematic model evaluation protocols and established benchmark datasets hinder the analysis of more complex models' risks and benefits, leading to their limited practical adoption (Mirshekarian et al., 2019).
+\end{enumerate}
+
+In response, we present a curated list of five public \colorbox{yellow}{CGM} datasets and a systematic protocol for models' evaluation and benchmarking. The selected datasets have varying sizes and demographic characteristics, while the developed systematic data-preprocessing pipeline facilitates the inclusion of additional datasets. We propose two tasks: (1) enhancing the predictive accuracy; (2) improving the uncertainty quantification (distributional fit) associated with predictions. In line with previous works (Mirshekarian et al., 2019; Xie \& Wang, 2020), we measure the performance on the first task with mean squared error (MSE) and mean absolute error (MAE), and on the second task with likelihood and expected calibration error (ECE) (Kuleshov et al., 2018). For each task, we train and evaluate a set of baseline models. From data-driven models, we select linear regression and ARIMA to represent shallow baselines, and Transformer (Vaswani et al., 2017), NHiTS (Challu et al., 2023), TFT (Lim et al. 2021), and Gluformer (Sergazinov et al., 2023) to represent deep learning baselines. We select the Latent ODE (Rubanova et al., 2019) to represent a hybrid data-driven / physiological model.
+
+Our work contributes a curated collection of diverse \colorbox{yellow}{CGM} datasets, formulation of two tasks focused on model accuracy and uncertainty quantification, an efficient benchmarking protocol, evaluation of a range of baseline models including shallow, deep and hybrid methods, and a detailed analysis of performance-influencing factors for model optimization.
+
+\section*{2 Related works}
+An extensive review of glucose prediction models and their utility is provided by Oviedo et al. (2017); Contreras \& Vehi (2018); Kim \& Yoon (2020); Kavakiotis et al. (2017). Following Oviedo et al. (2017), we categorize prediction models as physiological, data-driven, or hybrid. Physiological models rely on the mathematical formulation of the dynamics of insulin and glucose metabolism via differential equations (Man et al., 2014; Lehmann \& Deutsch, 1991). A significant limitation of these models is the necessity to pre-define numerous parameters. Data-driven models rely solely on the \colorbox{yellow}{CGM} data (and additional covariates when available) to characterize glucose trajectory without incorporating physiological dynamics. These models can be further subdivided into shallow (e.g. linear regression, ARIMA, random forest, etc.) and deep learning models (e.g. recurrent neural network models, Transformer, etc.). Data-driven models, despite their capacity to capture complex
+
+patterns, may suffer from overfitting and lack interpretability. Hybrid models use physiological models as a pre-processing or data augmentation tool for data-driven models. Hybrid models enhance the flexibility of physiological models and facilitate the fitting process, albeit at the expense of diminished interpretability. Table 1 summarizes existing models and datasets, indicating model type.
+
+Limitations. The present state of the field is characterized by several key constraints, including (1) an absence of well-defined benchmark datasets and studies, (2) a dearth of open-source code bases, and (3) omission of Type 2 diabetes from most open \colorbox{yellow}{CGM} studies. To address the second limitation, two benchmark studies have been undertaken to assess the predictive performance of various models (Mirshekarian et al., 2019; Xie \& Wang, 2020). Nonetheless, these studies only evaluated the models on one dataset (Marling \& Bunescu, 2020), comprising a limited sample of 5 patients with Type 1 diabetes, and failed to provide source code. We emphasize that, among the 45 methods identified in Table 1, a staggering 38 works do not offer publicly available implementations. For the limitation (3), it is important to recognize that Type 2 is more easily managed through lifestyle change and oral medications than Type 1 which requires lifelong insulin therapy.
+
+\section*{3 Data}
+\subsection*{3.1 Description}
+We have selected five publicly available \colorbox{yellow}{CGM} datasets: Broll et al. (2021); Colás et al. (2019); Dubosson et al. (2018); Hall et al. (2018); Weinstock et al. (2016).
+
+To ensure data quality, we used the following set of criteria. First, we included a variety of dataset sizes and verified that each dataset has measurements on at least 5 subjects and that the collection includes a variety of sizes ranging from only five (Broll et al., 2021) to over 200 (Colás et al., 2019; Weinstock et al., 2016) patients. On the patient level, we ensured that each subject has non-missing \colorbox{yellow}{CGM} measurements for at least 16 consecutive hours. At the \colorbox{yellow}{CGM} curve level, we have verified that measurements fall within a clinically relevant range of to , avoiding drastic fluctuations exceeding within a 5 -minute interval, and ensuring non-constant values.
+
+Finally, we ensured that the collection covers distinct population groups representing subjects with Type 1 diabetes (Dubosson et al., 2018, Weinstock et al., 2016), Type 2 diabetes (Broll et al., 2021), or a mix of Type 2 and none (Colás et al., 2019; Hall et al., 2018). We expect that the difficulty of accurate predictions will depend on the population group: patients with Type 1 have significantly larger and more frequent glucose fluctuatons. Table 2 summarizes all five datasets with associated demographic information, where some subjects are removed due to data quality issues as a result of pre-processing (Section 3.2). We describe data availability in Appendix A.\\
+Covariates. In addition to \colorbox{yellow}{CGM} data, each dataset has covariates (features), which we categorize based on their temporal structure and input type. The temporal structure distinguishes covariates as static (e.g. gender), dynamic known (e.g. hour, minute), and dynamic unknown (e.g. heart beat, blood pressure). Furthermore, input types define covariates as either real-valued (e.g. age) or ordinal (e.g. education level) and categorical or unordered (e.g. gender) variables. We illustrate different types of temporal variables in Figure 2. We summarize covariate types for each dataset in Appendix A.
+
+\begin{figure*}[!htbp]
+\centering
+ \includegraphics[width=0.5\textwidth]{2025_10_06_a6e634cea56277999258g-04}
+\captionsetup{labelformat=empty}
+\caption{Figure 2: An illustration of static (Age), dynamic known (Date), and dynamic unknown (Heart Rate) covariate categories based on data from Hall et al. (2018) and Dubosson et al. (2018).}
+\label{fig:figure_2_an_illustration_of_st}
+
+\end{figure*}
+
+\subsection*{3.2 Pre-Processing}
+We pre-process the raw \colorbox{yellow}{CGM} data via interpolation and segmentation, encoding categorical features, data partitioning, scaling, and division into input-output pairs for training a predictive model.\\
+Interpolation and segmentation. To put glucose values on a uniform temporal grid, we identify gaps in each subject's trajectory due to missing measurements. When the gap length is less than a predetermined threshold (Table 3), we impute the missing values by linear interpolation. When the gap length exceeds the threshold, we break the trajectory into several continuous segments. Green squares in Figure 3 indicate gaps that will be interpolated, whereas red arrows indicate larger gaps where the data will be broken into separate segments. In Dubosson et al. (2018) dataset, we also interpolate missing values in dynamic covariates (e.g., heart rate). Thus, for each dataset we obtain a list of \colorbox{yellow}{CGM} sequences with indexing the patients and the continuous segments. Each segment has length , where is the pre-specified minimal value (Table 3).\\
+Covariates Encoding. While many of the covariates are real-valued, e.g., age, some covariates are categorical, e.g., sex. In particular, Weinstock et al. (2016) dataset has 36 categorical covariates with an average of 10 levels per covariate. While one-hot encoding is a popular approach for modeling categorical covariates, it will lead to 360 feature columns on Weinstock et al. (2016), making it undesirable from model training time and memory perspectives. Instead, we use label encoding by converting each categorical level into a numerical value. Given covariates, we include them in the dataset as where for static and for dynamic.\\
+Data splitting. Each dataset is split into train, validation, and in-distribution (ID) test sets using of subjects. For each subject, the sets follow chronological time order as shown in Figure 3, with validation and ID test sets always being of a fixed length of 16 hours each ( 192 measurements). The data from the remaining of subjects is used to form an out-of-distribution (OD) test set to assess the generalization abilities of predictive models as in Section 5.2. Thus, .
+
+\begin{figure*}[!htbp]
+\centering
+ \includegraphics[width=0.5\textwidth]{2025_10_06_a6e634cea56277999258g-05}
+\captionsetup{labelformat=empty}
+\caption{Figure 3: Example data processing on Weinstock et al. (2016). The red arrows denote segmentation, green blocks interpolate values, and red brackets indicate dropped segments due to length.}
+\label{fig:figure_3_example_data_processi}
+
+\end{figure*}
+
+Scaling. We use min-max scaling to standardize the measurement range for both glucose values and covariates. The minimum and maximum values are computed per dataset using , and then the same values are used to rescale , and .\\
+Input-output pairs. Let be a length contiguous slice of a segment from index to . We define an input-output pair as , where and is the length of prediction interval. Our choices of $T, L$ and are as follows. In line with the previous works (Oviedo et al., 2017) we focus on the 1 -hour ahead forecasting ( for 5 minute frequency). We treat as a hyper-parameter for model optimization since different models have different capabilities in capturing long-term dependencies. We sample without replacement from among the index set of the segment during training, similar to Oreshkin et al. (2020); Challu et al. (2023), and treat the total number of samples as a model hyper-parameter. We found the sampling approach to be preferable over the use of a sliding window with a unit stride (Herzen et al., 2022), as the latter is computationally prohibitive on larger training datasets and leads to high between-sample correlation, slowing convergence in optimization. We still use the sliding window when evaluating the model on the test set.
+
+\section*{4 Benchmarks}
+\subsection*{4.1 TASKS AND METRICS}
+Task 1: Predictive Accuracy. Given the model prediction , we measure accuracy on the test set using root mean squared error (RMSE) and mean absolute error (MAE):
+
+Since the distribution of MAE and RMSE across samples is right-skewed, we use the median of the errors as has been done in Sergazinov et al. (2023); Armandpour et al. (2021).\\
+Task 2: Uncertainty Quantification. To measure the quality of uncertainty quantification, we use two metrics: log-likelihood on test data and calibration. For models that estimate a parametric predictive distribution over the future values, , we evaluate log-likelihood as
+
+where the parameters of the distribution are learned from training data, and the likelihood is evaluated on test data. Higher values indicate a better fit to the observed distribution. For both parametric\\
+and non-parametric models (such as quantile-based methods), we use regression calibration metric (Kuleshov et al., 2018). The original metric is limited only to the univariate distributions. To address the issue, we report an average calibration across marginal estimates for each time . To compute marginal calibration at time , we (1) pick target confidence levels ; (2) estimate realized confidence level using test input-output pairs as
+
+and (3) compute calibration across all levels as
+
+The smaller the calibration value, the better the match between the estimated and true levels.
+
+\subsection*{4.2 Models}
+To benchmark the performance on the two tasks, we compare the following models. ARIMA is a classical time-series model, which has been previously used for glucose predictions (Otoom et al., 2015; Yang et al., 2019). Linear regression is a simple baseline with a separate model for each time step . XGBoost (Chen \& Guestrin, 2016) is gradient-boosted tree method, with a separate model for each time step to support multi-output regression. Transformer represents a standard encoder-decoder auto-regressive Transformer implementation (Vaswani et al., 2017). Temporal Fusion Transformer (TFT) is a quantile-based model that uses RNN with attention. TFT is the only model that offers out-of-the-box support for static, dynamic known, and dynamic unknown covariates. NHiTS uses neural hierarchical interpolation for time series, focusing on the frequency domain (Challu et al., 2023). Latent ODE uses a recurrent neural network (RNN) to encode the sequence to a latent representation (Rubanova et al., 2019). The dynamics in the latent space are captured with another RNN with hidden state transitions modeled as an ODE. Finally, a generative model maps the latent space back to the original space. Gluformer is a probabilistic Transformer model that models forecasts using a mixture distribution (Sergazinov et al., 2023). For ARIMA, we use the code from (Garza et al., 2022) which implements the algorithm from (Hyndman \& Khandakar, 2008). For linear regression, XGBoost, TFT, and NHiTS, we use the open-source DARTS library (Herzen et al., 2022). For Latent ODE and Gluformer, we use the implementation in PyTorch (Rubanova et al., 2019; Sergazinov et al., 2023). We report the compute resources in Appendix C.
+
+\subsection*{4.3 Testing protocols}
+In devising the experiments, we pursue the principles of reproducibility and fairness to all methods.\\
+Reproducibility. As the performance results are data split dependent, we train and evaluate each model using the same two random splits. Additionally, all stochastically-trained models (tree-based and deep learning) are initialized 10 times on each training set with different random seeds. Thus, each stochastically-trained model is re-trained and re-evaluated 20 times, and each deterministicallytrained model 2 times, with the final performance score taken as an average across evaluations. We report standard error of each metric across the re-runs in Appendix B.
+
+Fairness. To promote fairness and limit the scope of comparisons, we focus on out-of-the-box model performance when establishing baselines. Thus, we do not consider additional model-specific tuning that could lead to performance improvements, e.g., pre-training, additional loss functions, data augmentation, distillation, learning rate warm-up, learning rate decay, etc. However, since model hyper-parameters can significantly affect performance, we automate the selection of these parameters. For ARIMA, we use the native automatic hyper-parameter selection algorithm provided in (Hyndman \& Khandakar, 2008). For all other models, we use Optuna (Akiba et al., 2019) to run Bayesian optimization with a fixed budget of 50 iterations. We provide a discussion on the selected optimal model hyperparameters for each dataset in the supplement (Appendix C).
+
+\end{document}

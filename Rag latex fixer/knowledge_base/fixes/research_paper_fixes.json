@@ -1,0 +1,37 @@
+{
+  "fix_author_spacing": {
+    "description": "Fix author block spacing and special character formatting",
+    "pattern": "\\$\\s*\\{\\s*\\}\\s*\\^\\{([0-9]+)\\}\\s*\\{\\s*\\}\\s*\\*?",
+    "fix": "Clean up author superscript formatting",
+    "example": "Author Name$^{1}$",
+    "applies_to": ["author"]
+  },
+  "remove_empty_braces": {
+    "description": "Remove empty braces from author formatting",
+    "pattern": "\\$\\s*\\{\\s*\\}",
+    "fix": "Remove empty dollar braces",
+    "example": "Author Name$^{1}$",
+    "applies_to": ["author"]
+  },
+  "fix_figure_center": {
+    "description": "Ensure figures use \\begin{center} instead of just \\centering",
+    "pattern": "\\\\begin\\{figure\\}\\[h\\]",
+    "fix": "Add \\centering after \\begin{figure}[h]",
+    "example": "\\begin{figure}[h]\n\\centering",
+    "applies_to": ["figure"]
+  },
+  "fix_table_center": {
+    "description": "Ensure tables use \\centering properly",
+    "pattern": "\\\\begin\\{table\\}\\[h\\]",
+    "fix": "Add \\centering after \\begin{table}[h]",
+    "example": "\\begin{table}[h]\n\\centering",
+    "applies_to": ["table"]
+  },
+  "standardize_placement": {
+    "description": "Use standard placement parameters",
+    "pattern": "\\[h\\]",
+    "fix": "Use [htbp] for better float placement",
+    "example": "\\begin{table}[htbp]",
+    "applies_to": ["table", "figure"]
+  }
+}

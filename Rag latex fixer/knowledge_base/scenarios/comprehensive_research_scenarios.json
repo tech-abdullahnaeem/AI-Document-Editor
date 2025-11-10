@@ -1,0 +1,560 @@
+{
+  "document_types_scenarios": {
+    "conference_papers": {
+      "ieee_format": {
+        "page_limits": "6-8 pages",
+        "common_issues": [
+          "exceeding_page_limit",
+          "incorrect_author_format",
+          "missing_keywords",
+          "wrong_citation_style",
+          "figure_placement_problems",
+          "table_formatting_issues"
+        ],
+        "required_sections": ["abstract", "introduction", "methodology", "results", "conclusion", "references"],
+        "formatting_requirements": {
+          "font": "Times New Roman 10pt",
+          "columns": "two_column",
+          "margins": "0.75in all sides",
+          "line_spacing": "single"
+        }
+      },
+      "acm_format": {
+        "page_limits": "varies by venue",
+        "common_issues": [
+          "incorrect_template_usage",
+          "missing_ccs_concepts",
+          "wrong_author_affiliations",
+          "inadequate_abstract"
+        ],
+        "special_requirements": {
+          "ccs_concepts": "mandatory computing classification",
+          "keywords": "required",
+          "author_permissions": "copyright assignment"
+        }
+      }
+    },
+    "journal_articles": {
+      "nature_family": {
+        "word_limits": "varies by journal",
+        "common_issues": [
+          "exceeding_word_limit",
+          "inadequate_significance_statement",
+          "missing_data_availability",
+          "insufficient_methods_detail",
+          "poor_figure_quality"
+        ],
+        "special_requirements": {
+          "significance_statement": "mandatory for some journals",
+          "data_availability": "required",
+          "ethics_statement": "if applicable"
+        }
+      },
+      "ieee_transactions": {
+        "page_limits": "typically 12-15 pages",
+        "common_issues": [
+          "insufficient_technical_depth",
+          "missing_comparison_studies",
+          "inadequate_literature_review",
+          "poor_experimental_validation"
+        ]
+      }
+    },
+    "preprints": {
+      "arxiv": {
+        "flexibility": "high",
+        "common_issues": [
+          "poor_formatting_consistency",
+          "missing_proper_citations",
+          "inadequate_peer_review_preparation",
+          "version_control_problems"
+        ],
+        "recommendations": {
+          "formatting": "prepare for eventual journal submission",
+          "citations": "include comprehensive references",
+          "versions": "track changes between versions"
+        }
+      }
+    },
+    "thesis_dissertation": {
+      "phd_thesis": {
+        "typical_length": "100-300 pages",
+        "common_issues": [
+          "inconsistent_formatting_across_chapters",
+          "missing_required_sections",
+          "inadequate_table_of_contents",
+          "poor_bibliography_management",
+          "inconsistent_figure_numbering"
+        ],
+        "required_sections": [
+          "title_page", "abstract", "acknowledgments", "table_of_contents",
+          "list_of_figures", "list_of_tables", "introduction", "literature_review",
+          "methodology", "results", "discussion", "conclusion", "references", "appendices"
+        ]
+      },
+      "masters_thesis": {
+        "typical_length": "50-100 pages",
+        "common_issues": [
+          "insufficient_depth_in_literature_review",
+          "weak_methodology_description",
+          "limited_experimental_validation"
+        ]
+      }
+    }
+  },
+  "research_field_scenarios": {
+    "computer_science": {
+      "machine_learning": {
+        "typical_structure": [
+          "abstract", "introduction", "related_work", "problem_formulation",
+          "methodology", "experiments", "results", "discussion", "conclusion", "references"
+        ],
+        "common_elements": {
+          "algorithms": "pseudocode blocks",
+          "mathematical_formulations": "extensive equation use",
+          "experimental_results": "tables with numerical results",
+          "datasets": "dataset description tables",
+          "baselines": "comparison tables",
+          "ablation_studies": "component analysis tables"
+        },
+        "common_issues": [
+          "missing_algorithmic_complexity_analysis",
+          "insufficient_baseline_comparisons",
+          "poor_statistical_significance_testing",
+          "inadequate_dataset_description",
+          "missing_hyperparameter_details",
+          "lack_of_reproducibility_information"
+        ]
+      },
+      "systems_networking": {
+        "typical_elements": {
+          "system_architecture_diagrams": "detailed system figures",
+          "performance_measurements": "throughput/latency tables",
+          "protocol_descriptions": "detailed algorithms",
+          "implementation_details": "code snippets or pseudocode"
+        },
+        "common_issues": [
+          "insufficient_system_evaluation",
+          "missing_scalability_analysis",
+          "inadequate_security_considerations",
+          "poor_performance_measurement_methodology"
+        ]
+      },
+      "theory": {
+        "typical_elements": {
+          "theorems_proofs": "formal mathematical statements",
+          "complexity_analysis": "big-O notation and proofs",
+          "mathematical_definitions": "formal definitions",
+          "lemmas_corollaries": "supporting mathematical results"
+        },
+        "common_issues": [
+          "informal_proof_presentation",
+          "missing_proof_details",
+          "inadequate_mathematical_notation",
+          "unclear_theorem_statements"
+        ]
+      }
+    },
+    "engineering": {
+      "electrical_engineering": {
+        "typical_elements": {
+          "circuit_diagrams": "technical figures",
+          "simulation_results": "waveforms and measurements",
+          "hardware_specifications": "detailed parameter tables",
+          "performance_metrics": "technical measurement tables"
+        },
+        "common_issues": [
+          "missing_circuit_analysis",
+          "inadequate_simulation_validation",
+          "poor_measurement_uncertainty_analysis",
+          "insufficient_design_methodology_description"
+        ]
+      },
+      "mechanical_engineering": {
+        "typical_elements": {
+          "cad_drawings": "technical diagrams",
+          "material_properties": "specification tables",
+          "stress_analysis": "finite element results",
+          "manufacturing_specifications": "detailed procedures"
+        }
+      }
+    },
+    "natural_sciences": {
+      "physics": {
+        "typical_elements": {
+          "theoretical_derivations": "mathematical equations",
+          "experimental_setup": "apparatus descriptions",
+          "measurement_results": "data tables with uncertainties",
+          "physical_models": "mathematical formulations"
+        },
+        "common_issues": [
+          "insufficient_uncertainty_analysis",
+          "missing_systematic_error_discussion",
+          "inadequate_theoretical_background",
+          "poor_experimental_methodology_description"
+        ]
+      },
+      "chemistry": {
+        "typical_elements": {
+          "chemical_structures": "molecular diagrams",
+          "reaction_schemes": "chemical equations",
+          "analytical_results": "spectroscopic data",
+          "synthesis_procedures": "detailed methodologies"
+        }
+      },
+      "biology": {
+        "typical_elements": {
+          "experimental_protocols": "detailed procedures",
+          "statistical_analysis": "p-values and confidence intervals",
+          "biological_images": "microscopy and gel images",
+          "sequence_data": "genetic or protein sequences"
+        }
+      }
+    },
+    "medical_research": {
+      "clinical_studies": {
+        "required_elements": {
+          "ethics_approval": "IRB approval statements",
+          "patient_consent": "informed consent procedures",
+          "statistical_methods": "appropriate statistical tests",
+          "sample_size_calculation": "power analysis",
+          "inclusion_exclusion_criteria": "participant selection"
+        },
+        "common_issues": [
+          "missing_consort_diagram",
+          "inadequate_statistical_analysis",
+          "insufficient_ethical_considerations",
+          "poor_study_design_description"
+        ]
+      }
+    }
+  },
+  "content_type_scenarios": {
+    "mathematical_content": {
+      "heavy_equation_documents": {
+        "common_issues": [
+          "equations_too_wide_for_columns",
+          "inconsistent_equation_numbering",
+          "poor_equation_alignment",
+          "missing_equation_references",
+          "inappropriate_math_environments",
+          "unicode_characters_in_math",
+          "unmatched_delimiters",
+          "missing_math_mode_delimiters"
+        ],
+        "best_practices": [
+          "use_align_for_multi_line_equations",
+          "break_long_equations_appropriately",
+          "consistent_variable_notation",
+          "proper_operator_spacing"
+        ]
+      },
+      "algorithm_descriptions": {
+        "common_elements": [
+          "pseudocode_blocks",
+          "complexity_analysis",
+          "correctness_proofs",
+          "example_walkthroughs"
+        ],
+        "common_issues": [
+          "poorly_formatted_pseudocode",
+          "missing_algorithm_environment",
+          "inconsistent_algorithm_style",
+          "unclear_algorithmic_notation"
+        ]
+      }
+    },
+    "table_heavy_documents": {
+      "experimental_results": {
+        "typical_tables": [
+          "performance_comparison_tables",
+          "dataset_statistics_tables",
+          "parameter_configuration_tables",
+          "ablation_study_tables",
+          "statistical_significance_tables"
+        ],
+        "common_issues": [
+          "poor_table_formatting",
+          "inconsistent_number_formatting",
+          "missing_statistical_significance",
+          "inappropriate_table_placement",
+          "unclear_table_captions",
+          "missing_table_references"
+        ]
+      },
+      "survey_papers": {
+        "typical_tables": [
+          "method_comparison_tables",
+          "feature_comparison_tables",
+          "timeline_tables",
+          "taxonomy_tables"
+        ]
+      }
+    },
+    "figure_intensive_documents": {
+      "architecture_diagrams": {
+        "common_issues": [
+          "low_resolution_figures",
+          "inappropriate_figure_formats",
+          "missing_figure_captions",
+          "poor_figure_placement",
+          "inconsistent_figure_styling",
+          "figures_too_small_to_read"
+        ]
+      },
+      "experimental_visualizations": {
+        "typical_figures": [
+          "performance_plots",
+          "system_architecture_diagrams",
+          "workflow_diagrams",
+          "result_visualizations",
+          "comparison_charts"
+        ]
+      }
+    }
+  },
+  "collaboration_scenarios": {
+    "multi_author_documents": {
+      "common_issues": [
+        "inconsistent_writing_styles",
+        "formatting_inconsistencies_between_sections",
+        "duplicate_citations_with_different_formats",
+        "inconsistent_notation_across_sections",
+        "merge_conflicts_in_latex_files",
+        "version_control_problems"
+      ],
+      "solutions": [
+        "establish_style_guide",
+        "use_consistent_latex_templates",
+        "centralized_bibliography_management",
+        "notation_consistency_checks",
+        "proper_version_control_practices"
+      ]
+    },
+    "international_collaborations": {
+      "common_issues": [
+        "mixed_language_content",
+        "inconsistent_date_formats",
+        "different_citation_style_preferences",
+        "varying_academic_writing_conventions",
+        "encoding_issues_with_non_latin_characters"
+      ]
+    }
+  },
+  "submission_scenarios": {
+    "journal_submission": {
+      "initial_submission": {
+        "requirements": [
+          "anonymous_manuscript_for_review",
+          "separate_title_page_with_author_info",
+          "line_numbering_for_review",
+          "specific_formatting_requirements",
+          "supplementary_materials_organization"
+        ],
+        "common_issues": [
+          "author_identifying_information_in_anonymous_version",
+          "missing_line_numbers",
+          "incorrect_reference_formatting",
+          "missing_required_statements"
+        ]
+      },
+      "revision_submission": {
+        "requirements": [
+          "response_to_reviewers_document",
+          "tracked_changes_version",
+          "clean_revised_version",
+          "point_by_point_response_letter"
+        ],
+        "common_issues": [
+          "inadequate_response_to_reviewer_comments",
+          "missing_change_highlighting",
+          "inconsistent_revision_formatting"
+        ]
+      }
+    },
+    "conference_submission": {
+      "blind_review": {
+        "requirements": [
+          "anonymous_submission",
+          "no_author_identifying_information",
+          "anonymized_citations_to_own_work",
+          "removed_acknowledgments"
+        ],
+        "common_issues": [
+          "author_names_in_pdf_metadata",
+          "identifying_information_in_citations",
+          "obvious_self_citations",
+          "institution_identifying_details"
+        ]
+      }
+    }
+  },
+  "technical_scenarios": {
+    "compilation_environments": {
+      "pdflatex": {
+        "supported_formats": ["pdf", "png", "jpg", "jpeg"],
+        "common_issues": [
+          "eps_figures_not_supported",
+          "unicode_character_problems",
+          "font_encoding_issues"
+        ]
+      },
+      "xelatex": {
+        "supported_formats": ["pdf", "png", "jpg", "jpeg", "eps", "svg"],
+        "advantages": ["unicode_support", "system_font_access"],
+        "common_issues": [
+          "slower_compilation",
+          "package_compatibility_problems"
+        ]
+      },
+      "lualatex": {
+        "advantages": ["lua_scripting", "advanced_font_features"],
+        "common_issues": [
+          "memory_intensive",
+          "slower_compilation",
+          "experimental_features"
+        ]
+      }
+    },
+    "package_conflicts": {
+      "common_conflicts": [
+        {
+          "packages": ["hyperref", "other_packages"],
+          "issue": "hyperref_should_be_loaded_last",
+          "solution": "load_hyperref_as_last_package"
+        },
+        {
+          "packages": ["babel", "inputenc"],
+          "issue": "encoding_language_conflicts",
+          "solution": "proper_package_ordering"
+        },
+        {
+          "packages": ["amsmath", "align_packages"],
+          "issue": "conflicting_math_environments",
+          "solution": "choose_compatible_packages"
+        }
+      ]
+    },
+    "cross_platform_issues": {
+      "windows_linux_mac": {
+        "common_issues": [
+          "file_path_separator_differences",
+          "font_availability_differences",
+          "encoding_differences",
+          "line_ending_differences"
+        ],
+        "solutions": [
+          "use_relative_paths",
+          "specify_font_fallbacks",
+          "use_utf8_encoding",
+          "configure_git_line_endings"
+        ]
+      }
+    }
+  },
+  "quality_assurance_scenarios": {
+    "automated_checking": {
+      "spell_checking": {
+        "tools": ["aspell", "hunspell", "grammarly"],
+        "common_issues": [
+          "technical_terms_flagged_as_errors",
+          "proper_nouns_not_recognized",
+          "different_english_variants"
+        ]
+      },
+      "grammar_checking": {
+        "tools": ["languagetool", "grammarly", "ginger"],
+        "common_issues": [
+          "false_positives_on_technical_writing",
+          "mathematical_expressions_confusion",
+          "passive_voice_overdetection"
+        ]
+      },
+      "citation_checking": {
+        "tools": ["bibdesk", "jabref", "zotero"],
+        "common_issues": [
+          "broken_citation_links",
+          "inconsistent_citation_formats",
+          "missing_bibliography_entries",
+          "duplicate_citations"
+        ]
+      }
+    },
+    "manual_review_scenarios": {
+      "peer_review_preparation": {
+        "checklist": [
+          "clear_contribution_statement",
+          "adequate_related_work_coverage",
+          "proper_experimental_methodology",
+          "statistical_significance_analysis",
+          "reproducibility_information",
+          "clear_writing_and_presentation"
+        ]
+      },
+      "supervisor_review": {
+        "common_feedback_areas": [
+          "argument_structure_and_logic",
+          "technical_accuracy",
+          "presentation_clarity",
+          "related_work_completeness",
+          "contribution_significance"
+        ]
+      }
+    }
+  },
+  "accessibility_scenarios": {
+    "visual_accessibility": {
+      "color_blind_considerations": [
+        "avoid_red_green_combinations",
+        "use_patterns_in_addition_to_colors",
+        "ensure_sufficient_contrast_ratios",
+        "provide_alternative_indicators"
+      ],
+      "low_vision_considerations": [
+        "use_sufficient_font_sizes",
+        "ensure_high_contrast",
+        "avoid_complex_visual_layouts",
+        "provide_text_alternatives_for_graphics"
+      ]
+    },
+    "screen_reader_accessibility": {
+      "pdf_structure": [
+        "proper_heading_hierarchy",
+        "alternative_text_for_images",
+        "table_headers_properly_marked",
+        "reading_order_optimization"
+      ]
+    }
+  },
+  "emergency_scenarios": {
+    "deadline_pressure": {
+      "last_minute_issues": [
+        "compilation_suddenly_broken",
+        "missing_references_discovered",
+        "formatting_requirements_changed",
+        "file_corruption_or_loss",
+        "citation_style_change_required"
+      ],
+      "quick_fixes": [
+        "use_draft_mode_for_speed",
+        "prioritize_critical_fixes",
+        "temporary_workarounds",
+        "backup_recovery_procedures"
+      ]
+    },
+    "submission_system_problems": {
+      "pdf_generation_issues": [
+        "file_size_too_large",
+        "fonts_not_embedded",
+        "images_not_displaying",
+        "hyperlinks_broken"
+      ],
+      "format_compliance": [
+        "page_limit_exceeded",
+        "margin_requirements_violated",
+        "font_requirements_not_met",
+        "figure_resolution_insufficient"
+      ]
+    }
+  }
+}

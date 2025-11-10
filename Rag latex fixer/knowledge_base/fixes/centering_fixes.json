@@ -1,0 +1,31 @@
+{
+  "add_centering_to_table": {
+    "description": "Add \\centering command to table environment",
+    "pattern": "\\begin{table}",
+    "fix": "Add \\centering after \\begin{table}",
+    "example": "\\begin{table}[htbp]\n\\centering\n\\begin{tabular}{...}",
+    "applies_to": ["table", "table*"]
+  },
+  "add_centering_to_figure": {
+    "description": "Add \\centering command to figure environment",
+    "pattern": "\\begin{figure}",
+    "fix": "Add \\centering after \\begin{figure}",
+    "example": "\\begin{figure}[htbp]\n\\centering\n\\includegraphics[...]",
+    "applies_to": ["figure", "figure*"]
+  },
+  "center_author_block": {
+    "description": "Center author information using \\begin{center}",
+    "pattern": "\\author{",
+    "fix": "Wrap author content in \\begin{center}...\\end{center}",
+    "example": "\\author{\n\\begin{center}\nJohn Doe \\\\\nUniversity\n\\end{center}\n}",
+    "applies_to": ["author"]
+  },
+  "ieee_author_format": {
+    "description": "Use IEEE-specific author block formatting",
+    "pattern": "\\author{",
+    "fix": "Use \\IEEEauthorblockN and \\IEEEauthorblockA",
+    "example": "\\author{\n\\IEEEauthorblockN{John Doe}\n\\IEEEauthorblockA{University}\n}",
+    "applies_to": ["author"],
+    "format": "IEEE_two_column"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "linewidth_to_columnwidth": {
+    "description": "Convert \\linewidth to \\columnwidth in two-column documents",
+    "pattern": "\\linewidth",
+    "fix": "Replace with \\columnwidth",
+    "example": "width=0.9\\columnwidth",
+    "applies_to": ["figure", "table"],
+    "context": "two_column_document"
+  },
+  "textwidth_in_twocolumn": {
+    "description": "Use \\columnwidth instead of \\textwidth in two-column",
+    "pattern": "\\textwidth",
+    "fix": "Replace with \\columnwidth for column-width elements",
+    "example": "width=\\columnwidth",
+    "applies_to": ["figure", "includegraphics"],
+    "context": "two_column_document"
+  },
+  "convert_to_spanning": {
+    "description": "Convert table to table* for wide tables",
+    "pattern": "\\begin{table}",
+    "fix": "Change to \\begin{table*} and \\end{table*}",
+    "example": "\\begin{table*}[htbp]\n...\n\\end{table*}",
+    "applies_to": ["table"],
+    "context": "wide_content_in_two_column"
+  },
+  "adjust_figure_width": {
+    "description": "Ensure figure width fits in column",
+    "pattern": "width=",
+    "fix": "Set width to <= 1.0\\columnwidth",
+    "example": "\\includegraphics[width=0.9\\columnwidth]{image.pdf}",
+    "applies_to": ["figure"],
+    "context": "two_column_document"
+  }
+}

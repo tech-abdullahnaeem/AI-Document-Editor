@@ -1,0 +1,149 @@
+{
+  "citation_styles": {
+    "ieee": {
+      "in_text_format": "[{NUMBER}]",
+      "multiple_citations": "[{NUMBER1}]-[{NUMBER2}] or [{NUMBER1}, {NUMBER2}, {NUMBER3}]",
+      "bibliography_format": "numbered",
+      "reference_format": "[{NUM}] {AUTHORS}, \"{TITLE},\" {JOURNAL}, vol. {VOL}, no. {NUM}, pp. {PAGES}, {MONTH} {YEAR}.",
+      "author_format": "First Last",
+      "title_format": "quoted",
+      "journal_format": "italics",
+      "patterns": [
+        "\\\\cite\\{.*\\}",
+        "\\[\\d+\\]",
+        "\\[\\d+\\s*[-,]\\s*\\d+\\]"
+      ]
+    },
+    "acm": {
+      "in_text_format": "[{NUMBER}]",
+      "multiple_citations": "[{NUMBER1}, {NUMBER2}]",
+      "bibliography_format": "numbered",
+      "reference_format": "[{NUM}] {AUTHORS}. {YEAR}. {TITLE}. {JOURNAL} {VOL}, {NUM} ({YEAR}), {PAGES}.",
+      "author_format": "First Last",
+      "title_format": "sentence_case",
+      "journal_format": "italics",
+      "patterns": [
+        "\\\\cite\\{.*\\}",
+        "\\[\\d+\\]"
+      ]
+    },
+    "nature": {
+      "in_text_format": "superscript{NUMBER}",
+      "multiple_citations": "superscript{NUMBER1,NUMBER2}",
+      "bibliography_format": "numbered",
+      "reference_format": "{AUTHORS}. {TITLE}. {JOURNAL} {VOL}, {PAGES} ({YEAR}).",
+      "author_format": "Last, F.",
+      "title_format": "sentence_case",
+      "journal_format": "italics",
+      "patterns": [
+        "\\\\cite\\{.*\\}",
+        "\\\\textsuperscript\\{\\d+\\}",
+        "\\$\\^\\{\\d+\\}\\$"
+      ]
+    },
+    "apa": {
+      "in_text_format": "({AUTHOR}, {YEAR})",
+      "multiple_citations": "({AUTHOR1}, {YEAR1}; {AUTHOR2}, {YEAR2})",
+      "bibliography_format": "alphabetical",
+      "reference_format": "{AUTHORS} ({YEAR}). {TITLE}. {JOURNAL}, {VOL}({NUM}), {PAGES}.",
+      "author_format": "Last, F. M.",
+      "title_format": "sentence_case",
+      "journal_format": "italics",
+      "patterns": [
+        "\\\\cite\\{.*\\}",
+        "\\([^)]*\\d{4}[^)]*\\)",
+        "\\\\citep\\{.*\\}",
+        "\\\\citet\\{.*\\}"
+      ]
+    },
+    "chicago": {
+      "in_text_format": "({AUTHOR} {YEAR})",
+      "multiple_citations": "({AUTHOR1} {YEAR1}; {AUTHOR2} {YEAR2})",
+      "bibliography_format": "alphabetical",
+      "reference_format": "{AUTHORS}. \"{TITLE}.\" {JOURNAL} {VOL}, no. {NUM} ({YEAR}): {PAGES}.",
+      "author_format": "Last, First",
+      "title_format": "title_case_quoted",
+      "journal_format": "italics",
+      "patterns": [
+        "\\\\cite\\{.*\\}",
+        "\\([^)]*\\d{4}[^)]*\\)"
+      ]
+    }
+  },
+  "citation_fixes": {
+    "format_standardization": {
+      "consistent_style": "apply single style throughout document",
+      "proper_punctuation": "citations should integrate with sentence structure",
+      "spacing": "proper spacing around citations",
+      "capitalization": "consistent capitalization in bibliography"
+    },
+    "common_errors": {
+      "mixed_styles": "standardize to single citation style",
+      "malformed_citations": "fix syntax errors in \\cite commands",
+      "missing_references": "ensure all citations have bibliography entries",
+      "duplicate_references": "remove duplicate bibliography entries",
+      "incomplete_information": "complete missing publication details",
+      "inconsistent_formatting": "standardize author names, titles, journals"
+    },
+    "bibliography_fixes": {
+      "author_name_consistency": "standardize First Last vs Last, First format",
+      "title_case_consistency": "apply consistent title capitalization",
+      "journal_name_consistency": "standardize journal name formats",
+      "date_format_consistency": "standardize date representations",
+      "page_number_format": "consistent page number formatting",
+      "doi_url_formatting": "proper DOI and URL formatting"
+    }
+  },
+  "reference_patterns": {
+    "journal_article": {
+      "required_fields": ["author", "title", "journal", "year"],
+      "optional_fields": ["volume", "number", "pages", "doi", "url"],
+      "format_template": "{AUTHORS}. {TITLE}. {JOURNAL}, {VOLUME}({NUMBER}), {PAGES}, {YEAR}."
+    },
+    "conference_paper": {
+      "required_fields": ["author", "title", "booktitle", "year"],
+      "optional_fields": ["pages", "publisher", "address", "doi"],
+      "format_template": "{AUTHORS}. {TITLE}. In {BOOKTITLE}, {PAGES}, {YEAR}."
+    },
+    "book": {
+      "required_fields": ["author", "title", "publisher", "year"],
+      "optional_fields": ["edition", "address", "isbn"],
+      "format_template": "{AUTHORS}. {TITLE}. {PUBLISHER}, {YEAR}."
+    },
+    "book_chapter": {
+      "required_fields": ["author", "title", "booktitle", "editor", "publisher", "year"],
+      "optional_fields": ["pages", "address"],
+      "format_template": "{AUTHORS}. {TITLE}. In {EDITOR}, Ed., {BOOKTITLE}, {PAGES}. {PUBLISHER}, {YEAR}."
+    },
+    "thesis": {
+      "required_fields": ["author", "title", "school", "year"],
+      "optional_fields": ["type", "address"],
+      "format_template": "{AUTHOR}. {TITLE}. {TYPE}, {SCHOOL}, {YEAR}."
+    },
+    "web_resource": {
+      "required_fields": ["author", "title", "url", "year"],
+      "optional_fields": ["accessed_date", "publisher"],
+      "format_template": "{AUTHOR}. {TITLE}. Available: {URL}, {YEAR}."
+    }
+  },
+  "validation_rules": {
+    "citation_syntax": [
+      "proper_cite_command_usage",
+      "balanced_braces_in_citations",
+      "valid_citation_keys",
+      "no_undefined_references"
+    ],
+    "bibliography_completeness": [
+      "all_required_fields_present",
+      "consistent_field_formatting",
+      "no_duplicate_entries",
+      "proper_special_character_handling"
+    ],
+    "style_consistency": [
+      "single_citation_style_throughout",
+      "consistent_author_name_format",
+      "consistent_title_capitalization",
+      "consistent_journal_abbreviations"
+    ]
+  }
+}

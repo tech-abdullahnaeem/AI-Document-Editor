@@ -1,0 +1,15 @@
+{
+  "text_formatting": {
+    "centering": ["\\centering", "\\begin{center}", "\\centerline"],
+    "alignment": ["\\raggedright", "\\raggedleft", "\\justified"]
+  },
+  "environments": {
+    "tables": ["table", "table*", "tabular", "longtable"],
+    "figures": ["figure", "figure*", "subfigure"],
+    "math": ["equation", "align", "gather", "multline"]
+  },
+  "spacing": {
+    "vertical": ["\\vspace", "\\bigskip", "\\medskip", "\\smallskip"],
+    "horizontal": ["\\hspace", "\\quad", "\\qquad"]
+  }
+}

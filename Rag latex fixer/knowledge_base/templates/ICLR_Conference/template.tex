@@ -1,0 +1,588 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2024_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+% Optional packages for GluNet
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{amssymb}        % checkmark symbol
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage{pifont}
+\usepackage{color,soul}
+\usepackage{subfigure}
+\usepackage{ragged2e}
+\usepackage{hyperref}
+\usepackage{url}
+\newcommand{\crossmark}{\ding{55}}
+
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+\newcommand{\renat}[1]{{\leavevmode\color{black}{#1}}}
+\newcommand{\lera}[1]{{\leavevmode\color{black}{#1}}}
+\defcitealias{diabetes2008use}{DirecNet, 2008}
+\defcitealias{ada}{ADA, 2021}
+\defcitealias{idf}{IDF, 2021}
+
+\title{GlucoBench: Curated List of Continuous Glucose Monitoring Datasets with Prediction Benchmarks}
+\iclrfinalcopy
+\author{%
+Renat Sergazinov$^{1}$\thanks{Address correspondence to: mrsergazinov@tamu.edu, irinag@tamu.edu}, Elizabeth Chun$^{1}$, Valeriya Rogovchenko$^{1}$, 
+\\
+\textbf{Nathaniel Fernandes$^{2}$,
+Nicholas Kasman$^{2}$, Irina Gaynanova$^{1}$\samethanks[1]} \\
+% Department of Statistics, Department of Electrical and Computer Engineering \\ 
+$^{1}$Department of Statistics, Texas A\&M University\\
+$^{2}$Department of Electrical and Computer Engineering, Texas A\&M University%\\
+%Texas A\&M University \\
+%https://github.com/IrinaStatsLab/GlucoBench\\
+ % Renat Sergazinov \\
+ % % \thanks{Use footnote for providing further information
+ % %    about author (webpage, alternative address)---\emph{not} for acknowledging
+ % % funding agencies.} \\
+ % Department of Statistics\\
+ % Texas A\&M University\\
+ % College Station, TX 77843 \\
+ % \texttt{mrsergazinov@tamu.edu} \\
+ %  \And
+ %  Elizabeth Chun \\
+ %  Department of Statistics \\
+ %  Address \\
+ %  \texttt{lizzie\_chun1@tamu.edu} \\
+ %  \AND
+ %  Nathaniel Fernandez \\
+ %  Department of Electrical and Computer Engineering \\
+ %  Address \\
+ %  \texttt{njfernandes24@tamu.edu} \\
+ %  \And
+ %  Valeriya Rogovchenko \\
+ %  Department of Statistics \\
+ %  Address \\
+ %  \texttt{varogovchenko@tamu.edu} \\
+ %  \And
+ %  Nicholas Kasman \\
+ %  Department of Electrical and Computer Engineering \\
+ %  Address \\
+ %  \texttt{nck493@tamu.edu} \\
+ %  \And 
+ %  Irina Gaynanova \\
+ %  Department of Statistics \\
+ %  Address \\
+ %  \texttt{irinag@stat.tamu.edu} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    The rising rates of diabetes necessitate innovative methods for its management. Continuous glucose monitors (CGM) are small medical devices that measure blood glucose levels at regular intervals providing insights into daily patterns of glucose variation. 
+    % Accurate prediction of glucose trajectories, based on CGM data, can significantly enhance diabetes management by  
+    Forecasting of glucose trajectories based on CGM data  holds the potential to substantially improve diabetes management, by both refining artificial pancreas systems and enabling individuals to make adjustments based on  predictions to maintain optimal glycemic range.
+    Despite numerous methods proposed for CGM-based glucose trajectory prediction, these methods are typically evaluated on small, private datasets, impeding reproducibility, further research, and practical adoption. 
+    The absence of standardized prediction tasks and systematic comparisons between methods has led to uncoordinated research efforts, obstructing the identification of optimal tools for tackling specific challenges. 
+    As a result, only a limited number of prediction methods have been implemented in clinical practice.  
+    % Additionally, the lack of standardized prediction tasks and varying focus on CGM data aspects contribute to uncoordinated research efforts.
+
+    To address these challenges, we present a comprehensive resource that provides (1) a consolidated repository of curated publicly available CGM datasets to foster reproducibility and accessibility; (2) a standardized task list to unify research objectives and facilitate coordinated efforts; (3) a set of benchmark models with established baseline performance, enabling the research community to objectively gauge new methods' efficacy; and (4) a detailed analysis of performance-influencing factors for model development. We anticipate these resources to propel collaborative research endeavors in the critical domain of CGM-based glucose predictions. {Our code is available online at github.com/IrinaStatsLab/GlucoBench.}
+    % Our work is accessible at \verb|github.com/IrinaStatsLab/GlucoBench|.
+        
+\end{abstract}
+
+\section{Introduction} %(Renat)
+
+According to the International Diabetes Federation, 463 million adults worldwide have diabetes with 34.2 million people affected in the United States alone \citepalias{idf}.
+% , and this number is expected to rise to 700 million by 2045 \citep{idf}. In the United States, 34.2 million people have diabetes, or 10.5\% of the population. 
+Diabetes is a leading cause of heart disease \citep{nanayakkara2021impact}, blindness \citep{wykoff2021risk}, and kidney disease \citep{alicic2017diabetic}. Glucose management is a critical component of diabetes care, however achieving target glucose levels is difficult due to multiple factors that affect glucose fluctuations, e.g., diet, exercise, stress, medications, and individual physiological variations. % can significantly influence fluctuations in glycemic levels.
+
+Continuous glucose monitors (CGM) are medical devices that measure blood glucose levels at frequent intervals, often with a granularity of approximately one minute. CGMs have great potential to improve diabetes management by furnishing real-time feedback to patients and by enabling an autonomous artificial pancreas (AP) system when paired with an insulin pump \citep{contrerasArtificialIntelligenceDiabetes2018, kimLessonsUseContinuous2020}. Figure~\ref{fig:glucose-prediction} illustrates an example of a CGM-human feedback loop in a recommender setting. The full realization of CGM potential, however, requires accurate glucose prediction models.  Although numerous prediction models \citep{foxDeepMultiOutputForecasting2018a, armandpourDeepPersonalizedGlucose2021a, sergazinov2022gluformer} have been proposed, only simple physiological \citep{bergman1979quantitative, hovorka2004nonlinear} or statistical  \citep{oviedoReviewPersonalizedBlood2017, mirshekarianLSTMsNeuralAttention2019, xieBenchmarkingMachineLearning2020} models are utilized within current CGM and AP software. The absence of systematic model evaluation protocols and established benchmark datasets hinder the analysis of more complex models'  risks and benefits, leading to their limited practical adoption \citep{mirshekarianLSTMsNeuralAttention2019}.
+
+In response, we present a curated list of five public CGM datasets and a systematic protocol for models' evaluation and benchmarking. The selected datasets have varying sizes and demographic characteristics, while the developed systematic data-preprocessing pipeline facilitates the inclusion of additional datasets. {We propose two tasks: (1) enhancing the predictive accuracy; (2) improving the uncertainty quantification (distributional fit) associated with predictions. In line with previous works \citep{mirshekarianLSTMsNeuralAttention2019, xieBenchmarkingMachineLearning2020}, we measure the performance on the first task with mean squared error (MSE) and mean absolute error (MAE), and on the second task with likelihood and expected calibration error (ECE) \citep{kuleshovCalibration2018}.} For each task, we train and evaluate a set of baseline models. From data-driven models, we select linear regression and ARIMA to represent shallow baselines, and Transformer \citep{vaswani2017attention}, NHiTS \citep{challuNhits2022n}, TFT \citep{lim2021temporal}, and Gluformer \citep{sergazinov2022gluformer} to represent deep learning baselines.  We select the Latent ODE \citep{rubanova2019latent} to represent a hybrid data-driven / physiological model. 
+%Moreover, we provide an in-depth analysis of how factors such as distributional shifts in the data and the inclusion of covariates affect model performance
+
+Our work contributes a \textbf{curated collection} of diverse CGM datasets, \textbf{formulation of two tasks} focused on model accuracy and uncertainty quantification, an efficient \textbf{benchmarking protocol}, evaluation of a range of \textbf{baseline models} including shallow, deep and hybrid methods, and a \textbf{detailed analysis of performance-influencing factors} for model optimization.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/glucose_prediction.pdf}
+    \caption{Sample of glucose curves captured by the Dexcom G4 Continuous Glucose Monitoring (CGM) system, with dates de-identified for privacy\citep{weinstock2016risk}.}
+    \label{fig:glucose-prediction}
+\end{figure}
+
+\section{Related works} %(Renat)
+\label{sec:related-works}
+
+\input{table_short_related_works}
+
+An extensive review of glucose prediction models and their utility is provided by \citet{oviedoReviewPersonalizedBlood2017, contrerasArtificialIntelligenceDiabetes2018, kimLessonsUseContinuous2020, kavakiotisMachineLearningData2017}. Following \citet{oviedoReviewPersonalizedBlood2017}, we categorize prediction models as physiological, data-driven, or hybrid. \textbf{Physiological models}  rely on the mathematical formulation of the dynamics of insulin and glucose metabolism via differential equations \citep{man2014uva, lehmann1991physiological}. A significant limitation of these models is the necessity to pre-define numerous parameters. \textbf{Data-driven models} rely solely on the CGM data (and additional covariates when available) to characterize glucose trajectory without incorporating physiological dynamics. These models can be further subdivided into shallow (e.g. linear regression, ARIMA, random forest, etc.) and deep learning models (e.g. recurrent neural network models, Transformer, etc.). {Data-driven models, despite their capacity to capture complex patterns, may suffer from overfitting and lack interpretability.}
+% They often require large labeled datasets and may overfit the training data, reducing their generalizability. Additionally, they often lack interpretability, making the understanding of their predictions challenging.}
+\textbf{Hybrid models} use physiological models as a pre-processing or data augmentation tool for data-driven models. {Hybrid models enhance the flexibility of physiological models and facilitate the fitting process, albeit at the expense of diminished interpretability.} Table~\ref{table:related-works-short} summarizes existing models and datasets, indicating model type.
+
+
+
+\textbf{Limitations.} The present state of the field is characterized by several key constraints, including (1) an absence of well-defined benchmark datasets and studies, 
+% (2) a scarcity of benchmark studies comparing different models, 
+(2) a dearth of open-source code bases, {and (3) omission of Type 2 diabetes from most open CGM studies}. To address the second limitation, two benchmark studies have been undertaken to assess the predictive performance of various models \citep{mirshekarianLSTMsNeuralAttention2019, xieBenchmarkingMachineLearning2020}. Nonetheless, these studies only evaluated the models on one dataset \citep{marling2020ohiot1dm}, comprising a limited sample of 5 patients with Type 1 diabetes, and failed to provide source code. We emphasize that, among the 45 methods identified in Table~\ref{table:related-works-short}, a staggering 38 works do not offer publicly available implementations. {For the limitation (3), it is important to recognize that Type 2 is more easily managed through lifestyle change and oral medications than Type 1 which requires lifelong insulin therapy.}
+% pre-diabetes and 
+% pre-diabetes can be delayed or even prevented from progressing to Type 2 with proper management, and 
+% Therefore, better CGM forecasting methods are crucial for these groups of patients. For patients with pre-diabetes, forecasting insights may help to inform the lifestyle modification to prevent further progression of the disease. For patients with Type 2 diabetes, CGM forecasting could enhance glycemic control both through lifestyle change and timely oral medication and delay or reduce the reliance on the insulin intake, improving the overall life quality.
+
+\section{Data}
+
+\subsection{Description}
+
+We have selected five publicly available CGM datasets: \citet{broll2021interpreting, colas2019detrended, dubosson2018open, hall2018glucotypes, weinstock2016risk}.
+
+% We can highlight this ahole paragraph as red since it perfectly answers the question
+{To ensure data quality, we used the following set of criteria.} First, we included a variety of dataset sizes and verified that each dataset has measurements on at least 5 subjects and that the collection includes a variety of sizes ranging from only five \citep{broll2021interpreting} to over 200 \citep{colas2019detrended, weinstock2016risk} patients.
+{On the patient level}, we ensured that each subject has non-missing CGM measurements for at least 16 consecutive hours. {At the CGM curve level, we have verified that measurements fall within a clinically relevant range of 20 mg/dL to 400 mg/dL, avoiding drastic fluctuations exceeding 40 mg/dL within a 5-minute interval, and ensuring non-constant values.}
+
+Finally, we ensured that the collection covers distinct population groups representing subjects with Type 1 diabetes \citep{dubosson2018open, weinstock2016risk}, Type 2 diabetes \citep{broll2021interpreting}, or a mix of Type 2 and none \citep{colas2019detrended, hall2018glucotypes}. We expect that the difficulty of accurate predictions will depend on the population group: patients with Type 1 have significantly larger and more frequent glucose fluctuatons.
+% For example, we anticipate it would be easier to predict glucose values for healthy subjects who have less variable glucose patterns than subjects with Type I diabetes, who have significantly larger glucose fluctuations. 
+%as Subject type is important because it heavily influences glucose variability and patterns. For example, healthy subjects are expected to have less variable glucose patterns, which we anticipate would be easier to predict. In contrast, subjects with type 1 diabetes tend to have large glucose fluctuations and are thus significantly more challenging to predict. %Finally, we include a variety of dataset sizes . %All datasets are publicly available although \citep{weinstock2016risk} has a data use agreement per the T1D exchange.
+Table~\ref{demographics} summarizes all five datasets with associated demographic information, where some subjects are removed due to data quality issues as a result of pre-processing (Section \ref{pre-processing}). We describe data availability in Appendix~A.
+% When Age and Sex information is not included with the data, it is extracted from the study description in the associated publication.  
+
+\begin{table}[!t]
+    \caption{Demographic information (average) for each dataset before (Raw) and after pre-processing (Processed). CGM indicates the device type; all devices have 5 minute measurment frequency.}
+    \label{demographics}
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{ l | c c cc cc cc }
+        \toprule
+        Dataset & Diabetes & CGM & \multicolumn{2}{c}{\# of Subjects} & \multicolumn{2}{c}{Age} & \multicolumn{2}{c}{Sex (M / F)} \\ 
+        \cmidrule(lr){2-2} \cmidrule{3-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+        & Overall & Overall & Raw & Processed & Raw & Processed & Raw & Processed\\
+        \midrule
+        \citet{broll2021interpreting} &
+            Type 2 & Dexcom G4 & 5 & 5 & NA & NA & NA & NA \\
+        \citet{colas2019detrended}& 
+             Mixed  & MiniMed iPro & 208 & 201 & 59 & 59 & 103 / 104 & 100 / 100 \\
+        \citet{dubosson2018open} &
+            Type 1 & MiniMed iPro2 & 9 & 7 & NA & NA & 6 / 3 & NA\\
+        \citet{hall2018glucotypes}&
+            Mixed & Dexcom G4 & 57 & 56 & 48 & 48 & 25 / 32 & NA\\
+        \citet{weinstock2016risk}&
+            Type 1 & Dexcom G4 & 200 & 192 & 68 & NA & 106 / 94 & 101 / 91 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+ % \subsection{Features (Nicky)}
+% This sections should include the description of the covariates we have for each dataset as well as our invented way to split the features into:
+% \begin{enumerate}
+%     \item Dynamic unknown covariates: covariates that change with time but are unknown in the future (for example heart rate);
+%     \item Dynamic known covariates: covariates that change with time and that we know in the future (for example date, holidays);
+%     \item Static covariates: covariates that do not change with time (marital status, annual income etc.).
+% \end{enumerate}
+
+ \textbf{Covariates.} In addition to CGM data, each dataset has covariates (features), which we categorize based on their temporal structure and input type.  The temporal structure distinguishes covariates as static (e.g. gender), dynamic known (e.g. hour, minute), and dynamic unknown (e.g. heart beat, blood pressure).  Furthermore, input types define covariates as either real-valued (e.g. age) or ordinal (e.g. education level) and categorical or unordered (e.g. gender) variables. We illustrate different types of temporal variables in Figure~\ref{fig:feature-categorization}. We summarize covariate types for each dataset in Appendix~A.
+
+ % The temporal structure distinguishes covariates as static, dynamic known, or dynamic unknown, with examples including gender, hour, minute, heart beat, and blood pressure. Furthermore, input types define covariates as either real-valued or ordinal, such as age, or categorical or unordered, such as gender. Figure~\ref{fig:feature-categorization} provides an illustration of the different types of temporal variables. Additionally, Table~\ref{table:covariate-info} summarizes the types of covariates available in each dataset.
+ 
+ % Static covariates, such as age, remain constant over time. Dynamic known covariates, such as date, change over time but have future values that are known in advance. Given the time stamp associated with CGM measurements, we extract multiple such features (year, month, date, hour, etc.). Dynamic unknown covariates, such as heart rate, change over time and have future values that are unknown in advance. Figure~\ref{fig:feature-categorization} shows an example of each covariate type, and Table~\ref{table:covariate-info} summarizes type of covariates available in each dataset.
+
+%In addition to the input types for each covariate, we also define specific data types: real-valued, categorical, and date. For example, age is a Static, categorical covariate. This data type classification is important for pre-processing and handling of each covariate. Real-valued covariates are already numerical, and thus pose no problems. Categorical covariates are encoded numerically as described in Section \ref{pre-processing}. Lastly, for date information we extract features including day, month, and year. %Characterizing our data in this way ensures we carefully choose the best techniques for transformations without resulting in information loss or reduced accuracy in our models.
+
+% Furthermore, we define data types for each feature to facilitate future pre-processing steps. The data types include real-valued, categorical, and date, representing the distinct numerical types assigned to each column. Characterizing our data in this way ensures we carefully choose the best techniques for transformations without resulting in information loss or reduced accuracy in our models. The techniques we leverage to achieve this include segmenting/interpolating real-valued variables, label encoding categorical variables, and extracting exact time information from date variables.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure2.pdf}
+    \caption{An illustration of static (Age), dynamic known (Date), and dynamic unknown (Heart Rate) covariate categories based on data from \citet{hall2018glucotypes} and \citet{dubosson2018open}.}\label{fig:feature-categorization}
+\end{figure}
+
+\subsection{Pre-processing} %(Valeriya)
+\label{pre-processing}
+% This section should include all steps we take from raw data to the model input:
+% \begin{enumerate}
+%     \item Describe the format that the CGM data comes in to us (be exact) \\
+
+    % \item Encoding categorical features, mapping them to a numeric value (label encoder) \\
+
+    % \item Interpolation (if less than a certain threshold, then we interpolate). Splitting into segments (if greater than some threshold, then we split into separate segments). \\
+
+        % \item Splitting into train, validation, test, and out-of-distribution test \\
+
+            % \item Min-max scaling to a range $[0, 1]$ (fit min-max scaler on the train part and transform all other sets) \\
+
+We pre-process the raw CGM data via interpolation and segmentation, encoding categorical features, data partitioning, scaling, and division into input-output pairs for training a predictive model.
+
+
+\textbf{Interpolation and segmentation.} To put glucose values on a uniform temporal grid, we identify gaps in  each subject's trajectory due to missing measurements. When the gap length is less than a predetermined threshold (Table~\ref{table:interpolation}), we impute the missing values by linear interpolation. When the gap length exceeds the threshold, we break the trajectory into several continuous segments.
+Green squares in Figure~\ref{fig:glucose-splitting} indicate gaps that will be interpolated, whereas red arrows indicate larger gaps where the data will be broken into separate segments.
+In \citet{dubosson2018open} dataset, we also interpolate missing values in dynamic covariates (e.g., heart rate). Thus, for each dataset we obtain a list of CGM sequences $\mathcal{D} = \{\mathbf{x}_{j}^{(i)}\}_{i , j}$ with $i$ indexing the patients and $j$ the continuous segments. Each segment $\mathbf{x}_{j}^{(i)}$ has length $L^{(i)}_j > L_{min}$, where $L_{min}$ is the pre-specified minimal value (Table~\ref{table:interpolation}).
+
+\begin{table}[!t]
+\caption{Interpolation parameters for datasets.}
+\label{table:interpolation}
+\centering
+\begin{tabular}{ c | c c c c c }
+\toprule
+Parameters & Broll & Colas & Dubosson & Hall & Weinstock \\
+\midrule
+Gap threshold (minutes)  & 45 & 45 & 30 & 30 & 45              \\
+Minimum length (hours) & 20 & 16 & 20 & 16 & 20   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.73\textwidth]{figures/glucose_data_split_plot_corrected_paper.pdf}
+    \caption{{Example data processing on \citet{weinstock2016risk}. The \textcolor{red}{red arrows} denote segmentation, \textcolor{green}{green blocks} interpolate values, and \textcolor{red}{red brackets} indicate dropped segments due to length.}}
+    \label{fig:glucose-splitting}
+\end{figure}
+
+\textbf{Covariates Encoding.} While many of the covariates are real-valued, e.g., age, some covariates are categorical, e.g., sex. In particular, \citet{weinstock2016risk} dataset has 36 categorical covariates with an average of 10 levels per covariate. While one-hot encoding is a popular approach for modeling categorical covariates, it will lead to 360 feature columns on \citet{weinstock2016risk}, making it undesirable from model training time and memory perspectives. Instead, we use label encoding by converting each categorical level into a numerical value. Given $R$ covariates, we include them in the dataset as $\mathcal{D} = \{\mathbf{x}_{j}^{(i)}, \mathbf{c}_{1, j}^{(i)}, \dots \mathbf{c}_{R, j}^{(i)} \}_{i , j}$ where $\mathbf{c}_{r, j}^{(i)} \in \mathbb{R}$ for static and $\mathbf{c}_{r, j}^{(i)} \in \mathbb{R}^{L^{(i)}_j}$ for dynamic.
+
+\textbf{Data splitting.} Each dataset is split into train, validation, and in-distribution (ID) test sets using 90\% of subjects. % as $\mathcal{D} = \mathcal{D}_{tr} \cup \mathcal{D}_{val} \cup \mathcal{D}_{id} \cup \mathcal{D}_{od}$ 
+For each subject, the sets follow chronological time order as shown in Figure~\ref{fig:glucose-splitting}, with validation and ID test sets always being of a fixed length of 16 hours each (192 measurements). The data from the remaining 10\% of subjects is used to form an out-of-distribution (OD) test set to assess the generalization abilities of predictive models as in Section \ref{subsec:generalizability}. Thus, $\mathcal{D} = \mathcal{D}_{tr} \cup \mathcal{D}_{val} \cup \mathcal{D}_{id} \cup \mathcal{D}_{od}$.
+
+%using the remaining 10\% of subjects. Most of the data is allocated to the training set for model development and optimization, while the validation and in-distribution (ID) test, each containing a fixed amount of 240 observations (20 hours) for each dataset, are used for hyperparameter fine-tuning, model selection, and performance evaluation. These datasets follow a chronological order, with the validation and in-distribution test sets succeeding the training set (as shown in the green and blue chart areas of Figure ng}). % By using both the ID and OD test sets, we can measure subject-specific trends and evaluate generalization, revealing potential challenges when deploying the model in clinical settings and informing efforts to enhance robustness.
+
+\textbf{Scaling.} We use min-max scaling to standardize the measurement range for both glucose values and covariates. The minimum and maximum values are computed per dataset using $\mathcal{D}_{tr}$, and then the same values are used to rescale $\mathcal{D}_{val}$, $\mathcal{D}_{id}$, and $\mathcal{D}_{od}$. %Therefore, upon standardization, we have $\mathbf{x}_j^{(i)} \in [0, 1]^{L^{(i)}_j}$ and $\mathbf{c}_j^{(i)} \in [0, 1]^{L^{(i)}_j}$ or $\mathbf{c}_j^{(i)} \in [0, 1]$.
+
+%proves to be a more appropriate approach considering the broad range of glucose levels across different subjects. Min-max scaling ensures that features are on a consistent scale, typically within the range of [0, 1]. We extract one minimum and maximum value across all segments and all subjects in the training set and then use it to scale all series in the train, validation, ID test, and OD test sets. By normalizing the data, the model can focus on learning the underlying patterns and relationships in glucose concentration, thereby improving its performance in predicting and analyzing glucose levels across various subjects and datasets.
+
+%\textbf{Notation.} We represent each processed  We denote by 
+
+\textbf{Input-output pairs.} Let $\mathbf{x}^{(i)}_{j, k:k+L}$ be a length $L$ contiguous slice of a segment from index $k$ to $k+L$. We define an input-output pair as $\{\mathbf{x}^{(i)}_{j, k : k+L}, \mathbf{y}^{(i)}_{j, k + L+1: k+L+T}\}$, where $\mathbf{y}^{(i)}_{j, k + L+1: k+L+T} = \mathbf{x}^{(i)}_{j, k + L+1: k+L+T}$ and $T$ is the length of prediction interval. Our choices of $T$, $L$ and $k$ are as follows. In line with the previous works \citep{oviedoReviewPersonalizedBlood2017}
+    % \citep{foxDeepMultiOutputForecasting2018a, munoz-organeroDeepPhysiologicalModel2020, sergazinov2022gluformer, langaricaMetalearningApproachPersonalized2023},
+    we focus on the 1-hour ahead forecasting ($T=12$ for 5 minute frequency). We treat $L$ as a hyper-parameter for model optimization since different models have different capabilities in capturing long-term dependencies. We sample $k$ without replacement from among the index set of the segment during training, similar to \citet{oreshkinNbeats2019n, challuNhits2022n}, and treat the total number of samples as a model hyper-parameter. We found the sampling approach to be preferable over the use of a sliding window with a unit stride \citep{dartsPackage2022}, as the latter is computationally prohibitive on larger training datasets and leads to high between-sample correlation, slowing convergence in optimization. We still use the sliding window when evaluating the model on the test set.
+
+
+\section{Benchmarks}
+
+\subsection{Tasks and metrics}
+
+\textbf{Task 1: Predictive Accuracy.} Given the model prediction $\hat{\mathbf{y}}_{j, k + L: k+L+T }$, we measure accuracy on the test set using root mean squared error (RMSE) and mean absolute error (MAE):
+$$
+RMSE_{i,j,k} = \sqrt{\frac{1}{T} \sum_{t=1}^T \Big( y^{(i)}_{j, k + L + t} - \hat y^{(i)}_{j, k + L + t}\Big)^2}; \quad MAE_{i,j,k} = \frac{1}{T} \sum_{t=1}^T \Big |y^{(i)}_{j, k + L + t} - \hat y^{(i)}_{j, k + L + t}\Big |.
+$$
+Since the distribution of MAE and RMSE across samples is right-skewed, we use the median of the errors as has been done in \citet{sergazinov2022gluformer, armandpourDeepPersonalizedGlucose2021a}.
+
+
+\textbf{Task 2: Uncertainty Quantification.} To measure the quality of uncertainty quantification, we use two metrics: log-likelihood on test data and calibration. For models that estimate a parametric predictive distribution over the future values, $\hat P^{(i)}_{j, k+L+1:k+L+T}:\mathbb{R}^{T}\to [0,1]$, we evaluate log-likelihood as
+$$
+\log L_{i, j, k} = \log \hat P^{(i)}_{j, k+L+1:k+L+T}\left (\mathbf{y}^{(i)}_{j, k+L+1:k+L+T} \right),
+$$
+where the parameters of the distribution are learned from training data, and the likelihood is evaluated on test data. Higher values indicate a better fit to the observed distribution. For both parametric and non-parametric models (such as quantile-based methods), we use regression calibration metric \citep{kuleshovCalibration2018}. The original metric is limited only to the univariate distributions.
+% : (1) it only works with univariate distributions; (2) it assumes knowledge of $\hat F^{(i)}_{j,k+L+t}$, a marginal cumulative distribution function of the predictive distribution. 
+To address the issue, we report an average calibration across marginal estimates for each time $t = 1, \dots, T$. 
+% To address (2), we only utilize calibration with parametric models (for which exact analytical expression is closed-form) and quantile-based models (which directly estimate distribution function). 
+To compute marginal calibration at time $t$, we (1) pick $M$ target confidence levels $0<p_1 < \dots < p_M<1$; (2)~estimate realized confidence level $\hat p_m$ using $N$ test input-output pairs as
+%\begin{enumerate}
+ %   \item Choose $M$ confidence levels, $p_1 < \dots < p_M$
+%    \item Estimate 
+    $$\hat p_m = \frac{\left|\Big\{y^{(i)}_{j, k + L + t} | \hat F^{(i)}_{j,k+L+t}\Big(y^{(i)}_{j, k + L + t}\Big) \leq p_m\Big\}\right|}{N};$$
+    and (3) compute calibration across all $M$ levels as
+    $$
+    Cal_t = \sum_1^M (p_m - \hat p_m)^2.
+    $$
+%\end{enumerate}
+The smaller the calibration value, the better the match between the estimated and true levels.
+
+\subsection{Models}
+To benchmark the performance on the two tasks, we compare the following models. \textbf{ARIMA} is a classical time-series model, which has been previously used for glucose predictions \citep{otoomRealTimeStatisticalModeling2015, yangARIMAModelAdaptive2019}. \textbf{Linear regression} is a simple baseline with a separate model for each time step $t = 1, \dots, T$. \textbf{XGBoost} \citep{chen2016xgboost} is gradient-boosted tree method, with a separate model for each time step $t$ to support multi-output regression.
+\textbf{Transformer} represents a standard encoder-decoder auto-regressive Transformer implementation \citep{vaswani2017attention}. \textbf{Temporal Fusion Transformer (TFT)} is a quantile-based model that uses RNN with attention. TFT is the only model that offers out-of-the-box support for static, dynamic known, and dynamic unknown covariates. \textbf{NHiTS} uses neural hierarchical interpolation for time series, focusing on the frequency domain \citep{challuNhits2022n}. \textbf{Latent ODE} uses a recurrent neural network (RNN) to encode the sequence to a latent representation \citep{rubanova2019latent}. The dynamics in the latent space are captured with another RNN with hidden state transitions modeled as an ODE. Finally, a generative model maps the latent space back to the original space. \textbf{Gluformer} is a probabilistic Transformer model that models forecasts using a mixture distribution \citep{sergazinov2022gluformer}. 
+For ARIMA, we use the code from \citep{garza2022statsforecast} which implements the algorithm from \citep{hyndmanAutoARIMA2008}.  For linear regression, XGBoost, TFT, and NHiTS, we use the open-source DARTS library \citep{dartsPackage2022}. For Latent ODE and Gluformer, we use the implementation in PyTorch \citep{rubanova2019latent, sergazinov2022gluformer}. We report the compute resources in Appendix~C. 
+
+\subsection{Testing protocols} %(Nicky)
+\label{subsec:testing-protocol}
+
+In devising the experiments, we pursue the principles of reproducibility and fairness to all methods. 
+
+\textbf{Reproducibility.} As the performance results are data split dependent, we train and evaluate each model using the same two random splits.  Additionally, all stochastically-trained models (tree-based and deep learning) are initialized 10 times on each training set with different random seeds.  Thus, each stochastically-trained model is re-trained and re-evaluated 20 times, and each deterministically-trained model 2 times, with the final performance score taken as an average across evaluations. We report standard error of each metric across the re-runs in Appendix B.
+
+\textbf{Fairness.} To promote fairness and limit the scope of comparisons, we focus on out-of-the-box model performance when establishing baselines.  Thus, we do not consider additional model-specific tuning that could lead to performance improvements, e.g.,  pre-training, additional loss functions, data augmentation, distillation, learning rate warm-up, learning rate decay, etc. However, since model hyper-parameters can significantly affect performance, we automate the selection of these parameters. For ARIMA, we use the native automatic hyper-parameter selection algorithm provided in \citep{hyndmanAutoARIMA2008}. For all other models, we use Optuna \citep{akiba2019optuna} to run Bayesian optimization 
+% (Tree-structured Parzen Estimator) 
+with a fixed budget of 50 iterations. {We provide a discussion on the selected optimal model hyperparameters for each dataset in the supplement (Appendix~C).}
+
+
+\subsection{Results} %(Lizzie)
+We trained and tested each model outlined above on all five datasets using the established protocols. Table~\ref{table:results-short-acc} 
+% and \ref{table:results-short-uq} 
+present the results for the best-performing models on Task 1 (predictive accuracy) and Task~2 (uncertainty quantification). Appendix~B includes full tables for all models {together with standard errors and the visualized forecasts for the best models on \citep{weinstock2016risk} dataset.}
+% We report our results on the first task in Table~\ref{table:results-task1} and on second task in Table~\ref{table:results-task2}.
+
+On Task 1, the simple ARIMA and linear regression models have the highest accuracy on all but two datasets. On \citet{hall2018glucotypes} dataset ({mixed subjects including normoglycemic, prediabetes and Type 2 diabetes}), the Latent ODE model performs the best. On \citet{weinstock2016risk} dataset (the largest dataset), the Transformer model performs the best.
+
+On Task 2, Gluformer model achieves superior performance as measured by model likelihood on all datasets. In regards to calibration, Gluformer is best on all but two datasets. On \citet{colas2019detrended} and \citet{weinstock2016risk} datasets (the largest datasets), the best calibration is achieved by TFT.
+
+
+\section{Analysis}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure4.pdf}
+    \caption{Analysis of errors by: (a) OD versus ID, (b) population diabetic type (healthy $\rightarrow$ Type 2 $\rightarrow$ Type 1), (c) daytime (9:00AM to 9:00PM) versus nighttime (9:00PM to 9:00AM).}
+    \label{fig:analysis}
+\end{figure}
+
+\label{sec:analysis}
+\input{table_short.tex}
+\input{table_short_od.tex}
+\input{table_short_cov}
+% \input{table_short_std}
+
+\subsection{Why does the performance of the models differ between the datasets?} %(Nathaniel)
+\label{subsec:model-failure}
+
+Three factors consistently impact the results across the datasets and model configurations: (1)~dataset size, (2) patients'
+ composition, and (3) time of day. Below we discuss the effects of these factors on accuracy (Task 1), similar observations hold for uncertainty quantification (Task~2).
+
+{Tables~\ref{table:results-short-acc}}
+% and \ref{table:results-short-uq}}
+indicates that the best-performing model on each dataset is dependent on the dataset size. For smaller datasets, such as \citet{broll2021interpreting} and \citet{dubosson2018open}, simple models like ARIMA and linear regression yield the best results. {In general, we see that deep learning models excel on larger datasets: \citet{hall2018glucotypes} (best model is Latent ODE) and \citet{weinstock2016risk} (best model is Transformer) are 2 of the largest datasets. The only exception is \citet{colas2019detrended}, on which the best model is linear regression. We suggest that this could be explained by the fact that despite being large, \citet{colas2019detrended} dataset has low number observations per patient: 100,000 glucose readings across 200 patients yeilds 500 readings or 2 days worth of data per patient. In comparison, \citet{hall2018glucotypes} has 2,000 readings per patient or 7 days, and \citet{weinstock2016risk} has approximately 3,000 readings per patient or 10 days.}
+
+Figure~\ref{fig:analysis}(b) demonstrates that the accuracy of predictions is substantially influenced by the patients' population group. Healthy subjects demonstrate markedly smaller errors compared to subjects with Type 1 or Type 2 diabetes. This discrepancy is due to healthy subjects maintaining a narrower range of relatively low glucose level, simplifying forecasting. Patients with Type 1 exhibit larger fluctuations partly due to consistently required insulin administration in addition to lifestyle-related factors, whereas most patients with Type 2 are not on insulin therapy.
+
+Figure~\ref{fig:analysis}(c) shows the impact of time of day on accuracy, with daytime (defined as 9:00AM to 9:00PM) being compared to nighttime for Transformer model on \citet{broll2021interpreting} dataset. The distribution of daytime errors is more right-skewed and right-shifted compared to the distribution of nighttime errors, signifying that daytime glucose values are harder to predict. Intuitively, glucose values are less variable overnight due to the absence of food intake and exercise, simplifying forecasting.
+We include similar plots for all models and datasets in Appendix~B. This finding underscores the importance of accounting for daytime and nighttime when partitioning CGM data for model training and evaluation.
+
+Overall, we recommend using simpler shallow models when data is limited, the population group exhibits less complex CGM profiles (such as healthy individuals or Type 2 patients), or for nighttime forecasting. Conversely, when dealing with larger and more complex datasets, deep or hybrid models are the preferred choice. In clinical scenarios where data is actively collected, it is advisable to deploy simpler models during the initial stages and, in later stages, maintain an ensemble of both shallow and deep models. The former can act as a guardrail or be used for nighttime predictions.
+
+ %Generally, biological signals display lower variability during nighttime, assuming the subject is resting. 
+ 
+ % The inherent difference between daytime and nighttime in the difficulty of forecasting is behind lower OD errors for \citet{dubosson2018open} dataset compared to ID errors. We found that the testing splits for \citet{dubosson2018open} contained a significantly larger portion of nighttime data compared to the training splits. This finding underscores the importance of accounting for daytime and nighttime when partitioning CGM data for model training and evaluation.
+
+
+\subsection{Are the models generalizable to patients beyond the training dataset?} %(Nathaniel)
+\label{subsec:generalizability}
+
+{Table~\ref{table:results-short-acc-od}}
+% and \ref{table:results-short-uq-od}} 
+compares accuracy and uncertainty quantification of selected models on in-distribution (ID) and out-of-distribution (OD) test sets, while the full table is provided in Appendix~B. 
+% Performance increases are indicated in blue, while decreases in red. 
+% We note that any potential positive changes could be attributed to two sources: (1) unmeasured similarity and composition of ID and OD sets, (2) model generalization power. 
+Here we assume that each patient is different, in that the OD set represents a distinct distribution from the ID set. 
+
+% Recall from Section~\ref{pre-processing} that if patient data was used for training, we call such set ID, otherwise all patient data that has been witheld from the model becomes an OD set. 
+% {From Section~\ref{pre-processing}, we recall that if any part of the data for a patient was used for training, we call the corresponding test set ``in-distribution." If the data for a patient was completely withheld from the model at all stages (training / validation), then we call such test set ``out-of-distribution."}
+
+In both tasks, most models exhibit decreased performance on the OD data, emphasizing individual-level variation between patients and the difficulty of cold starts on new patient populations. Figure~\ref{fig:analysis}(a) displays OD-to-ID accuracy ratio (measured in MAE) for each model and dataset: higher ratios indicate poorer generalization, while lower ratios indicate better generalization. In general, we observe that deep learning models (Transformer, NHiTS, TFT, Gluformer, and Latent ODE) generalize considerably better than the simple baselines (ARIMA and linear regression). We attribute this to the deep learning models' ability to capture and recall more patterns from the data. Notably, XGBoost also demonstrates strong generalization capabilities and, in some instances, outperforms the deep learning models in the generalization power.
+%Interestingly, the Transformer model shows some resilience, with improved accuracy in certain cases. Additionally, we provide a plot of  in . From the plot,  
+
+% On Task 2, Gluformer has improved likelihood on all datasets except \citet{colas2019detrended}, suggesting it is well-equipped to quantify uncertainty for OD data. On the other hand, the calibration results are mixed for both the Gluformer and TFT models. 
+
+
+
+\subsection{How does adding the covariates affect the modeling quality?} %(Valeriya)
+\label{subsec:covariate-effects}
+
+% In here, the idea is to compare Table 1 (with no covariates) and Table 2 (with covariates). Things to keep in mind:
+% \begin{enumerate}
+%     \item Not all models can handle covariates (look up in DARTS which ones can)
+%     \item Each dataset has different set of covariates: dynamic, static etc
+% \end{enumerate}
+% In general, with this subsection, we want to answer whether adding covariates helps and quantify that statement.
+
+{Table~\ref{table:results-short-acc-cov}}
+% and \ref{table:results-short-uq-cov}} 
+demonstrates the impact of including covariates in the models on Task 1 (accuracy) and Task~2 (uncertainty quantification) compared to the same models with no covariates. As the inclusion of covariates represents providing model with more information, any changes in performance can be attributed to (1) the quality of the covariate data; (2) model's ability to handle multiple covariates. We omit ARIMA, Gluformer, and Latent ODE models as their implementations do not support covariates.
+
+In both tasks, the impact of covariates on model performance varies depending on the dataset. For \citet{colas2019detrended} and \citet{dubosson2018open}, we observe a decrease in both accuracy and uncertainty quantification performance with the addition of covariates. Given that these are smaller datasets with a limited number of observations per patient, we suggest that the inclusion of covariates leads to model overfitting, consequently increasing test-time errors. In contrast, for \citet{broll2021interpreting} that is also small, unlike for all other datasets, we have covariates extracted solely from the timestamp, which appears to enhance model accuracy. 
+This increase in performance is likely attributable to all patients within the train split exhibiting more pronounced cyclical CGM patterns, which could explain why the overfitted model performs better. This is further supported by the fact that the performance on the OD set deteriorates with the addition of covariates. Finally, in the case of \citet{hall2018glucotypes} and \citet{weinstock2016risk}, which are large datasets, the inclusion of covariates has mixed effects, indicating that covariates do not contribute significantly to the model's performance.
+
+% While the Linear Regression and Transformer models exhibit improved performance on some datasets (\citet{broll2021interpreting} and \citet{weinstock2016risk} for Linear; \citet{broll2021interpreting} and \citet{hall2018glucotypes} for Transformer), they show decreased performance on others, suggesting that the inclusion of covariates has dataset-dependent effect on accuracy. On Task 2, the calibration performance of TFT worsens in \citet{broll2021interpreting}, \citet{colas2019detrended}, \citet{dubosson2018open}, and \citet{hall2018glucotypes} datasets, but improves in \citet{weinstock2016risk} dataset. This indicates that the effect of covariates on uncertainty quantification is also dataset-dependent. 
+
+\section{Discussion}
+\label{sec:discussion}
+\textbf{Impact.} We discuss potential negative societal impact of our work. {\textbf{First}, inaccurate glucose forecasting could lead to severe consequences for patients. This is by far the most important consideration that we discuss further in Appendix D.}
+% {Implementing predictive models in automatic systems, such as the Artificial Pancreas, without thorough checks or proper education on their limitations carries a potentially lethal risk. An error in the model could prompt the system to overcompensate with insulin, leading to serious health consequences. Similarly, the absence of adequate education about the model's limitations may result in individuals trusting mistaken predictions, potentially causing them to overcompensate with insulin and posing a significant health risk. Emphasizing the need for rigorous checks and comprehensive user education is crucial to mitigate these potentially life-threatening consequences.} 
+{\textbf{Second}, there is a potential threat from CGM device hacking that could affect model predictions.}
+% Therefore, it is crucial to exercise extreme caution when relying on glucose forecasting for diabetes management.}
+\textbf{Third}, the existence of pre-defined tasks and datasets may stifle research, as researchers might focus on overfitting and marginally improving upon well-known datasets and tasks. {\textbf{Finally}, the release of health records must be treated with caution to guarantee patients' right to privacy.}
+% Ensuring the preservation of patient anonymity and preventing de-identification are essential to protect the privacy and security of patients.
+% {In addition, there is a potential danger of AP devices hardware or software systems malfunctioning or being infected with malware which could lead to insulin overdose with lethal outcome.}
+
+\textbf{Future directions.} We outline several research avenues: (1) adding new public CGM datasets and tasks; (2) open-sourcing physiological and hybrid models; (3) exploring model training augmentation, such as pre-training on aggregated data followed by patient-specific fine-tuning and down-sampling night periods; (4) developing scaling laws for dataset size and model performance; and (5) examining covariate quality and principled integration within models. {Related to the point (5), we note that out of the 5 collected datasets, only \citet{dubosson2018open} records time-varying covariates describing patients physical activity (e.g. accelerometer readings, heart rate), blood pressure, food intake, and medication. We believe having larger datasets that comprehensively track dynamic patient behavior could lead to new insights and more accurate forecasting.}
+
+\section{Conclusion} In this work, we have presented a comprehensive resource to address the challenges in CGM-based glucose trajectory prediction, including a curated repository of public datasets, a standardized task list, a set of benchmark models, and a detailed analysis of performance-influencing factors. Our analysis emphasizes the significance of dataset size, patient population, testing splits (e.g., in- and out-of-distribution, daytime, nighttime), and covariate availability. 
+
+% We believe that this resource will serve as a valuable foundation for future research and practical adoption of effective glucose prediction models, ultimately benefiting individuals with diabetes.
+%  By offering open-source access, we aim to foster reproducibility, accessibility, and collaboration within the research community. 
+
+\section*{Acknowledgements}
+The source of a subset of the data is the T1D Exchange, but the analyses, content, and conclusions presented herein are solely the responsibility of the authors and have not been reviewed or approved by the T1D Exchange.
+
+% We thank Akhil Robertson Cutinha and Urjeet Shrestha for their help with the datasets processing, model prototyping, and organizing GitHub repository. This research was partially supported by NSF DMS-2044823.
+
+\newpage
+\appendix
+\section{Datasets}
+\label{appendix:a}
+
+\textbf{Previous works.} We summarize previous work on the CGM datasets in Table~\ref{table:related-works}.
+
+\input{table_related_works}
+
+\textbf{Access.} The datasets are distributed according to the following licences and can be downloaded from the following links:
+
+\begin{tabular}{l l l l}
+1. & \citet{broll2021interpreting}      & License: \href{https://www.r-project.org/Licenses/GPL-2}{GPL-2} & Source: \href{https://github.com/irinagain/iglu}{link} \\
+2. & \citet{colas2019detrended}     & License: \href{https://creativecommons.org/licenses/by/3.0/us/}{Creative Commons 4.0} & Source: \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0225817#sec018}{link} \\
+3. & \citet{dubosson2018open}  & License: \href{https://creativecommons.org/licenses/by-sa/4.0/legalcode}{Creative Commons 4.0} & Source: \href{https://doi.org/10.5281/zenodo.1421615}{link} \\
+4. &   \citet{hall2018glucotypes}    & License: \href{https://creativecommons.org/licenses/by/4.0/}{Creative Commons 4.0} & Source: \href{https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2005143#pbio.2005143.s010}{link} \\
+5. & \citet{weinstock2016risk}  & License: \href{https://creativecommons.org/licenses/by-sa/4.0/legalcode}{Creative Commons 4.0} & Source: \href{https://public.jaeb.org/dataset/537}{link} \\
+\end{tabular}
+
+
+\textbf{Covariates.} We summarize covariate types for each dataset in Table~\ref{table:covariate-info}. For each dataset, we extract the following dynamic known covariates from the time stamp: year, month, day, hour, minute, and second (only for Broll). Broll provides no covariates aside from the ones extracted from the time stamp. Colas, Hall, and Weinstock provide demographic information for the patients (static covariates). Dubosson is the only dataset for which dynamic unknown covariates such as heart rate, insulin levels, and blood pressure are available. 
+
+\begin{table}[!h]
+    \caption{Covariate information for each dataset.}
+    \label{table:covariate-info}
+    \centering
+    \begin{tabular}{ c c | c c c c c}
+    \toprule
+    & Covariate &  Broll & Colas & Dubosson & Hall & Weinstock\\
+    \midrule
+    \multirow{3}{*}{\rotatebox{90}{Static}} & Age & & \checkmark & & \checkmark \\
+    & Height & & & & \checkmark & \checkmark \\
+    & ... & \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{2}{c|}{Total} & 0 & 7 & 0 & 48 & 38 \\
+    \midrule
+    \multirow{4}{*}{\rotatebox{90}{\parbox{1em}{Dyn. Kn.}}}
+    & Year & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+    & Month & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+    & ... & \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{2}{c|}{Total} & 6 & 5 & 5 & 5 & 5\\
+    \midrule
+    \multirow{4}{*}{\rotatebox{90}{\parbox{1em}{Dyn. Unkn.}}} & Insulin & & & \checkmark & & \\
+    & Heart Rate & & & \checkmark & & \\
+    & ... & \\
+    \midrule
+    \rowcolor{lightgray}
+    \multicolumn{2}{c|}{Total} & 0 & 0 & 11 & 0 & 0 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\clearpage
+
+\section{Analysis}
+\label{appendix:b}
+
+\subsection{Visualized predictions}
+{
+We provide visualized forecasts for the same 5 segments of \citet{weinstock2016risk} data for the best performing models: linear regression, Latent ODE \citep{rubanova2019latent}, and Transformer \citep{vaswani2017attention} on Task 1 (accuracy), and Gluformer \citep{sergazinov2022gluformer} and TFT \citep{lim2021temporal} on Task 2 (uncertainty). For the best models on Task 2, we also provide the estimated confidence intervals or the predictive distribution, whichever is available. For visualization, we have truncated the input sequence to 1 hour (12 points); however, we note that different models have different input length and require at least 4 hours of observations to forecast the future trajectory.}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/figure6.pdf}
+    \caption{Model forecasts on \citet{weinstock2016risk} dataset.}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Performance}
+For reference, we include results for all models both with and without covariates evaluated on ID and OD splits in Table~\ref{table:results-accuracy} on Task 1 (accuracy) and in Table~\ref{table:results-likelihood} on Task 2 (uncertainty quantification). 
+% We provide the following guidelines for reading the tables: (1) to compare the effect of adding covariates, locate the row denoted by "Improv.", (2) row $\min\Delta$(ID, OD)\% indicates the best generalization error from ID to OD among the pair of models with and without covariates, (3) the increase in performance is indicated by \textcolor{blue}{blue} and decrease by \textcolor{red}{red}.
+
+\input{table_accuracy.tex}
+\input{table_likelihood.tex}
+
+\subsection{Feature Importance}
+
+{Based on the performance results reported in Tables~\ref{table:results-accuracy} on Task 1 (accuracy) and in Table~\ref{table:results-likelihood}, XGBoost \citep{chen2016xgboost} is the only model that consistently works better with inclusion of extraneous covariates, improves in accuracy on 3 out of 5 datasets and uncertainty quantification on 4 out of 5 datasets. Table\ref{table:feat-importance-xgb} lists the top 10 covariates selected by XGBoost for each dataset. For time-varying features, such as the 36 heart rate observations in Dubosson, the maximum importance across the input length is considered as the feature importance. Below, we provide a discussion on the selected features.
+
+Among features available for all datasets, dynamic time features, such as hour and day of the week, consistently appear in the top 3 important features across all datasets. This could serve as indication that patients tend to adhere to daily routines; therefore, including time features helps the model to predict more accurately. At the same time, patient unique identifier does not appear to be important, only appearing in the top 10 for Broll (Broll only has 7 covariates in total) and Colas. This could be indicative of the fact that differences between patients is explained well by other covariates.
+
+Dynamic physical activity features such as heart rate and blood pressure are only available for Dubosson. Based on the table, we see that medication intake, heart rate and blood pressure metrics, and physical activity measurements are all selected by XGBoost as highly important. 
+
+Demographic and medical record information is not available for Broll and Dubosson. For the rest of the datatsets, we observe medication (e.g. Vitamin D, Lisinopril for Weinstock), disease indicators (e.g. Diabetes T2 for Colas, Osteoporosis for Weinstock), health summary metrics (Body Mass Index for Colas), as well as indices derived from CGM measurements (e.g. J-index \citep{wojcicki1995j}) being selected as highly important. 
+
+
+\input{table_feat_importance_xgb}
+}
+
+\subsection{Stability}
+
+{Reproducible model performance is crucial in the clinical settings. In Table~\ref{table:mae-std}, we report standard deviation of MAE across random data splits. As expected, the smallest datasets (\citet{broll2021interpreting} and \citet{dubosson2018open}) have largest variability. The number of patients in \citet{broll2021interpreting} and \citet{dubosson2018open} is 5 and 9, respectively, thus randomly selecting 1 subject for OD test set has large impact on the model performance as the training set is altered drastically.
+
+Prior works on deep learning has found that initial weights can have large impact on the performance \citep{lecun2002efficient, sutskever2013importance, zhu2022robustness}. Therefore, we re-run each deep learning model 10 times with random initial weights for each data split and report the average. We also report standard deviation of deep learning model results across random model initializations (indicated in parentheses). We find that good initialization indeed matters as we observe that the results differ across re-runs with different starting weights. Such behavior could be undesirable in the clinical settings as the model training cannot be automated. The Transformer is the only robust deep learning model that consistently converges to the same results irrespective of the initial weights, which is reflected in near 0 standard deviation. At the same time, Transformer-based models such as Gluformer and TFT do not exhibit this feature.}
+
+{We include standard errors of each metric: RMSE (Task 1) in Table~\ref{table:rmse-std}, MAE (Task 1) in Table~\ref{table:mae-std}, likelihood (Task 2) in Table~\ref{table:likeli-std}, and calibration in Table~\ref{table:calib-std}. For deep learning models, there are 2 sources of randomness: random data split and model initialization. Therefore, we report two values for standard deviation: one across data splits (averaged over model initializations) and one for model initialization (averaged across data splits). }
+
+\input{table_rmse_std}
+\input{table_mae_std}
+\input{table_likeli_std}
+\input{table_calib_std}
+
+\subsection{Daytime versus Nighttime Error Distribution}
+
+We provide daytime and nighttime error (MAE) distribution for all models and datasets in Figure~\ref{fig:nighttime-vs-daytime-all}. In general, we note that for larger datasets (Colas and Weinstock), the difference in daytime and nighttime error distribution appears smaller. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figures/figure5.pdf}
+    \caption{Distribution of daytime (9:00AM to 9:00PM) versus nighttime (9:00PM to 9:00AM) errors (MAE) for models with no covariates on the ID set.}
+    \label{fig:nighttime-vs-daytime-all}
+\end{figure}
+
+\clearpage
+
+\section{Reproducing Results}
+\label{appendix:c}
+
+\subsection{Compute Resources}
+We conducted all experiments on a single compute node equipped with 4 NVIDIA RTX2080Ti 12GB GPUs. We used Optuna \citep{akiba2019optuna} to tune the hyperparameters of all models except ARIMA and saved the best configurations in the \verb|config/| folder of our repository. 
+% (\verb|github.com/IrinaStatsLab/GlucoBench|). 
+For ARIMA, we used the native hyperparameter selection algorithm (AutoARIMA) proposed in \citet{hyndmanAutoARIMA2008}. The search grid for each model is available in the \verb|lib/| folder. The training time varied depending on the model and the dataset. We trained all deep learning models using the Adam optimizer for 100 epochs with early stopping that had a patience of 10 epochs. For AutoARIMA, we used the implementation available in \citet{garza2022statsforecast}. For the linear regression, XGBoost \citep{chen2016xgboost}, NHiTS \citep{challuNhits2022n}, TFT \citep{lim2021temporal}, and Transformer \citep{vaswani2017attention}, we used Darts \citep{dartsPackage2022} library. For the Gluformer \citep{sergazinov2022gluformer} and Latent ODE \citep{rubanova2019latent} models, we adapted the original implementation available on GitHub. 
+
+The shallow baselines, such as ARIMA, linear regression, and XGBoost, fit within 10 minutes for all datasets. Among the deep learning models, NHiTS was the fastest to fit, taking less than 2 hours on the largest dataset (Weinstock). Gluformer and Transformer required 6 to 8 hours to fit on Weinstock. Latent ODE and TFT were the slowest to fit, taking 10 to 12 hours on Weinstock on average.
+
+\subsection{{Hyperparameters}}
+
+{In this section, we provide an extensive discussion of hyperparameters, exploring their impact on forecasting models' performance across studied datasets. For each model, we have identified the crucial hyperparameters and their ranges based on the paper where they first appeared. We observe that certain models, such as the Latent ODE and TFT, maintain consistent hyperparameters across datasets. In contrast, models like the Transformer and Gluformer exhibit notable variations. We provide a comprehensive list of the best hyperparameters for each datasets in Table \ref{table:mae-std} and provide intuition below.
+
+\textbf{Linear regression and XGBoost \citep{chen2016xgboost}.} These models are not designed to capture the temporal dependence. Therefore, their hyperparameters change considerably between datasets and do not exhibit any particular patterns. 
+For example, the maximum tree depth of XGBoost varies by 67\%, ranging from 6 to 10, while tree regularization remains relatively consistent.
+
+\textbf{Transformer \citep{vaswani2017attention}, TFT \citep{lim2021temporal}, Gluformer \citep{sergazinov2022gluformer}.} Both TFT and Gluformer are based on the Transformer architecture and share most of its hyperparameters. For this set of models, we identify the critical parameters to be the number of attention heads, the dimension of the fully-connected layers (absent for TFT), the dimension of the model (hidden\_size for TFT), and the number of encoder and decoder layers. Intuitively, each attention head captures a salient pattern, while the fully-connected layers and model dimensions control the complexity of the pattern. The encoder and decoder layers allow models to extract more flexible representations. With respect to these parameters, all models exhibit similar behavior. For larger datasets, e.g. Colas, Hall, and Weinstock, we observe the best performance with larger values of the parameters. On the other hand, for smaller datasets, we can achieve best performance with smaller models. 
+
+% {In the Gluformer and TFT models, the dimension of the fully-connected layers and the model dimension respectively show variations of 175\% and 40\%, reflecting their alignment with dataset-specific complexities. Attention heads span from 4 to 12 in the Gluformer and 1 to 4 in both Transformer and TFT.}
+ % {The Transformer's encoder and decoder layers range from 1 to 4, reflecting its adaptability in data processing, while the Gluformer maintains a consistent single encoder layer across datasets, focusing on recent data, but varies its decoder layers from 1 to 4, showcasing its forecasting flexibility.}
+
+\textbf{Latent ODE \citep{rubanova2019latent}.} Latent ODE is based on the RNN \citep{sutskever2013importance} architecture. Across all models, Latent ODE is the only one that consistently shows the best performance with the same set of hyperparameter values, which we attribute to its hybrid nature. In Latent ODE, hyperparameters govern the parametric form of the ODE. Therefore, we believe the observed results indicate that Latent ODE is potentially capturing the glucose ODE.
+% {This uniformity suggests that its configuration is robust and well-suited to handle diverse data complexities without necessitating excessive hyperparameter fine-tuning.}
+
+\textbf{NHiTS \citep{challuNhits2022n}.} In the case of NHiTS, its authors identify kernel\_sizes as the only critical hyperparameter. This hyperparameter is responsible for the kernel size of the MaxPool operation and essentially controls the sampling rate for the subsequent blocks in the architecture. A larger kernel size leads model to focus more on the low-rate information. Based on our findings, NHiTS selects similar kernel sizes for all datasets, reflecting the fact that all datasets have similar patterns in the frequency domain. 
+}
+
+    %{The learning rate, a crucial hyperparameter for most models, demonstrates considerable variation across models and datasets. The classical XGBoost model leans towards higher rates, ranging from 0.5 to 0.7, highlighting its broad data-specific optimization scope. On the other hand, deep models like the TFT and Transformer manifest more conservative rates, specifically 0.0034 and 0.00078 in the Weinstock dataset. While TFT displays consistency with just a 10\% variation, N-HiTS exhibits a dramatic shift, adjusting by up to 200\% between datasets.}
+
+\input{table_hyperparams}
+
+{
+\clearpage
+
+\section{Challenges}
+\label{appendix:d}
+
+In addressing the challenges associated with the implementation of our predictive models in clinical settings, we recognize three pivotal obstacles. Firstly, the challenge posed by computing power necessitates a strategic refinement of our models to guarantee their effectiveness on devices grappling with resource limitations and potential disruptions in internet connectivity. The delicate balance between the complexity of the model and its real-time relevance emerges as a critical factor, especially within the dynamic contexts of diverse healthcare settings.
+
+Secondly, the challenge of cold starts for new enrolling patients presents a significant hurdle. We acknowledge the importance of devising strategies to initialize and tailor the predictive models for individuals who are newly enrolled in the system. This consideration underscores the need for a dynamic and adaptable framework that ensures the seamless integration of our models into the continuum of patient care.
+
+The third challenge pertains to data privacy and transmission. To address this, our models must either possess on-device training capabilities or facilitate the secure and anonymized transmission of data to external servers. This emphasis on safeguarding patient information aligns with contemporary standards of privacy and ethical considerations, reinforcing the responsible deployment of our models in clinical practice.
+
+}
+
+\bibliography{references}
+\bibliographystyle{iclr2024_conference}
+
+\end{document}
+
+
+

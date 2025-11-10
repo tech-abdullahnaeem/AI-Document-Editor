@@ -1,0 +1,535 @@
+%%
+%% This is file `sample-sigplan.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigplan')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigplan.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigplan,screen]{acmart}
+\usepackage{bbm}
+\usepackage{ulem}
+\usepackage{amsmath}
+% Define argmax
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% \newcommand{\hr}[1]{\textcolor{blue}{#1}}
+\newcommand{\hr}[1]{\textcolor{black}{#1}}
+
+%% NOTE that a single column version is required for 
+%% submission and peer review. This can be done by changing
+%% the \doucmentclass[...]{acmart} in this template to 
+%% \documentclass[manuscript,screen,review]{acmart}
+%% 
+%% To ensure 100% compatibility, please check the white list of
+%% approved LaTeX packages to be used with the Master Article Template at
+%% https://www.acm.org/publications/taps/whitelist-of-latex-packages 
+%% before creating your document. The white list page provides 
+%% information on how to submit additional LaTeX packages for 
+%% review and adoption.
+%% Fonts used in the template cannot be substituted; margin 
+%% adjustments are not allowed.
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\copyrightyear{2024}
+\acmYear{2024}
+\setcopyright{rightsretained}
+\acmConference[DAC '24]{61st ACM/IEEE Design Automation Conference}{June 23--27, 2024}{San Francisco, CA, USA}
+\acmBooktitle{61st ACM/IEEE Design Automation Conference (DAC '24), June 23--27, 2024, San Francisco, CA, USA}
+\acmDOI{10.1145/3649329.3658473}
+\acmISBN{979-8-4007-0601-1/24/06}
+
+% https://doi.org/10.1145/3649329.3658473
+% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[DAC'24]{61st ACM/IEEE Design Automation Conference}{June 23--27, 2024}{San Francisco, CA}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+\acmSubmissionID{1122}
+
+\widowpenalties 5 100 80 60 40 20
+\raggedbottom
+
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+
+\title{EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+% \newcommand{\titleorig}{EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+
+\author{\small Zhongzhi Yu$^1$, Zheng Wang$^1$, Yuhan Li$^1$, Haoran You$^1$, Ruijie Gao$^1$,  Xiaoya Zhou$^3$, Sreenidhi Reedy Bommu$^1$, Yang (Katie) Zhao$^2$, Yingyan (Celine) Lin$^1$}
+\affiliation{%
+  \institution{$^1$\textit{Georgia Institute of Technology}, $^2$\textit{University of Minnesota, Twin Cities},
+  $^3$\textit{University of California, Santa Barbara}}
+  \city{\{zyu401, zwang3478, yli3326, hyou37, eiclab.gatech, sbommu3, celine.lin\}@gatech.edu,\\ yangzhao@umn.edu, xiaoyazhou@umail.ucsb.edu}
+  \country{}
+}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Zhongzhi Yu, et al.}
+\renewcommand{\shorttitle}{Edge-LLM}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+
+% \settopmatter{printacmref=false} % Removes citation information below abstract
+% \renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+% \pagestyle{plain} % removes running headers
+% \vspace{-1em}
+\input{Sections/0-Abstract}
+
+
+
+%% A "teaser" image appears between the author and affiliation
+%% information and the body of the document, and typically spans the
+%% page.
+% \begin{teaserfigure}
+%   \includegraphics[width=\textwidth]{sampleteaser}
+%   \caption{Seattle Mariners at Spring Training, 2010.}
+%   \Description{Enjoying the baseball game from the third-base
+%   seats. Ichiro Suzuki preparing to bat.}
+%   \label{fig:teaser}
+% \end{teaserfigure}
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\input{Sections/1-Introduction}
+
+\input{Sections/2-Preliminary}
+
+\input{Sections/3-Algorithm}
+
+\input{Sections/4-Hardware}
+
+\input{Sections/5-Evaluation}
+
+\input{Sections/6-Conclusion}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\vspace{-0.5em}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+%%
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigplan.tex'.
+%%
+%% This is file `sample-sigplan.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigplan')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigplan.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigplan,screen]{acmart}
+\usepackage{bbm}
+\usepackage{ulem}
+
+%% NOTE that a single column version is required for 
+%% submission and peer review. This can be done by changing
+%% the \doucmentclass[...]{acmart} in this template to 
+%% \documentclass[manuscript,screen,review]{acmart}
+%% 
+%% To ensure 100% compatibility, please check the white list of
+%% approved LaTeX packages to be used with the Master Article Template at
+%% https://www.acm.org/publications/taps/whitelist-of-latex-packages 
+%% before creating your document. The white list page provides 
+%% information on how to submit additional LaTeX packages for 
+%% review and adoption.
+%% Fonts used in the template cannot be substituted; margin 
+%% adjustments are not allowed.
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmlicensed}
+\copyrightyear{2024}
+\acmYear{2024}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[DAC'24]{61st ACM/IEEE Design Automation Conference}{June 23--27, 2024}{San Francisco, CA}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+\acmSubmissionID{1122}
+
+\widowpenalties 5 100 80 60 40 20
+\raggedbottom
+
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+
+\title{\acmsmall EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+% \newcommand{\titleorig}{EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+
+\author{\small Zhongzhi Yu$^1$, Zheng Wang$^1$, Yuhan Li$^1$, Xiaoya Zhou$^3$, Haoran You$^1$,\\ Ruijie Gao$^1$, Sreenidhi Reedy Bommu$^1$, Yang (Katie) Zhao$^2$, Yingyan (Celine) Lin$^1$}
+\affiliation{%
+  \institution{$^1$\textit{Georgia Institute of Technology}, $^2$\textit{University of Minnesota, Twin Cities},
+  $^3$\textit{University of California, Santa Barbara}}
+  \city{\{zyu401, zwang2478, yli3326, hyou37, eiclab.gatech, sbommu3, celine.lin\}@gatech.edu,\\ yangzhao@umn.edu, xiaoyazhou@umail.ucsb.edu}
+  \country{}
+}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Zhongzhi Yu, et al.}
+\renewcommand{\shorttitle}{Edge-LLM}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+
+% \settopmatter{printacmref=false} % Removes citation information below abstract
+% \renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+% \pagestyle{plain} % removes running headers
+% \vspace{-1em}
+\input{Sections/0-Abstract}
+
+
+
+%% A "teaser" image appears between the author and affiliation
+%% information and the body of the document, and typically spans the
+%% page.
+% \begin{teaserfigure}
+%   \includegraphics[width=\textwidth]{sampleteaser}
+%   \caption{Seattle Mariners at Spring Training, 2010.}
+%   \Description{Enjoying the baseball game from the third-base
+%   seats. Ichiro Suzuki preparing to bat.}
+%   \label{fig:teaser}
+% \end{teaserfigure}
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\input{Sections/1-Introduction}
+
+\input{Sections/2-Preliminary}
+
+\input{Sections/3-Algorithm}
+
+\input{Sections/4-Hardware}
+
+\input{Sections/5-Evaluation}
+
+\input{Sections/6-Conclusion}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\vspace{-1em}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+%%
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigplan.tex'.
+%%
+%% This is file `sample-sigplan.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigplan')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigplan.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigplan,screen]{acmart}
+\usepackage{bbm}
+\usepackage{ulem}
+
+%% NOTE that a single column version is required for 
+%% submission and peer review. This can be done by changing
+%% the \doucmentclass[...]{acmart} in this template to 
+%% \documentclass[manuscript,screen,review]{acmart}
+%% 
+%% To ensure 100% compatibility, please check the white list of
+%% approved LaTeX packages to be used with the Master Article Template at
+%% https://www.acm.org/publications/taps/whitelist-of-latex-packages 
+%% before creating your document. The white list page provides 
+%% information on how to submit additional LaTeX packages for 
+%% review and adoption.
+%% Fonts used in the template cannot be substituted; margin 
+%% adjustments are not allowed.
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmlicensed}
+\copyrightyear{2024}
+\acmYear{2024}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[DAC'24]{61st ACM/IEEE Design Automation Conference}{June 23--27, 2024}{San Francisco, CA}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+\acmSubmissionID{1122}
+
+\widowpenalties 5 100 80 60 40 20
+\raggedbottom
+
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+
+\title{\acmsmall EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+% \newcommand{\titleorig}{EDGE-LLM: Enabling Efficient Large Language Model Adaptation on Edge Devices via Layerwise Unified Compression and Adaptive Layer Tuning \& Voting}
+
+
+\author{\small Zhongzhi Yu$^1$, Zheng Wang$^1$, Yuhan Li$^1$, Xiaoya Zhou$^3$, Haoran You$^1$,\\ Ruijie Gao$^1$, Sreenidhi Reedy Bommu$^1$, Yang (Katie) Zhao$^2$, Yingyan (Celine) Lin$^1$}
+\affiliation{%
+  \institution{$^1$\textit{Georgia Institute of Technology}, $^2$\textit{University of Minnesota, Twin Cities},
+  $^3$\textit{University of California, Santa Barbara}}
+  \city{\{zyu401, zwang2478, yli3326, hyou37, eiclab.gatech, sbommu3, celine.lin\}@gatech.edu,\\ yangzhao@umn.edu, xiaoyazhou@umail.ucsb.edu}
+  \country{}
+}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Zhongzhi Yu, et al.}
+\renewcommand{\shorttitle}{Edge-LLM}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+
+% \settopmatter{printacmref=false} % Removes citation information below abstract
+% \renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+% \pagestyle{plain} % removes running headers
+% \vspace{-1em}
+\input{Sections/0-Abstract}
+
+
+
+%% A "teaser" image appears between the author and affiliation
+%% information and the body of the document, and typically spans the
+%% page.
+% \begin{teaserfigure}
+%   \includegraphics[width=\textwidth]{sampleteaser}
+%   \caption{Seattle Mariners at Spring Training, 2010.}
+%   \Description{Enjoying the baseball game from the third-base
+%   seats. Ichiro Suzuki preparing to bat.}
+%   \label{fig:teaser}
+% \end{teaserfigure}
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\input{Sections/1-Introduction}
+
+\input{Sections/2-Preliminary}
+
+\input{Sections/3-Algorithm}
+
+\input{Sections/4-Hardware}
+
+\input{Sections/5-Evaluation}
+
+\input{Sections/6-Conclusion}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\vspace{-1em}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+%%
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigplan.tex'.

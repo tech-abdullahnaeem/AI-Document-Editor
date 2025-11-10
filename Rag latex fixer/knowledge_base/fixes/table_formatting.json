@@ -1,0 +1,31 @@
+{
+  "table_caption_above": {
+    "description": "Table caption should appear above the table",
+    "pattern": "\\caption{",
+    "fix": "Place \\caption before \\begin{tabular}",
+    "example": "\\begin{table}[htbp]\n\\centering\n\\caption{Table title}\n\\label{tab:example}\n\\begin{tabular}{...}",
+    "applies_to": ["table"]
+  },
+  "figure_caption_below": {
+    "description": "Figure caption should appear below the figure",
+    "pattern": "\\caption{",
+    "fix": "Place \\caption after \\includegraphics",
+    "example": "\\begin{figure}[htbp]\n\\centering\n\\includegraphics[...]{...}\n\\caption{Figure title}\n\\label{fig:example}\n\\end{figure}",
+    "applies_to": ["figure"]
+  },
+  "table_professional_lines": {
+    "description": "Use booktabs for professional table lines",
+    "pattern": "\\hline",
+    "fix": "Replace with \\toprule, \\midrule, \\bottomrule from booktabs",
+    "example": "\\begin{tabular}{lcc}\n\\toprule\n... & ... & ... \\\\\n\\midrule\n... & ... & ... \\\\\n\\bottomrule\n\\end{tabular}",
+    "applies_to": ["table"],
+    "requires_package": "booktabs"
+  },
+  "table_column_alignment": {
+    "description": "Align numerical columns to the right",
+    "pattern": "{tabular}",
+    "fix": "Use 'r' for numerical columns, 'l' for text",
+    "example": "\\begin{tabular}{lrr}",
+    "applies_to": ["table"]
+  }
+}

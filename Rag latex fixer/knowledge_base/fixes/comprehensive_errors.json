@@ -1,0 +1,441 @@
+{
+  "compilation_errors": [
+    {
+      "pattern": "Undefined control sequence",
+      "description": "LaTeX command not recognized by compiler",
+      "severity": "critical",
+      "common_causes": [
+        "Missing package import",
+        "Typo in command name",
+        "Custom command not defined",
+        "Package compatibility issue"
+      ],
+      "fixes": [
+        {
+          "type": "package_import",
+          "packages": ["amsmath", "amsfonts", "amssymb"],
+          "condition": "mathematical_content"
+        },
+        {
+          "type": "command_correction",
+          "corrections": {
+            "\\textbf": "\\mathbf",
+            "\\textit": "\\mathit", 
+            "\\textrm": "\\mathrm"
+          }
+        }
+      ]
+    },
+    {
+      "pattern": "Missing $ inserted",
+      "description": "Mathematical content outside math mode",
+      "severity": "critical",
+      "fixes": [
+        {
+          "type": "math_mode_wrap",
+          "inline": true,
+          "symbols": ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "≤", "≥", "≠", "∞", "∑", "∏", "∫"]
+        }
+      ]
+    },
+    {
+      "pattern": "Extra }, or forgotten $",
+      "description": "Mismatched braces or math mode delimiters",
+      "severity": "critical",
+      "fixes": [
+        {
+          "type": "brace_balance",
+          "auto_fix": true
+        }
+      ]
+    },
+    {
+      "pattern": "Package (.*) Error",
+      "description": "Package-specific error occurred",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "package_update",
+          "check_compatibility": true
+        }
+      ]
+    },
+    {
+      "pattern": "LaTeX Error: File .* not found",
+      "description": "Referenced file (image, bibliography, etc.) not found",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "file_path_correction",
+          "search_paths": ["./", "./images/", "./figures/", "./refs/", "../"]
+        }
+      ]
+    },
+    {
+      "pattern": "LaTeX Error: Unknown graphics extension",
+      "description": "Image format not supported by current compiler",
+      "severity": "moderate",
+      "fixes": [
+        {
+          "type": "graphics_conversion",
+          "supported_formats": {
+            "pdflatex": ["pdf", "png", "jpg", "jpeg"],
+            "xelatex": ["pdf", "png", "jpg", "jpeg", "svg", "eps"],
+            "lualatex": ["pdf", "png", "jpg", "jpeg", "svg", "eps"]
+          }
+        }
+      ]
+    },
+    {
+      "pattern": "LaTeX Error: Cannot determine size of graphic",
+      "description": "Image dimensions cannot be determined",
+      "severity": "moderate", 
+      "fixes": [
+        {
+          "type": "image_size_specification",
+          "default_options": ["width=0.8\\textwidth", "height=0.6\\textheight", "keepaspectratio"]
+        }
+      ]
+    },
+    {
+      "pattern": "Overfull \\\\hbox",
+      "description": "Text extends beyond right margin",
+      "severity": "minor",
+      "fixes": [
+        {
+          "type": "line_breaking",
+          "methods": ["\\\\linebreak", "\\\\-", "\\\\sloppy"]
+        }
+      ]
+    },
+    {
+      "pattern": "Underfull \\\\hbox",
+      "description": "Line not properly justified",
+      "severity": "minor",
+      "fixes": [
+        {
+          "type": "spacing_adjustment",
+          "methods": ["\\\\raggedright", "\\\\fussy"]
+        }
+      ]
+    }
+  ],
+  "syntax_errors": [
+    {
+      "pattern": "unmatched_braces",
+      "description": "Opening { without closing } or vice versa", 
+      "severity": "critical",
+      "detection": "brace_counting",
+      "auto_fixable": true
+    },
+    {
+      "pattern": "unclosed_environment",
+      "description": "\\\\begin{} without corresponding \\\\end{}",
+      "severity": "critical", 
+      "detection": "environment_matching",
+      "auto_fixable": true
+    },
+    {
+      "pattern": "malformed_command",
+      "description": "LaTeX command with incorrect syntax",
+      "severity": "major",
+      "examples": [
+        "\\\\section{Title without closing brace",
+        "\\\\includegraphics{file.pdf without closing brace",
+        "\\\\ref{label without closing brace"
+      ]
+    },
+    {
+      "pattern": "invalid_characters",
+      "description": "Characters that need escaping in LaTeX",
+      "severity": "moderate",
+      "characters": {
+        "&": "\\\\&",
+        "%": "\\\\%", 
+        "$": "\\\\$",
+        "#": "\\\\#",
+        "^": "\\\\textasciicircum",
+        "_": "\\\\_",
+        "~": "\\\\textasciitilde",
+        "\\": "\\\\textbackslash"
+      }
+    },
+    {
+      "pattern": "double_backslash_errors",
+      "description": "Incorrect use of \\\\\\\\ for line breaks",
+      "severity": "moderate",
+      "fixes": [
+        {
+          "context": "paragraph",
+          "replacement": "\\\\par"
+        },
+        {
+          "context": "list",
+          "keep": true
+        }
+      ]
+    }
+  ],
+  "package_errors": [
+    {
+      "package": "babel",
+      "common_issues": [
+        {
+          "error": "Unknown option",
+          "fix": "Check language code spelling",
+          "valid_options": ["english", "spanish", "french", "german", "italian", "portuguese", "russian", "chinese", "japanese"]
+        }
+      ]
+    },
+    {
+      "package": "inputenc",
+      "common_issues": [
+        {
+          "error": "Keyboard character used is undefined",
+          "fix": "Use utf8 encoding or escape special characters"
+        }
+      ]
+    },
+    {
+      "package": "graphicx",
+      "common_issues": [
+        {
+          "error": "File not found",
+          "fix": "Check file path and extension"
+        },
+        {
+          "error": "Cannot determine size",
+          "fix": "Specify width/height or use supported format"
+        }
+      ]
+    },
+    {
+      "package": "hyperref",
+      "common_issues": [
+        {
+          "error": "Token not allowed",
+          "fix": "Load hyperref package last or use \\\\texorpdfstring"
+        }
+      ]
+    },
+    {
+      "package": "amsmath",
+      "common_issues": [
+        {
+          "error": "Multiple \\\\label",
+          "fix": "Use unique labels for each equation"
+        }
+      ]
+    }
+  ],
+  "bibliography_errors": [
+    {
+      "pattern": "Citation .* undefined",
+      "description": "Reference key not found in bibliography",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "key_correction",
+          "fuzzy_matching": true
+        },
+        {
+          "type": "bibliography_check",
+          "file_extensions": [".bib", ".bbl"]
+        }
+      ]
+    },
+    {
+      "pattern": "Empty bibliography",
+      "description": "No bibliography entries found",
+      "severity": "moderate",
+      "fixes": [
+        {
+          "type": "bibliography_validation",
+          "check_file_existence": true
+        }
+      ]
+    }
+  ],
+  "table_errors": [
+    {
+      "pattern": "Extra alignment tab",
+      "description": "Too many & characters in table row",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "column_count_fix",
+          "auto_adjust": true
+        }
+      ]
+    },
+    {
+      "pattern": "Missing number, treated as zero",
+      "description": "Invalid column specification in tabular",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "column_spec_correction",
+          "valid_specs": ["l", "c", "r", "p{width}", "m{width}", "b{width}"]
+        }
+      ]
+    }
+  ],
+  "encoding_errors": [
+    {
+      "pattern": "Unicode char .* not set up for use with LaTeX",
+      "description": "Unicode character not properly handled",
+      "severity": "moderate",
+      "fixes": [
+        {
+          "type": "unicode_conversion",
+          "use_mapping_table": true
+        },
+        {
+          "type": "package_suggestion",
+          "packages": ["fontspec", "xunicode", "ucs"]
+        }
+      ]
+    }
+  ],
+  "warning_patterns": [
+    {
+      "pattern": "LaTeX Warning: Reference .* undefined",
+      "description": "Cross-reference label not found",
+      "severity": "minor",
+      "auto_fixable": false
+    },
+    {
+      "pattern": "LaTeX Warning: Citation .* undefined",
+      "description": "Bibliography reference not found", 
+      "severity": "minor",
+      "auto_fixable": false
+    },
+    {
+      "pattern": "LaTeX Warning: There were undefined references",
+      "description": "One or more references are undefined",
+      "severity": "minor",
+      "fix_suggestion": "Run LaTeX multiple times or check reference keys"
+    },
+    {
+      "pattern": "Package hyperref Warning: Token not allowed in a PDF string",
+      "description": "LaTeX command in PDF bookmark",
+      "severity": "minor",
+      "fixes": [
+        {
+          "type": "texorpdfstring_wrap",
+          "auto_apply": true
+        }
+      ]
+    }
+  ],
+  "performance_issues": [
+    {
+      "issue": "slow_compilation",
+      "indicators": [
+        "Large number of images",
+        "Complex TikZ drawings",
+        "Many cross-references",
+        "Large bibliography"
+      ],
+      "optimizations": [
+        {
+          "type": "draft_mode",
+          "option": "\\\\documentclass[draft]{article}"
+        },
+        {
+          "type": "externalize_tikz",
+          "package": "tikz"
+        },
+        {
+          "type": "optimize_images",
+          "compress": true
+        }
+      ]
+    }
+  ],
+  "accessibility_issues": [
+    {
+      "issue": "missing_alt_text",
+      "description": "Images without alternative text",
+      "fix": "Add alt attribute to \\\\includegraphics"
+    },
+    {
+      "issue": "poor_color_contrast", 
+      "description": "Colors may not be accessible",
+      "fix": "Check color combinations for sufficient contrast"
+    },
+    {
+      "issue": "missing_pdf_metadata",
+      "description": "PDF lacks title, author, subject metadata",
+      "fix": "Use hyperref package with metadata options"
+    }
+  ],
+  "font_errors": [
+    {
+      "pattern": "Font .* not found",
+      "description": "Specified font is not available",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "font_substitution",
+          "fallback_fonts": ["Computer Modern", "Latin Modern", "TeX Gyre"]
+        }
+      ]
+    },
+    {
+      "pattern": "Some font shapes were not available",
+      "description": "Font variant (bold, italic) not available",
+      "severity": "minor",
+      "fixes": [
+        {
+          "type": "font_package_suggestion",
+          "packages": ["lmodern", "fontspec"]
+        }
+      ]
+    }
+  ],
+  "math_errors": [
+    {
+      "pattern": "Double subscript",
+      "description": "Multiple subscripts on same symbol",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "subscript_grouping",
+          "example": "x_1_2 → x_{1,2}"
+        }
+      ]
+    },
+    {
+      "pattern": "Double superscript", 
+      "description": "Multiple superscripts on same symbol",
+      "severity": "major",
+      "fixes": [
+        {
+          "type": "superscript_grouping",
+          "example": "x^2^3 → x^{2^3}"
+        }
+      ]
+    },
+    {
+      "pattern": "Missing } in math mode",
+      "description": "Unmatched braces in mathematical expression",
+      "severity": "critical",
+      "auto_fixable": true
+    }
+  ],
+  "security_warnings": [
+    {
+      "pattern": "write18 enabled",
+      "description": "Shell escape is enabled",
+      "severity": "major",
+      "recommendation": "Only use with trusted documents"
+    },
+    {
+      "pattern": "File input from external source",
+      "description": "Document includes external files",
+      "severity": "moderate",
+      "recommendation": "Verify source of included files"
+    }
+  ]
+}
