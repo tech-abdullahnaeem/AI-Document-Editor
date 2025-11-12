@@ -1,0 +1,476 @@
+"""
+Main document    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        latex_engine: str = "pdflatex",
+        default_output_dir: str = "output",
+        openai_model: str = "gpt-4o",  # Updated to gpt-4o for 128k context
+        require_latex: bool = True,
+        use_gemini_cleaner: bool = True,
+        gemini_api_key: Optional[str] = None
+    ):
+        """
+        Initialize the document editor.
+
+        Args:
+            api_key: OpenAI API key
+            latex_engine: LaTeX engine for compilation
+            default_output_dir: Default output directory
+            openai_model: OpenAI model to use
+            require_latex: Whether LaTeX is required for operations
+            use_gemini_cleaner: Whether to use Gemini for LaTeX cleaning
+            gemini_api_key: Gemini API key for LaTeX cleaning
+        """
+        try:
+            from .openai_client import OpenAIClient
+            self.openai_client = OpenAIClient(api_key, openai_model)
+        except ImportError:
+            self.openai_client = None
+            
+        self.converter = DocumentConverter()
+        self.latex_engine = latex_engine
+        self.default_output_dir = default_output_dir
+        self.require_latex = require_latex
+        self.use_gemini_cleaner = use_gemini_cleaner
+
+        # Initialize Gemini cleaner if requested
+        if use_gemini_cleaner:
+            try:
+                self.gemini_cleaner = GeminiLaTeXCleanerPipeline(gemini_api_key)
+            except Exception as e:
+                print(f"Warning: Could not initialize Gemini cleaner: {e}")
+                self.gemini_cleaner = None
+        else:
+            self.gemini_cleaner = None
+
+        # Lazy load LaTeX compiler
+        self._latex_compiler = None
+
+        # Ensure output directory exists
+        Path(self.default_output_dir).mkdir(parents=True, exist_ok=True)that orchestrates the editing pipeline.
+"""
+
+import os
+from pathlib import Path
+from typing import Optional, Dict, Any
+from .gemini_client import GeminiClient
+from .openai_client import OpenAIClient
+from .converter import DocumentConverter
+from .latex_compiler import LaTeXCompiler
+from .gemini_latex_cleaner import GeminiLaTeXCleanerPipeline
+
+
+class DocumentEditor:
+    """Main class for document editing operations."""
+
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        latex_engine: str = "pdflatex",
+        default_output_dir: str = "output",
+        gemini_model: str = "gemini-1.5-pro",
+        require_latex: bool = True
+    ):
+        """
+        Initialize the document editor.
+
+        Args:
+            api_key: Gemini API key
+            latex_engine: LaTeX engine for compilation
+            default_output_dir: Default output directory
+            gemini_model: Gemini model to use
+            require_latex: Whether LaTeX is required for operations
+        """
+        self.gemini_client = GeminiClient(api_key, gemini_model)
+        self.converter = DocumentConverter()
+        self.latex_engine = latex_engine
+        self.default_output_dir = default_output_dir
+        self.require_latex = require_latex
+
+        # Lazy load LaTeX compiler
+        self._latex_compiler = None
+
+        # Ensure output directory exists
+        Path(self.default_output_dir).mkdir(parents=True, exist_ok=True)
+    
+    @property
+    def latex_compiler(self):
+        """Lazy load LaTeX compiler."""
+        if self._latex_compiler is None and self.require_latex:
+            self._latex_compiler = LaTeXCompiler(self.latex_engine)
+        return self._latex_compiler
+
+    def edit_document(
+        self,
+        document_path: str,
+        edit_prompt: str,
+        output_filename: Optional[str] = None,
+        context: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Edit a document using natural language instructions.
+
+        Args:
+            document_path: Path to the document (PDF/Word)
+            edit_prompt: Natural language description of edits
+            output_filename: Name for output files
+            context: Additional context for editing
+
+        Returns:
+            Dictionary with results
+        """
+        try:
+            # Smart approach: Check if corresponding LaTeX source exists
+            document_path_obj = Path(document_path)
+            potential_tex_file = document_path_obj.with_suffix('.tex')
+            
+            if potential_tex_file.exists():
+                # Use the original LaTeX source directly - much better than conversion!
+                print(f"✓ Found original LaTeX source: {potential_tex_file}")
+                with open(potential_tex_file, 'r', encoding='utf-8') as f:
+                    original_latex = f.read()
+                conversion_metadata = {
+                    "source_format": "original_latex",
+                    "source_file": str(potential_tex_file),
+                    "conversion_method": "direct_source"
+                }
+            else:
+                # COMMENTED OUT: PDF/DOCX conversion - provide LaTeX files directly
+                # Step 1: Convert document to LaTeX
+                # conversion_result = self.converter.convert_to_latex(document_path)
+                # original_latex = conversion_result["latex_code"]
+                # conversion_metadata = conversion_result.get("metadata", {})
+                raise ValueError(
+                    f"No corresponding .tex file found for {document_path}. "
+                    "PDF/DOCX conversion is currently disabled. Please provide a .tex file directly."
+                )
+
+            # Step 2: Edit LaTeX using Gemini
+            edited_latex = self.gemini_client.edit_latex(
+                original_latex, edit_prompt, context
+            )
+
+            # Step 3: Generate filename
+            if output_filename is None:
+                base_name = Path(document_path).stem
+                output_filename = f"{base_name}_edited"
+
+            # Step 4: Compile to PDF
+            tex_file = os.path.join(self.default_output_dir, f"{output_filename}.tex")
+            pdf_file = os.path.join(self.default_output_dir, f"{output_filename}.pdf")
+
+            # Save edited LaTeX
+            with open(tex_file, 'w', encoding='utf-8') as f:
+                f.write(edited_latex)
+
+            # Compile to PDF
+            compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                edited_latex, pdf_file
+            )
+
+            return {
+                "success": True,
+                "original_latex": original_latex,
+                "edited_latex": edited_latex,
+                "tex_file": tex_file,
+                "pdf_file": compiled_pdf,
+                "compilation_log": compilation_log,
+                "metadata": conversion_metadata
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "original_latex": None,
+                "edited_latex": None,
+                "tex_file": None,
+                "pdf_file": None,
+                "compilation_log": None
+            }
+
+    def edit_latex_file(
+        self,
+        latex_path: str,
+        edit_prompt: str,
+        output_filename: Optional[str] = None,
+        context: Optional[str] = None,
+        modify_original: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Edit an existing LaTeX file.
+
+        Args:
+            latex_path: Path to the .tex file
+            edit_prompt: Natural language description of edits
+            output_filename: Name for output files
+            context: Additional context
+
+        Returns:
+            Dictionary with results
+        """
+        try:
+            # Read existing LaTeX
+            with open(latex_path, 'r', encoding='utf-8') as f:
+                original_latex = f.read()
+
+            # Edit using Gemini
+            edited_latex = self.gemini_client.edit_latex(
+                original_latex, edit_prompt, context
+            )
+
+            if modify_original:
+                # Modify the original file in place
+                with open(latex_path, 'w', encoding='utf-8') as f:
+                    f.write(edited_latex)
+                
+                # Compile to PDF in the same directory as original
+                base_name = Path(latex_path).stem
+                pdf_file = str(Path(latex_path).parent / f"{base_name}.pdf")
+                compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                    edited_latex, pdf_file
+                )
+                
+                return {
+                    "success": True,
+                    "original_latex": original_latex,
+                    "edited_latex": edited_latex,
+                    "tex_file": latex_path,  # Original file was modified
+                    "pdf_file": compiled_pdf,
+                    "compilation_log": compilation_log
+                }
+            else:
+                # Generate filename for new files
+                if output_filename is None:
+                    base_name = Path(latex_path).stem
+                    output_filename = f"{base_name}_edited"
+
+                # Compile to PDF in output directory
+                tex_file = os.path.join(self.default_output_dir, f"{output_filename}.tex")
+                pdf_file = os.path.join(self.default_output_dir, f"{output_filename}.pdf")
+
+                # Save edited LaTeX
+                with open(tex_file, 'w', encoding='utf-8') as f:
+                    f.write(edited_latex)
+
+                # Compile to PDF
+                compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                    edited_latex, pdf_file
+                )
+
+            return {
+                "success": True,
+                "original_latex": original_latex,
+                "edited_latex": edited_latex,
+                "tex_file": tex_file,
+                "pdf_file": compiled_pdf,
+                "compilation_log": compilation_log
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "original_latex": None,
+                "edited_latex": None,
+                "tex_file": None,
+                "pdf_file": None,
+                "compilation_log": None
+            }
+
+    def edit_document_in_place(
+        self,
+        document_path: str,
+        edit_prompt: str,
+        context: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Edit a document in place: convert to LaTeX, edit, convert back to original format.
+        
+        Args:
+            document_path: Path to the document (PDF, Word, or LaTeX)
+            edit_prompt: Natural language description of edits
+            context: Additional context
+            
+        Returns:
+            Dictionary with results
+        """
+        try:
+            original_path = Path(document_path)
+            file_extension = original_path.suffix.lower()
+            
+            # Step 1: Convert document to LaTeX if needed
+            if file_extension == '.tex':
+                # Already LaTeX, just edit it
+                return self.edit_latex_file(
+                    document_path, edit_prompt, context=context, modify_original=True
+                )
+            
+            elif file_extension == '.pdf':
+                # COMMENTED OUT: PDF conversion - provide LaTeX files directly
+                # Convert PDF to LaTeX
+                # latex_content = self.converter.pdf_to_latex(document_path)
+                # 
+                # # Edit the LaTeX
+                # edited_latex = self.gemini_client.edit_latex(
+                #     latex_content, edit_prompt, context
+                # )
+                # 
+                # # Convert back to PDF and replace original
+                # compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                #     edited_latex, document_path  # Replace original PDF
+                # )
+                
+                return {
+                    "success": False,
+                    "error": "PDF editing is currently disabled. Please provide a .tex file instead.",
+                    "original_format": "pdf"
+                }
+                
+            elif file_extension in ['.docx', '.doc']:
+                # COMMENTED OUT: DOCX conversion - provide LaTeX files directly
+                # Convert Word to LaTeX
+                # latex_content = self.converter.docx_to_latex(document_path)
+                # 
+                # # Edit the LaTeX
+                # edited_latex = self.gemini_client.edit_latex(
+                #     latex_content, edit_prompt, context
+                # )
+                # 
+                # # For Word documents, we'll create a PDF since converting back to Word is complex
+                # # But we'll put it in the same location as the original
+                # pdf_path = original_path.with_suffix('.pdf')
+                # compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                #     edited_latex, str(pdf_path)
+                # )
+                # 
+                # return {
+                #     "success": True,
+                #     "original_format": "docx",
+                #     "original_latex": latex_content,
+                #     "edited_latex": edited_latex,
+                #     "output_file": compiled_pdf,
+                #     "compilation_log": compilation_log,
+                #     "note": "Word document converted to PDF due to formatting complexity"
+                # }
+                
+                return {
+                    "success": False,
+                    "error": "DOCX editing is currently disabled. Please provide a .tex file instead.",
+                    "original_format": "docx"
+                }
+                
+            else:
+                return {
+                    "success": False,
+                    "error": f"Unsupported file format: {file_extension}",
+                    "supported_formats": [".pdf", ".docx", ".doc", ".tex"]
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "original_latex": None,
+                "edited_latex": None,
+                "output_file": None,
+                "compilation_log": None
+            }
+
+    def convert_document(
+        self,
+        document_path: str,
+        output_filename: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Convert a document to LaTeX without editing.
+
+        Args:
+            document_path: Path to the document
+            output_filename: Name for output LaTeX file
+
+        Returns:
+            Dictionary with conversion results
+        """
+        try:
+            conversion_result = self.converter.convert_to_latex(document_path)
+            latex_code = conversion_result["latex_code"]
+
+            if output_filename is None:
+                base_name = Path(document_path).stem
+                output_filename = f"{base_name}_converted"
+
+            tex_file = os.path.join(self.default_output_dir, f"{output_filename}.tex")
+
+            with open(tex_file, 'w', encoding='utf-8') as f:
+                f.write(latex_code)
+
+            return {
+                "success": True,
+                "latex_code": latex_code,
+                "tex_file": tex_file,
+                "metadata": conversion_result.get("metadata", {})
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "latex_code": None,
+                "tex_file": None
+            }
+
+    def create_document(
+        self,
+        prompt: str,
+        output_filename: Optional[str] = None,
+        context: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a new document from description.
+
+        Args:
+            prompt: Description of the document to create
+            output_filename: Name for output files
+            context: Additional context
+
+        Returns:
+            Dictionary with results
+        """
+        try:
+            # Generate LaTeX from description
+            latex_code = self.gemini_client.generate_latex_from_description(prompt, context)
+
+            if output_filename is None:
+                output_filename = "new_document"
+
+            # Compile to PDF
+            tex_file = os.path.join(self.default_output_dir, f"{output_filename}.tex")
+            pdf_file = os.path.join(self.default_output_dir, f"{output_filename}.pdf")
+
+            # Save LaTeX
+            with open(tex_file, 'w', encoding='utf-8') as f:
+                f.write(latex_code)
+
+            # Compile to PDF
+            compiled_pdf, compilation_log = self.latex_compiler.compile_latex_to_pdf(
+                latex_code, pdf_file
+            )
+
+            return {
+                "success": True,
+                "latex_code": latex_code,
+                "tex_file": tex_file,
+                "pdf_file": compiled_pdf,
+                "compilation_log": compilation_log
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "latex_code": None,
+                "tex_file": None,
+                "pdf_file": None,
+                "compilation_log": None
+            }

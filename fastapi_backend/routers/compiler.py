@@ -21,27 +21,75 @@ except Exception as e:
 
 def find_images_directory(latex_file_path: str) -> Optional[str]:
     """
-    Find images directory near the LaTeX file or in common locations
-    Looks for: ./images/, ../images/, or in the RAG output directory
+    Intelligently find images directory by:
+    1. Extracting image references from LaTeX file
+    2. Searching Mathpix conversion directories for matching images
+    3. Falling back to standard locations
+    
+    This enables finding images for both new and edited documents.
     """
+    import re
+    
     latex_dir = Path(latex_file_path).parent
+    
+    # Step 1: Extract image names from LaTeX file
+    try:
+        with open(latex_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            latex_content = f.read()
+        
+        # Find all \includegraphics{filename} references
+        image_refs = re.findall(r'\\includegraphics(?:\[.*?\])?\{([^}]+)\}', latex_content)
+        if image_refs:
+            print(f"   📝 Found image references in LaTeX: {image_refs[:3]}{'...' if len(image_refs) > 3 else ''}")
+    except Exception as e:
+        print(f"   ⚠️  Could not read LaTeX file: {e}")
+        image_refs = []
+    
+    # Step 2: Search Mathpix conversion directories
+    base_dir = Path(__file__).parent.parent.parent
+    rag_output = base_dir / "latex fixed output:input" / "images"
+    
+    if rag_output.exists() and rag_output.is_dir():
+        # Look for conversion directories (e.g., 2025_11_11_d9f2e0b53544faad84bbg)
+        for conv_dir in rag_output.iterdir():
+            if conv_dir.is_dir():
+                images_subdir = conv_dir / "images"
+                if images_subdir.exists() and images_subdir.is_dir():
+                    # Check if this directory contains any of our referenced images
+                    images_in_dir = list(images_subdir.glob('*.jpg'))
+                    if images_in_dir:
+                        # If we have image refs, check if they match
+                        if image_refs:
+                            dir_image_names = {img.stem for img in images_in_dir}
+                            matching = [ref for ref in image_refs if ref in dir_image_names]
+                            if matching:
+                                print(f"   ✅ Found matching images in: {conv_dir.name}/images")
+                                return str(images_subdir)
+                        else:
+                            # No image refs found in LaTeX, return first conversion with images
+                            print(f"   ✅ Found images directory: {conv_dir.name}/images")
+                            return str(images_subdir)
+    
+    # Step 3: Check standard locations
+    print(f"   🔍 Standard locations not found, checking fallbacks...")
     
     # Check for images in same directory as LaTeX file
     same_dir_images = latex_dir / "images"
     if same_dir_images.exists() and same_dir_images.is_dir():
-        return str(same_dir_images)
+        images_found = list(same_dir_images.glob('*.jpg'))
+        if images_found:
+            print(f"   ✅ Found {len(images_found)} images in: {same_dir_images}")
+            return str(same_dir_images)
     
     # Check parent directory
     parent_images = latex_dir.parent / "images"
     if parent_images.exists() and parent_images.is_dir():
-        return str(parent_images)
+        images_found = list(parent_images.glob('*.jpg'))
+        if images_found:
+            print(f"   ✅ Found {len(images_found)} images in: {parent_images}")
+            return str(parent_images)
     
-    # Check in RAG output directory (common location) - dynamically find base path
-    base_dir = Path(__file__).parent.parent.parent
-    rag_output = base_dir / "latex fixed output:input" / "images"
-    if rag_output.exists() and rag_output.is_dir():
-        return str(rag_output)
-    
+    print(f"   ❌ No images directory found")
     return None
 
 def copy_images_to_latex_dir(latex_path: str) -> int:
@@ -71,6 +119,17 @@ def copy_images_to_latex_dir(latex_path: str) -> int:
             if image_file.is_file():
                 # Copy directly without subdirectories
                 target_file = target_images_dir / image_file.name
+                
+                # Skip if source and target are the same file
+                try:
+                    if image_file.samefile(target_file):
+                        print(f"   ℹ️  Already in place: {image_file.name}")
+                        images_copied += 1
+                        continue
+                except (OSError, ValueError):
+                    # File doesn't exist yet or paths are not comparable
+                    pass
+                
                 shutil.copy2(image_file, target_file)
                 images_copied += 1
                 print(f"   ✅ Copied: {image_file.name}")

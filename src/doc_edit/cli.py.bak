@@ -1,0 +1,329 @@
+"""
+Command-line interface for the Document Editing Agent.
+"""
+
+import click
+import os
+from rich.console import Console
+from rich.panel import Panel
+from rich.syntax import Syntax
+from pathlib import Path
+from typing import Optional
+
+from .document_editor import DocumentEditor
+
+console = Console()
+
+
+@click.group()
+@click.version_option(version="0.1.0")
+def cli():
+    """Document Editing Agent - Edit documents with AI."""
+    pass
+
+
+@cli.command()
+@click.argument('document_path', type=click.Path(exists=True))
+@click.argument('edit_prompt', type=str)
+@click.option('--output', '-o', type=str, help='Output filename (without extension)')
+@click.option('--context', '-c', type=str, help='Additional context for editing')
+@click.option('--engine', '-e', default='pdflatex', help='LaTeX engine to use')
+@click.option('--output-dir', type=str, help='Output directory')
+@click.option('--api-key', type=str, help='Gemini API key (overrides environment variable)')
+@click.option('--model', type=str, default='gemini-1.5-pro', help='Gemini model to use')
+def edit(document_path: str, edit_prompt: str, output: Optional[str], context: Optional[str],
+         engine: str, output_dir: Optional[str], api_key: Optional[str], model: str):
+    """Edit a document (PDF/Word) using natural language instructions."""
+    try:
+        editor = DocumentEditor(
+            api_key=api_key,
+            latex_engine=engine,
+            default_output_dir=output_dir or "output",
+            gemini_model=model
+        )
+
+        with console.status("[bold blue]Converting document to LaTeX..."):
+            result = editor.edit_document(
+                document_path=document_path,
+                edit_prompt=edit_prompt,
+                output_filename=output,
+                context=context
+            )
+
+        if result["success"]:
+            console.print(Panel.fit("✅ Document edited successfully!", style="bold green"))
+
+            console.print(f"📄 Original document: {document_path}")
+            console.print(f"📄 LaTeX file: {result['tex_file']}")
+            console.print(f"📋 PDF file: {result['pdf_file']}")
+
+            # Show edit summary
+            console.print("\n[bold]Edit Summary:[/bold]")
+            console.print(f"Edit prompt: {edit_prompt}")
+
+        else:
+            console.print(Panel.fit(f"❌ Error: {result['error']}", style="bold red"))
+
+    except Exception as e:
+        console.print(Panel.fit(f"❌ Unexpected error: {str(e)}", style="bold red"))
+
+
+@cli.command()
+@click.argument('document_path', type=click.Path(exists=True))
+@click.argument('edit_prompt', type=str)
+@click.option('--context', '-c', type=str, help='Additional context for editing')
+@click.option('--engine', '-e', default='pdflatex', help='LaTeX engine to use')
+@click.option('--api-key', type=str, help='Gemini API key (overrides environment variable)')
+@click.option('--model', type=str, default='gemini-1.5-pro', help='Gemini model to use')
+def edit_document(document_path: str, edit_prompt: str, context: Optional[str],
+                  engine: str, api_key: Optional[str], model: str):
+    """Edit a document (PDF, Word, or LaTeX) in place using natural language instructions."""
+    try:
+        editor = DocumentEditor(
+            api_key=api_key,
+            latex_engine=engine,
+            default_output_dir="output",
+            gemini_model=model
+        )
+
+        with console.status("[bold blue]Editing document..."):
+            result = editor.edit_document_in_place(
+                document_path=document_path,
+                edit_prompt=edit_prompt,
+                context=context
+            )
+
+        if result["success"]:
+            console.print("╭────────────────────────────────────╮")
+            console.print("│ ✅ Document edited successfully!  │")
+            console.print("╰────────────────────────────────────╯")
+            console.print(f"📄 Modified document: {document_path}")
+            if result.get("output_file"):
+                console.print(f"📋 Output file: {result['output_file']}")
+            if result.get("note"):
+                console.print(f"ℹ️  Note: {result['note']}")
+        else:
+            console.print(f"❌ Error: {result['error']}")
+            raise typer.Exit(1)
+
+    except Exception as e:
+        console.print(f"❌ Error: {str(e)}")
+        raise typer.Exit(1)
+
+
+@cli.command()
+@click.argument('latex_path', type=click.Path(exists=True))
+@click.argument('edit_prompt', type=str)
+@click.option('--output', '-o', type=str, help='Output filename (without extension)')
+@click.option('--context', '-c', type=str, help='Additional context for editing')
+@click.option('--engine', '-e', default='pdflatex', help='LaTeX engine to use')
+@click.option('--output-dir', type=str, help='Output directory')
+@click.option('--api-key', type=str, help='Gemini API key (overrides environment variable)')
+@click.option('--model', type=str, default='gemini-1.5-pro', help='Gemini model to use')
+def edit_latex(latex_path: str, edit_prompt: str, output: Optional[str], context: Optional[str],
+               engine: str, output_dir: Optional[str], api_key: Optional[str], model: str):
+    """Edit an existing LaTeX file using natural language instructions."""
+    try:
+        editor = DocumentEditor(
+            api_key=api_key,
+            latex_engine=engine,
+            default_output_dir=output_dir or "output",
+            gemini_model=model
+        )
+
+        with console.status("[bold blue]Editing LaTeX file..."):
+            result = editor.edit_latex_file(
+                latex_path=latex_path,
+                edit_prompt=edit_prompt,
+                output_filename=output,
+                context=context
+            )
+
+        if result["success"]:
+            console.print(Panel.fit("✅ LaTeX file edited successfully!", style="bold green"))
+
+            console.print(f"📄 Original LaTeX: {latex_path}")
+            console.print(f"📄 Edited LaTeX: {result['tex_file']}")
+            console.print(f"📋 PDF file: {result['pdf_file']}")
+
+        else:
+            console.print(Panel.fit(f"❌ Error: {result['error']}", style="bold red"))
+
+    except Exception as e:
+        console.print(Panel.fit(f"❌ Unexpected error: {str(e)}", style="bold red"))
+
+
+@cli.command()
+@click.argument('document_path', type=click.Path(exists=True))
+@click.option('--output', '-o', type=str, help='Output LaTeX filename (without extension)')
+@click.option('--output-dir', type=str, help='Output directory')
+def convert(document_path: str, output: Optional[str], output_dir: Optional[str]):
+    """Convert a document (PDF/Word) to LaTeX without editing."""
+    try:
+        editor = DocumentEditor(default_output_dir=output_dir or "output")
+
+        with console.status("[bold blue]Converting document..."):
+            result = editor.convert_document(
+                document_path=document_path,
+                output_filename=output
+            )
+
+        if result["success"]:
+            console.print(Panel.fit("✅ Document converted successfully!", style="bold green"))
+
+            console.print(f"📄 Original document: {document_path}")
+            console.print(f"📄 LaTeX file: {result['tex_file']}")
+
+            # Show LaTeX preview
+            console.print("\n[bold]LaTeX Preview:[/bold]")
+            syntax = Syntax(result["latex_code"][:500] + "...", "latex", theme="monokai")
+            console.print(syntax)
+
+        else:
+            console.print(Panel.fit(f"❌ Error: {result['error']}", style="bold red"))
+
+    except Exception as e:
+        console.print(Panel.fit(f"❌ Unexpected error: {str(e)}", style="bold red"))
+
+
+@cli.command()
+@click.argument('prompt', type=str)
+@click.option('--output', '-o', type=str, help='Output filename (without extension)')
+@click.option('--context', '-c', type=str, help='Additional context for generation')
+@click.option('--engine', '-e', default='pdflatex', help='LaTeX engine to use')
+@click.option('--output-dir', type=str, help='Output directory')
+@click.option('--api-key', type=str, help='Gemini API key (overrides environment variable)')
+@click.option('--model', type=str, default='gemini-1.5-pro', help='Gemini model to use')
+def create(prompt: str, output: Optional[str], context: Optional[str],
+           engine: str, output_dir: Optional[str], api_key: Optional[str], model: str):
+    """Create a new document from natural language description."""
+    try:
+        editor = DocumentEditor(
+            api_key=api_key,
+            latex_engine=engine,
+            default_output_dir=output_dir or "output",
+            gemini_model=model
+        )
+
+        with console.status("[bold blue]Creating document..."):
+            result = editor.create_document(
+                prompt=prompt,
+                output_filename=output,
+                context=context
+            )
+
+        if result["success"]:
+            console.print(Panel.fit("✅ Document created successfully!", style="bold green"))
+
+            console.print(f"📄 LaTeX file: {result['tex_file']}")
+            console.print(f"📋 PDF file: {result['pdf_file']}")
+
+            # Show LaTeX preview
+            console.print("\n[bold]Generated LaTeX:[/bold]")
+            syntax = Syntax(result["latex_code"][:500] + "...", "latex", theme="monokai")
+            console.print(syntax)
+
+        else:
+            console.print(Panel.fit(f"❌ Error: {result['error']}", style="bold red"))
+
+    except Exception as e:
+        console.print(Panel.fit(f"❌ Unexpected error: {str(e)}", style="bold red"))
+
+
+@cli.command()
+def web():
+    """Start the web interface."""
+    try:
+        from .web_app import create_app
+        
+        console.print("[bold blue]Starting Document Editing Agent Web Interface...[/bold blue]")
+        console.print("🌐 Web server will start at: http://localhost:5000")
+        console.print("🛑 Press Ctrl+C to stop the server")
+        
+        app = create_app()
+        app.run(host='0.0.0.0', port=5000, debug=True)
+        
+    except ImportError:
+        console.print(Panel.fit("❌ Web dependencies not installed. Run: pip install flask", style="bold red"))
+    except Exception as e:
+        console.print(Panel.fit(f"❌ Error starting web server: {str(e)}", style="bold red"))
+
+@cli.command()
+def check():
+    """Check system setup and dependencies."""
+    console.print("[bold]Checking Document Editing Agent setup...[/bold]")
+
+    # Load environment variables from .env file
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    checks = []
+
+    # Check LaTeX
+    try:
+        import subprocess
+        result = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            checks.append(("✅ LaTeX (pdflatex)", "Available"))
+        else:
+            checks.append(("❌ LaTeX (pdflatex)", "Not working"))
+    except:
+        checks.append(("❌ LaTeX (pdflatex)", "Not found"))
+
+    # Check Gemini API key
+    api_key = os.getenv("GEMINI_API_KEY")
+    if api_key:
+        checks.append(("✅ Gemini API Key", "Set"))
+    else:
+        checks.append(("❌ Gemini API Key", "Not set (check .env file)"))
+
+    # Check Python packages
+    package_checks = [
+        ("google-generativeai", "google.generativeai"),
+        ("click", "click"),
+        ("rich", "rich"),
+        ("python-dotenv", "dotenv"),
+        ("PyPDF2", "PyPDF2"),
+        ("python-docx", "docx"),
+        ("flask", "flask"),
+        ("PyMuPDF", "fitz"),
+        ("pdfplumber", "pdfplumber")
+    ]
+    
+    for display_name, import_name in package_checks:
+        try:
+            __import__(import_name)
+            checks.append((f"✅ {display_name}", "Installed"))
+        except ImportError:
+            checks.append((f"❌ {display_name}", "Not installed"))
+
+    # Check directories
+    dirs = ["uploads", "output"]
+    for dir_path in dirs:
+        if os.path.exists(dir_path):
+            checks.append((f"✅ {dir_path} directory", "Exists"))
+        else:
+            checks.append((f"⚠️  {dir_path} directory", "Will be created"))
+
+    for check, status in checks:
+        console.print(f"{check}: {status}")
+
+    all_good = all("✅" in check for check, status in checks)
+    if all_good:
+        console.print(Panel.fit("🎉 All checks passed! Ready to edit documents.", style="bold green"))
+        console.print("\n[bold]Available commands:[/bold]")
+        console.print("• doc-edit web          - Start web interface")
+        console.print("• doc-edit edit         - Edit document via CLI")
+        console.print("• doc-edit convert      - Convert document to LaTeX")
+        console.print("• doc-edit create       - Create new document")
+    else:
+        console.print(Panel.fit("⚠️  Some issues found. Please fix before using.", style="bold yellow"))
+
+
+def main():
+    """Main entry point."""
+    cli()
+
+
+if __name__ == "__main__":
+    main()
