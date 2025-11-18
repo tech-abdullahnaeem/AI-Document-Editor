@@ -8,6 +8,51 @@ import re
 from typing import Tuple, List, Optional
 
 
+def ensure_package(content: str, package: str, options: str = None) -> str:
+    """
+    Ensure a LaTeX package is loaded in the document.
+    Adds \\usepackage{package} if not already present.
+    
+    Args:
+        content: LaTeX document content
+        package: Package name to ensure (e.g., 'xcolor', 'soul')
+        options: Package options (e.g., 'dvipsnames' for xcolor)
+        
+    Returns:
+        Modified content with package ensured
+    """
+    # Check if package is already loaded (with or without options)
+    package_pattern = r'\\usepackage(?:\[.*?\])?\{' + re.escape(package) + r'\}'
+    if re.search(package_pattern, content):
+        return content  # Package already present
+    
+    # Find the best place to add the package
+    # Try to add after \documentclass
+    documentclass_match = re.search(r'\\documentclass.*?\n', content)
+    if documentclass_match:
+        insert_pos = documentclass_match.end()
+        if options:
+            new_package = f'\\usepackage[{options}]{{{package}}}\n'
+        else:
+            new_package = f'\\usepackage{{{package}}}\n'
+        return content[:insert_pos] + new_package + content[insert_pos:]
+    
+    # Fallback: add before \begin{document}
+    begin_doc_match = re.search(r'\\begin\{document\}', content)
+    if begin_doc_match:
+        insert_pos = begin_doc_match.start()
+        if options:
+            new_package = f'\\usepackage[{options}]{{{package}}}\n'
+        else:
+            new_package = f'\\usepackage{{{package}}}\n'
+        return content[:insert_pos] + new_package + content[insert_pos:]
+    
+    # No good place found - just prepend
+    if options:
+        return f'\\usepackage[{options}]{{{package}}}\n' + content
+    return f'\\usepackage{{{package}}}\n' + content
+
+
 class SimpleFormatter:
     """Simple text formatting - highlight, bold, italics"""
     
@@ -33,6 +78,10 @@ class SimpleFormatter:
         """
         print(f"\n🎨 Highlighting word: '{word}' in {color}")
         
+        # Ensure required packages are loaded
+        content = ensure_package(content, 'xcolor')
+        content = ensure_package(content, 'soul')
+        
         # Word boundary pattern
         pattern = r'\b' + re.escape(word) + r'\b'
         
@@ -52,8 +101,11 @@ class SimpleFormatter:
             start, end = match.span()
             word_text = content[start:end]
             
-            # Wrap in \colorbox
-            highlighted = f'\\colorbox{{{color}}}{{{word_text}}}'
+            # Use \hl{} from soul package for yellow, or \colorbox for other colors
+            if color.lower() == 'yellow':
+                highlighted = f'\\hl{{{word_text}}}'
+            else:
+                highlighted = f'\\colorbox{{{color}}}{{{word_text}}}'
             modified = modified[:start] + highlighted + modified[end:]
         
         print(f"  ✅ Highlighted {count} occurrences")
@@ -72,6 +124,10 @@ class SimpleFormatter:
             (modified_content, count)
         """
         print(f"\n🎨 Highlighting phrase: '{phrase}' in {color}")
+        
+        # Ensure required packages are loaded
+        content = ensure_package(content, 'xcolor')
+        content = ensure_package(content, 'soul')
         
         # Exact phrase pattern
         pattern = re.escape(phrase)
@@ -92,8 +148,11 @@ class SimpleFormatter:
             start, end = match.span()
             phrase_text = content[start:end]
             
-            # Wrap in \colorbox
-            highlighted = f'\\colorbox{{{color}}}{{{phrase_text}}}'
+            # Use \hl{} from soul package for yellow, or \colorbox for other colors
+            if color.lower() == 'yellow':
+                highlighted = f'\\hl{{{phrase_text}}}'
+            else:
+                highlighted = f'\\colorbox{{{color}}}{{{phrase_text}}}'
             modified = modified[:start] + highlighted + modified[end:]
         
         print(f"  ✅ Highlighted {count} occurrences")
@@ -113,9 +172,16 @@ class SimpleFormatter:
         """
         print(f"\n🎨 Highlighting sentence: '{sentence[:50]}...' in {color}")
         
+        # Ensure required packages are loaded
+        content = ensure_package(content, 'xcolor')
+        content = ensure_package(content, 'soul')
+        
         # Try exact match first
         if sentence in content:
-            highlighted = f'\\colorbox{{{color}}}{{{sentence}}}'
+            if color.lower() == 'yellow':
+                highlighted = f'\\hl{{{sentence}}}'
+            else:
+                highlighted = f'\\colorbox{{{color}}}{{{sentence}}}'
             modified = content.replace(sentence, highlighted)
             count = content.count(sentence)
             print(f"  ✅ Highlighted {count} occurrence(s)")
@@ -133,7 +199,10 @@ class SimpleFormatter:
             for match in reversed(matches):
                 start, end = match.span()
                 sentence_text = content[start:end]
-                highlighted = f'\\colorbox{{{color}}}{{{sentence_text}}}'
+                if color.lower() == 'yellow':
+                    highlighted = f'\\hl{{{sentence_text}}}'
+                else:
+                    highlighted = f'\\colorbox{{{color}}}{{{sentence_text}}}'
                 modified = modified[:start] + highlighted + modified[end:]
             
             print(f"  ✅ Highlighted {count} occurrence(s)")
@@ -156,9 +225,16 @@ class SimpleFormatter:
         """
         print(f"\n🎨 Highlighting paragraph ({len(paragraph_text)} chars) in {color}")
         
+        # Ensure required packages are loaded
+        content = ensure_package(content, 'xcolor')
+        content = ensure_package(content, 'soul')
+        
         # Try exact match first
         if paragraph_text in content:
-            highlighted = f'\\colorbox{{{color}}}{{{paragraph_text}}}'
+            if color.lower() == 'yellow':
+                highlighted = f'\\hl{{{paragraph_text}}}'
+            else:
+                highlighted = f'\\colorbox{{{color}}}{{{paragraph_text}}}'
             modified = content.replace(paragraph_text, highlighted, 1)
             print(f"  ✅ Highlighted paragraph (exact match)")
             return modified, 1
@@ -171,7 +247,10 @@ class SimpleFormatter:
         if match:
             start, end = match.span()
             para_text = content[start:end]
-            highlighted = f'\\colorbox{{{color}}}{{{para_text}}}'
+            if color.lower() == 'yellow':
+                highlighted = f'\\hl{{{para_text}}}'
+            else:
+                highlighted = f'\\colorbox{{{color}}}{{{para_text}}}'
             modified = content[:start] + highlighted + content[end:]
             print(f"  ✅ Highlighted paragraph (flexible match)")
             return modified, 1

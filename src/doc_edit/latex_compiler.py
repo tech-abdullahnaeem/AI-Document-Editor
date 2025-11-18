@@ -217,8 +217,13 @@ class LaTeXCompiler:
             if output_path:
                 final_pdf_path = Path(output_path)
                 final_pdf_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(pdf_path, final_pdf_path)
-                pdf_path = str(final_pdf_path)
+                
+                # Only copy if paths are different
+                if str(pdf_path) != str(final_pdf_path):
+                    shutil.copy2(pdf_path, final_pdf_path)
+                    pdf_path = str(final_pdf_path)
+                else:
+                    pdf_path = str(final_pdf_path)
 
             return pdf_path, log
 
